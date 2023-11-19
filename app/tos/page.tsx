@@ -59,37 +59,42 @@ const TOS = () => {
         >
           {`Last Updated: September 26, 2023
 
-Welcome to ShipFast!
+Terms of Service for CPA Study Kit
 
-These Terms of Service ("Terms") govern your use of the ShipFast website at https://shipfa.st ("Website") and the services provided by ShipFast. By using our Website and services, you agree to these Terms.
+Effective Date: November 13, 2023
 
-1. Description of ShipFast
+1. Introduction
+Welcome to CPA Study Kit, accessible at https://cpastudy.online. These Terms of Service govern your use of our online AI CPA Study Toolkit and are legally binding. By using our website and services, you agree to these Terms.
 
-ShipFast is a platform that offers a JavaScript code boilerplate to assist entrepreneurs in launching their startups more efficiently.
+2. Services Description
+CPA Study Kit provides users with course plans and self-guided software designed to assist with CPA studies. Our services are subject to the terms and conditions stated herein.
 
-2. Ownership and Usage Rights
+3. Purchase and Refund Policy
+Upon purchasing a package, users gain access to our course materials and software. A full refund can be requested within 7 days of purchase if not satisfied.
 
-When you purchase a package from ShipFast, you gain the right to download and use the code provided for creating applications. You own the code you create but do not have the right to resell it. We offer a full refund within 7 days of purchase, as specified in our refund policy.
+4. User Data Collection
+We collect personal information such as names, email addresses, and payment information for service provision and communication.
 
-3. User Data and Privacy
+5. Non-Personal Data Collection
+Our website uses cookies to improve user experience. Details about cookie usage are available in our Privacy Policy at https://cpastudy.online/privacy-policy.
 
-We collect and store user data, including name, email, and payment information, as necessary to provide our services. For details on how we handle your data, please refer to our Privacy Policy at https://shipfa.st/privacy-policy.
+6. User Obligations
+Users agree to provide accurate, current, and complete information as prompted by our service's registration forms. Misuse or unauthorized use of our services is strictly prohibited.
 
-4. Non-Personal Data Collection
+7. Intellectual Property
+All content and services provided on CPA Study Kit are the property of CPA Study Kit and are protected by copyright and other intellectual property laws. Users are granted a license to use our services as per these Terms.
 
-We use web cookies to collect non-personal data for the purpose of improving our services and user experience.
+8. Governing Law
+These Terms are governed by the laws of the United States.
 
-5. Governing Law
+9. Changes to Terms
+CPA Study Kit reserves the right to modify these Terms at any time. Users will be notified of any changes via email. Continued use of the service after such changes constitutes acceptance of the new Terms.
 
-These Terms are governed by the laws of France.
+10. Contact Information
+For any questions or inquiries regarding these Terms, please contact us at anthony@mail.cpastudy.online.
 
-6. Updates to the Terms
-
-We may update these Terms from time to time. Users will be notified of any changes via email.
-
-For any questions or concerns regarding these Terms of Service, please contact us at marc@shipfa.st.
-
-Thank you for using ShipFast!`}
+11. Acknowledgment
+By using CPA Study Kit, users acknowledge that they have read, understood, and agree to be bound by these Terms.`}
         </pre>
       </div>
     </main>

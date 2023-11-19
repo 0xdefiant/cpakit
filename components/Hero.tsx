@@ -22,13 +22,13 @@ const Hero = () => {
         </a>
 
         <h1 className="font-extrabold text-4xl lg:text-6xl tracking-tight md:-mb-4">
-          Ship your startup in days, not weeks
+        Accounting knowledge from zero to proficient in days, not weeks
         </h1>
         <p className="text-lg opacity-80 leading-relaxed">
-          The NextJS boilerplate with all you need to build your SaaS, AI tool,
-          or any other web app. From idea to production in 5 minutes.
+        The AI CPA Study Kit arms you with cutting-edge tools to conquer exams, 
+        hone expertise, and uncover new insights in mere minutes - no matter your starting point.
         </p>
-        <button className="btn btn-primary btn-wide">
+        <button className="btn btn-gradient animate-shimmer btn-wide">
           Get {config.appName}
         </button>
 
@@ -36,7 +36,7 @@ const Hero = () => {
       </div>
       <div className="lg:w-full">
         <Image
-          src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3540&q=80"
+          src="https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?q=80&w=1742&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Product Demo"
           className="w-full"
           priority={true}

@@ -28,7 +28,7 @@ const ButtonSignin = ({
 
   return (
     <button
-      className={`btn ${extraStyle ? extraStyle : ""}`}
+      className={`btn btn-gradient animate-shimmer ${extraStyle ? extraStyle : ""}`}
       onClick={handleClick}
     >
       {status === "authenticated" ? (
