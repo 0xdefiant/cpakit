@@ -1,5 +1,7 @@
 import ButtonAccount from "@/components/ButtonAccount";
-import Chat from "@/components/Chat";
+import { nanoid } from '@/libs/chat/utils'
+import { TooltipProvider } from "@/components/chat/ui/tooltip";
+import { Chat } from '@/components/chat/chat'
 
 export const dynamic = "force-dynamic";
 
@@ -7,12 +9,16 @@ export const dynamic = "force-dynamic";
 // It's a server compoment which means you can fetch data (like the user profile) before the page is rendered.
 // See https://shipfa.st/docs/tutorials/private-page
 export default async function Dashboard() {
+  const id = nanoid()
+
   return (
     <main className="min-h-screen p-8 pb-24">
       <section className="max-w-xl mx-auto space-y-8">
         <ButtonAccount />
         <h1 className="text-3xl md:text-4xl font-extrabold">Private Page</h1>
-        <Chat />
+        <TooltipProvider>
+          <Chat id={id} />
+        </TooltipProvider>
       </section>
     </main>
   );
