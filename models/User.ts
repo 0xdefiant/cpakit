@@ -1,9 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import toJSON from "./plugins/toJSON";
 
 // USER SCHEMA
 const userSchema = new mongoose.Schema(
   {
+    useId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
     name: {
       type: String,
       trim: true,
@@ -46,4 +50,5 @@ const userSchema = new mongoose.Schema(
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 
-export default mongoose.models.User || mongoose.model("User", userSchema);
+console.log(mongoose.models);
+export default mongoose.model("User", userSchema);
