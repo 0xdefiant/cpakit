@@ -1,68 +1,30 @@
-import { kv } from '@vercel/kv'
-import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { Configuration, OpenAIApi } from 'openai-edge'
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/libs/next-auth";
-import { nanoid } from '@/libs/chat/utils';
-
-export const runtime = 'edge'
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY
-})
-
-const openai = new OpenAIApi(configuration)
-
+// app/api/chat/route.ts
+ 
+import OpenAI from 'openai';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
+ 
+// Optional, but recommended: run on the edge runtime.
+// See https://vercel.com/docs/concepts/functions/edge-functions
+export const runtime = 'edge';
+ 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+ 
 export async function POST(req: Request) {
-  const json = await req.json()
-  const { messages, previewToken } = json
-  const userId = (await getServerSession(authOptions))?.user.id
-
-  if (!userId) {
-    return new Response('Unauthorized', {
-      status: 401
-    })
-  }
-
-  if (previewToken) {
-    configuration.apiKey = previewToken
-  }
-
-  const res = await openai.createChatCompletion({
+  // Extract the `messages` from the body of the request
+  const { messages } = await req.json();
+ 
+  // Request the OpenAI API for the response based on the prompt
+  const response = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
-    messages,
-    temperature: 0.7,
-    stream: true
-  })
-
-  const stream = OpenAIStream(res, {
-    async onCompletion(completion) {
-      const title = json.messages[0].content.substring(0, 100)
-      const id = json.id ?? nanoid()
-      const createdAt = Date.now()
-      const path = `/chat/${id}`
-      const payload = {
-        id,
-        title,
-        userId,
-        createdAt,
-        path,
-        messages: [
-          ...messages,
-          {
-            content: completion,
-            role: 'assistant'
-          }
-        ]
-      }
-      await kv.hmset(`chat:${id}`, payload)
-      await kv.zadd(`user:chat:${userId}`, {
-        score: createdAt,
-        member: `chat:${id}`
-      })
-    }
-  })
-
-  return new StreamingTextResponse(stream)
+    stream: true,
+    messages: messages,
+  });
+ 
+  // Convert the response into a friendly text-stream
+  const stream = OpenAIStream(response);
+ 
+  // Respond with the stream
+  return new StreamingTextResponse(stream);
 }
