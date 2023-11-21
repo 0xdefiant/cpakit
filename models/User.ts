@@ -4,10 +4,6 @@ import toJSON from "./plugins/toJSON";
 // USER SCHEMA
 const userSchema = new mongoose.Schema(
   {
-    useId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
     name: {
       type: String,
       trim: true,

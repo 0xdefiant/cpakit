@@ -6,7 +6,7 @@ export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
  
   return (
-    <main className="mx-auto w-full h-screen max-w-lg p-24 flex flex-col">
+    <main className="mx-auto w-full h-screen max-w-lg p-24">
       <section className="mb-auto m">
         {messages.map(m => (
           <div className="mb-4" key={m.id}>
