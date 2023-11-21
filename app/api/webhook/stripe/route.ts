@@ -80,7 +80,12 @@ export async function POST(req: NextRequest) {
 
         // Update user data + Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
         user.priceId = priceId;
-        user.customerId = customerId;
+        if (typeof customerId === 'string') {
+          user.customerId = customerId;
+        } else {
+          console.error("customerId is not a string");
+          throw new Error("customerId is not a string");
+        }
         user.hasAccess = true;
         await user.save();
 
