@@ -10,7 +10,6 @@ import logo from "@/app/icon.png";
 import config from "@/config";
 import { ModeToggle } from "./modeToggle";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu } from "./ui/dropdown-menu";
 
 const links: {
   href: string;
@@ -114,7 +113,8 @@ const Header = () => {
 
       {/* Mobile menu, show/hide based on menu state. */}
       <div className={`relative z-50 ${isOpen ? "" : "hidden"}`}>
-        <DropdownMenu
+        <div
+          className={`fixed inset-y-0 right-0 z-10 w-full px-8 py-4 overflow-y-auto bg-base-200 sm:max-w-sm sm:ring-1 sm:ring-neutral/10 transform origin-right transition ease-in-out duration-300`}
         >
           {/* Your logo/name on small screens */}
           <div className="flex items-center justify-between">
@@ -180,7 +180,7 @@ const Header = () => {
             {/* Your CTA on small screens */}
             <div className="flex flex-col">{cta}</div>
           </div>
-        </DropdownMenu>
+        </div>
       </div>
     </header>
   );
