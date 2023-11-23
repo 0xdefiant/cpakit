@@ -103,13 +103,11 @@ const Header = () => {
               {link.label}
             </Link>
           ))}
+         <ModeToggle />
         </div>
 
         {/* CTA on large screens */}
-        <div className="flex items-center justify between">
-          <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
-          <ModeToggle /> {/* Theme mode toggle next to the logo */}
-        </div>
+        <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
       </nav>
 
       {/* Mobile menu, show/hide based on menu state. */}
@@ -136,7 +134,6 @@ const Header = () => {
               <span className="font-extrabold text-lg">{config.appName}</span>
             </Link>
             <div className="flex items-center">
-              <ModeToggle /> {/* Theme mode toggle next to the close button */}
               <button
                 type="button"
                 className="-m-2.5 rounded-md p-2.5"
@@ -175,6 +172,7 @@ const Header = () => {
                     {link.label}
                   </Link>
                 ))}
+                <ModeToggle /> {/* Theme mode toggle next to the logo */}
               </div>
             </div>
             <div className="divider"></div>
