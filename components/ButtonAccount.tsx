@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import apiClient from "@/libs/api";
@@ -8,6 +10,8 @@ import { Button } from "@/components/ui/button";
 const ButtonAccount = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState(false); // Define the open variable
+
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -36,22 +40,18 @@ const ButtonAccount = () => {
       <PopoverTrigger asChild>
         <Button variant="outline" className="flex items-center">
             {session?.user?.image ? (
-              <Avatar>
+              <Avatar className="mr-2">
               <AvatarImage
                 src={session?.user?.image}
                 alt={session?.user?.name || "Account"}
-                className="w-6 h-6 rounded-full shrink-0"
-                referrerPolicy="no-referrer"
-                width={24}
-                height={24}
               />
               <AvatarFallback>CpaKit</AvatarFallback>
               </Avatar>
             ) : (
-              <span className="w-6 h-6 bg-base-300 flex justify-center items-center rounded-full shrink-0">
+              <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
                 {session?.user?.name?.charAt(0) ||
-                  session?.user?.email?.charAt(0)}
-              </span>
+                session?.user?.email?.charAt(0)}
+              </h4>
             )}
 
             {session?.user?.name || "Account"}
@@ -79,7 +79,7 @@ const ButtonAccount = () => {
             <PopoverContent className="w-80">
               <div className="overflow-hidden rounded-xl shadow-xl ring-1 ring-base-content ring-opacity-5 bg-base-100 p-1">
                 <div className="space-y-0.5 text-sm">
-                  <Button
+                  <button
                     className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleBilling}
                   >
@@ -96,8 +96,8 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Billing
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     className="flex items-center gap-2 hover:bg-error/20 hover:text-error duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleSignOut}
                   >
@@ -119,7 +119,7 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Logout
-                  </Button>
+                  </button>
                 </div>
               </div>
             </PopoverContent>
