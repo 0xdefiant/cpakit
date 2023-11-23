@@ -8,6 +8,7 @@ import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
 import logo from "@/app/icon.png";
 import config from "@/config";
+import { ModeToggle } from "./modeToggle";
 
 const links: {
   href: string;
@@ -105,7 +106,10 @@ const Header = () => {
         </div>
 
         {/* CTA on large screens */}
-        <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
+        <div className="flex items-center justify between">
+          <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
+          <ModeToggle /> {/* Theme mode toggle next to the logo */}
+        </div>
       </nav>
 
       {/* Mobile menu, show/hide based on menu state. */}
@@ -131,11 +135,13 @@ const Header = () => {
               />
               <span className="font-extrabold text-lg">{config.appName}</span>
             </Link>
-            <button
-              type="button"
-              className="-m-2.5 rounded-md p-2.5"
-              onClick={() => setIsOpen(false)}
-            >
+            <div className="flex items-center">
+              <ModeToggle /> {/* Theme mode toggle next to the close button */}
+              <button
+                type="button"
+                className="-m-2.5 rounded-md p-2.5"
+                onClick={() => setIsOpen(false)}
+              >
               <span className="sr-only">Close menu</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -151,9 +157,10 @@ const Header = () => {
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </button>
+              </button>
+            </div>
           </div>
-
+          
           {/* Your links on small screens */}
           <div className="flow-root mt-6">
             <div className="py-4">

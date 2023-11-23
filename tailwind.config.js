@@ -1,6 +1,7 @@
+const { fontFamily } = require("tailwindcss/defaultTheme")
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -45,6 +46,9 @@ module.exports = {
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
+        },
+        fontFamily: {
+          sans: ["var(--font-sans)", ...fontFamily.sans],
         },
         card: {
           DEFAULT: "hsl(var(--card))",

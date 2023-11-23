@@ -1,6 +1,7 @@
 'use client';
  
 import { useChat } from 'ai/react';
+import { Button } from '@/components/ui/button'
  
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
@@ -22,12 +23,12 @@ export default function Chat() {
           onChange={handleInputChange}
           placeholder="Say something..."
         />
-        <button
+        <Button
           className="border-solid border-2 border-white p-2 rounded-md"
           type="submit"
         >
           Send
-        </button>
+        </Button>
       </form>
     </main>
   );
