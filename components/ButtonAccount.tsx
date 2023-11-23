@@ -1,17 +1,10 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-
 import { useState } from "react";
-import { Popover, Transition } from "@headlessui/react";
 import { useSession, signOut } from "next-auth/react";
 import apiClient from "@/libs/api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
-// A button to show user some account actions
-//  1. Billing: open a Stripe Customer Portal to manage their billing (cancel subscription, update payment method, etc.).
-//     You have to manually activate the Customer Portal in your Stripe Dashboard (https://dashboard.stripe.com/test/settings/billing/portal)
-//     This is only available if the customer has a customerId (they made a purchase previously)
-//  2. Logout: sign out and go back to homepage
-// See more at https://shipfa.st/docs/components/buttonAccount
 const ButtonAccount = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -19,9 +12,9 @@ const ButtonAccount = () => {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
+
   const handleBilling = async () => {
     setIsLoading(true);
-
     try {
       const { url }: { url: string } = await apiClient.post(
         "/stripe/create-portal",
@@ -29,25 +22,22 @@ const ButtonAccount = () => {
           returnUrl: window.location.href,
         }
       );
-
       window.location.href = url;
     } catch (e) {
       console.error(e);
     }
-
     setIsLoading(false);
   };
 
-  // Don't show anything if not authenticated (we don't have any info about the user)
   if (status === "unauthenticated") return null;
 
   return (
-    <Popover className="relative z-10">
-      {({ open }) => (
-        <>
-          <Popover.Button className="btn">
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="flex items-center">
             {session?.user?.image ? (
-              <img
+              <Avatar>
+              <AvatarImage
                 src={session?.user?.image}
                 alt={session?.user?.name || "Account"}
                 className="w-6 h-6 rounded-full shrink-0"
@@ -55,6 +45,8 @@ const ButtonAccount = () => {
                 width={24}
                 height={24}
               />
+              <AvatarFallback>CpaKit</AvatarFallback>
+              </Avatar>
             ) : (
               <span className="w-6 h-6 bg-base-300 flex justify-center items-center rounded-full shrink-0">
                 {session?.user?.name?.charAt(0) ||
@@ -82,19 +74,12 @@ const ButtonAccount = () => {
                 />
               </svg>
             )}
-          </Popover.Button>
-          <Transition
-            enter="transition duration-100 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-75 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0"
-          >
-            <Popover.Panel className="absolute left-0 z-10 mt-3 w-screen max-w-[16rem] transform">
+          </Button>
+          </PopoverTrigger>
+            <PopoverContent className="w-80">
               <div className="overflow-hidden rounded-xl shadow-xl ring-1 ring-base-content ring-opacity-5 bg-base-100 p-1">
                 <div className="space-y-0.5 text-sm">
-                  <button
+                  <Button
                     className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleBilling}
                   >
@@ -111,8 +96,8 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Billing
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     className="flex items-center gap-2 hover:bg-error/20 hover:text-error duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleSignOut}
                   >
@@ -134,15 +119,12 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Logout
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </Popover.Panel>
-          </Transition>
-        </>
-      )}
-    </Popover>
-  );
+            </PopoverContent>
+          </Popover>
+    );
 };
 
 export default ButtonAccount;

@@ -4,6 +4,7 @@
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import config from "@/config";
+import { Button } from "./ui/button";
 
 // A simple button to sign in with our providers (Google & Magic Links).
 // It automatically redirects user to callbackUrl (config.auth.callbackUrl) after login, which is normally a private page for users to manage their accounts.
@@ -27,7 +28,7 @@ const ButtonSignin = ({
   };
 
   return (
-    <button
+    <Button
       className={`btn btn-gradient animate-shimmer ${extraStyle ? extraStyle : ""}`}
       onClick={handleClick}
     >
@@ -52,7 +53,7 @@ const ButtonSignin = ({
       ) : (
         text
       )}
-    </button>
+    </Button>
   );
 };
 

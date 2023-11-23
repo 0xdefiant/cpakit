@@ -9,6 +9,7 @@ import ButtonSignin from "./ButtonSignin";
 import logo from "@/app/icon.png";
 import config from "@/config";
 import { ModeToggle } from "./modeToggle";
+import { Button } from "@/components/ui/button";
 
 const links: {
   href: string;
@@ -68,7 +69,7 @@ const Header = () => {
         </div>
         {/* Burger button to open menu on mobile */}
         <div className="flex lg:hidden">
-          <button
+          <Button
             type="button"
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5"
             onClick={() => setIsOpen(true)}
@@ -88,7 +89,7 @@ const Header = () => {
                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
             </svg>
-          </button>
+          </Button>
         </div>
 
         {/* Your links on large screens */}
@@ -134,7 +135,7 @@ const Header = () => {
               <span className="font-extrabold text-lg">{config.appName}</span>
             </Link>
             <div className="flex items-center">
-              <button
+              <Button
                 type="button"
                 className="-m-2.5 rounded-md p-2.5"
                 onClick={() => setIsOpen(false)}
@@ -154,7 +155,7 @@ const Header = () => {
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-              </button>
+              </Button>
             </div>
           </div>
           

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import TestimonialsAvatars from "./TestimonialsAvatars";
 import config from "@/config";
+import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
@@ -21,16 +22,16 @@ const Hero = () => {
           </svg>
         </a>
 
-        <h1 className="font-extrabold text-4xl lg:text-6xl tracking-tight md:-mb-4">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         Accounting knowledge from zero to proficient in days, not weeks
         </h1>
-        <p className="text-lg opacity-80 leading-relaxed">
+        <p className="leading-7 [&:not(:first-child)]:mt-6">
         The AI CPA Study Kit arms you with cutting-edge tools to conquer exams, 
         hone expertise, and uncover new insights in mere minutes - no matter your starting point.
         </p>
-        <button className="btn btn-gradient animate-shimmer btn-wide">
+        <Button className="btn btn-gradient animate-shimmer btn-wide">
           Get {config.appName}
-        </button>
+        </Button>
 
         <TestimonialsAvatars priority={true} />
       </div>
