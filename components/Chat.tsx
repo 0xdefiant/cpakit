@@ -2,6 +2,7 @@
  
 import { useChat } from 'ai/react';
 import { Button } from '@/components/ui/button'
+import { Input } from './ui/input';
  
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
@@ -17,8 +18,8 @@ export default function Chat() {
         ))}
       </section>
       <form className="flex space-x-4" onSubmit={handleSubmit}>
-        <input
-          className="rounded-md p-2 text-black"
+        <Input
+          className="rounded-md p-2"
           value={input}
           onChange={handleInputChange}
           placeholder="Say something..."
