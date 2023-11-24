@@ -11,7 +11,6 @@ import { Button } from "./ui/button";
 // If the user is already logged in, it will show their profile picture & redirect them to callbackUrl immediately.
 const ButtonSignin = ({
   text = "Get started",
-  extraStyle,
 }: {
   text?: string;
   extraStyle?: string;
@@ -29,7 +28,6 @@ const ButtonSignin = ({
 
   return (
     <Button
-      className={`btn btn-gradient animate-shimmer ${extraStyle ? extraStyle : ""}`}
       onClick={handleClick}
     >
       {status === "authenticated" ? (
@@ -38,7 +36,7 @@ const ButtonSignin = ({
             <img
               src={session.user?.image}
               alt={session.user?.name || "Account"}
-              className="w-6 h-6 rounded-full shrink-0"
+              className="w-6 h-6 rounded-full shrink-0 mr-2"
               referrerPolicy="no-referrer"
               width={24}
               height={24}
