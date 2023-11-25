@@ -9,7 +9,7 @@ import ButtonSignin from "./ButtonSignin";
 import logo from "@/app/icon.png";
 import config from "@/config";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ModeToggle } from "./ModeToggle";
 
 const links: {
   href: string;

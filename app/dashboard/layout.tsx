@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/next-auth";
-import ButtonAccount from "@/components/ButtonAccount"
+import ButtonAccount from "@/components/ButtonAccount";
 
 import config from "@/config";
 import { ModeToggle } from "@/components/ModeToggle";
