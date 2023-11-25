@@ -26,11 +26,11 @@ export default function Chat() {
       <section className="mb-auto">
         {messages.map(m => (
           <div className="flex items-start mb-4 justify-between" key={m.id}>
-            <div className="flex flex-1 items-start">
+            <div className="flex flex-1 items-start min-w-0">
               {m.role === 'user' ? (
                 <>
                   {session.data?.user?.image ? (
-                    <Avatar className="mr-2">
+                    <Avatar className="mr-2 flex-shrink-0">
                       <AvatarImage
                         src={session.data?.user?.image}
                         alt={session.data?.user?.name || "Account"}
@@ -40,15 +40,15 @@ export default function Chat() {
                   ) : (
                     <AvatarFallback className="mr-2">{session.data?.user?.name || "Account"}</AvatarFallback>
                   )}
-                  <div className="flex-1">
-                  <span>{m.content}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="block overflow-ellipsis">{m.content}</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <ShadowIcon className="h-6 w-6 mr-2" />
-                  <div className="flex-1">
-                  <span>{m.content}</span>
+                  <ShadowIcon className="h-6 w-6 mr-2 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="block overflow-ellipsis">{m.content}</span>
                   </div>
                 </>
               )}
