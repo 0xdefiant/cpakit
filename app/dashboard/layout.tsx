@@ -5,7 +5,7 @@ import { authOptions } from "@/libs/next-auth";
 import ButtonAccount from "@/components/ButtonAccount";
 
 import config from "@/config";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ModeToggle } from "@/components/modeToggle";
 
 // This is a server-side component to ensure the user is logged in.
 // If not, it will redirect to the login page.
