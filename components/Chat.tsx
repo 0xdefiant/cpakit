@@ -25,49 +25,45 @@ export default function Chat() {
     <div className="mx-auto w-full max-w-lg">
       <section className="mb-auto">
         {messages.map(m => (
-          <div className="flex items-start mb-4" key={m.id}>
-            {m.role === 'user' ? (
-              <>
-                {session.data?.user?.image ? (
-                  <Avatar className="mr-2">
-                    <AvatarImage
-                      src={session.data?.user?.image}
-                      alt={session.data?.user?.name || "Account"}
-                    />
-                    <AvatarFallback>{session.data?.user?.name || "Account"}</AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <AvatarFallback className="mr-2">{session.data?.user?.name || "Account"}</AvatarFallback>
-                )}
-                <div className="flex-1">
-                  <span>{m.content}</span>
-                </div>
-                <div className="flex-1"> 
-                  {copiedMessageId === m.id ? (
-                    <CheckIcon className="ml-2" />
+          <div className="flex items-start mb-4 justify-between" key={m.id}>
+            <div className="flex flex-1 items-start">
+              {m.role === 'user' ? (
+                <>
+                  {session.data?.user?.image ? (
+                    <Avatar className="mr-2">
+                      <AvatarImage
+                        src={session.data?.user?.image}
+                        alt={session.data?.user?.name || "Account"}
+                      />
+                      <AvatarFallback>{session.data?.user?.name || "Account"}</AvatarFallback>
+                    </Avatar>
                   ) : (
-                    <ClipboardIcon className="ml-2 cursor-pointer" onClick={() => copyToClipboard(m.content, m.id)} />
+                    <AvatarFallback className="mr-2">{session.data?.user?.name || "Account"}</AvatarFallback>
                   )}
-                </div>
+                  <div className="flex-1">
+                  <span>{m.content}</span>
+                  </div>
                 </>
               ) : (
                 <>
                   <ShadowIcon className="h-6 w-6 mr-2" />
                   <div className="flex-1">
-                    <span>{m.content}</span>
-                  </div>  
-                  <div className="flex-1">
-                    {copiedMessageId === m.id ? (
-                      <CheckIcon className="ml-2" />
-                    ) : (
-                      <ClipboardIcon className="ml-2 cursor-pointer" onClick={() => copyToClipboard(m.content, m.id)} />
-                    )}
+                  <span>{m.content}</span>
                   </div>
                 </>
               )}
             </div>
-          ))}
-        </section>
+            <div>
+              {copiedMessageId === m.id ? (
+                <CheckIcon className="ml-2" />
+              ) : (
+                <ClipboardIcon className="ml-2 cursor-pointer" onClick={() => copyToClipboard(m.content, m.id)} />
+              )}
+            </div>
+          </div>
+        ))}
+      </section>
+
 
 
         <form className="flex mb-8 space-x-4" onSubmit={handleSubmit}>
