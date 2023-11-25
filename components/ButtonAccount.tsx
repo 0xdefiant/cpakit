@@ -40,7 +40,7 @@ const ButtonAccount = () => {
       <PopoverTrigger asChild>
         <Button variant="outline" className="flex items-center">
             {session?.user?.image ? (
-              <Avatar className="mr-2">
+              <Avatar className="mr-2 p-2">
               <AvatarImage
                 src={session?.user?.image}
                 alt={session?.user?.name || "Account"}
