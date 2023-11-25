@@ -38,14 +38,14 @@ const ButtonAccount = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="flex items-center">
+        <Button variant="outline" className="flex items-center py-1">
             {session?.user?.image ? (
-              <Avatar className="mr-2 p-2">
+              <Avatar className="mr-2">
               <AvatarImage
                 src={session?.user?.image}
                 alt={session?.user?.name || "Account"}
               />
-              <AvatarFallback>CpaKit</AvatarFallback>
+              <AvatarFallback>{session.user?.name || "Account"}</AvatarFallback>
               </Avatar>
             ) : (
               <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">

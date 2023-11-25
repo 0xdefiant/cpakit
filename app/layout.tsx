@@ -6,6 +6,7 @@ import { getSEOTags } from "@/libs/seo";
 import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 import "./globals.css";
 
 export const fontSans = FontSans({
@@ -30,9 +31,10 @@ export const viewport: Viewport = {
 // You can override them in each page passing params to getSOTags() function.
 export const metadata = getSEOTags();
 
+
 export default function RootLayout({ children }: RootLayoutProps ) {
   return (
-    <html lang="en" data-theme={config.colors.theme} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       {config.domainName && (
         <head>
           <PlausibleProvider domain={config.domainName} />
