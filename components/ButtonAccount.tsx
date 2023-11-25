@@ -38,7 +38,7 @@ const ButtonAccount = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="flex items-center py-1">
+        <Button variant="outline" className="flex items-center">
             {session?.user?.image ? (
               <Avatar className="mr-2">
               <AvatarImage
