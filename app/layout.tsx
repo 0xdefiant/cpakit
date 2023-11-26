@@ -37,7 +37,12 @@ export default function RootLayout({ children }: RootLayoutProps ) {
     <html lang="en" suppressHydrationWarning>
       {config.domainName && (
         <head>
-          <PlausibleProvider domain={config.domainName} />
+          <script
+            defer
+            data-domain="cpakit.org"
+            data-api="/plausible/api/event"
+            src="/plausible/js/script.js"
+          ></script>
         </head>
       )}
       <body
