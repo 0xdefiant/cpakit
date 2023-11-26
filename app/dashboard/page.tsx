@@ -9,7 +9,7 @@ export default async function Dashboard() {
   return (
     <main className="min-h-screen p-8 pb-24">
       <section className="max-w-xl mx-auto space-y-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold">Private Page</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Private Chat</h1>
           <Chat />
       </section>
     </main>

@@ -65,6 +65,10 @@ module.exports = {
           from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
         },
+        gradient: {
+          "0%": {backgroundPosition: "0% 50%"},
+          "100%": {backgroundPosition: "100% 50%"},
+        },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
@@ -73,8 +77,12 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        gradient: "gradient 6s linear infinite"
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    require('@tailwindcss/typography')
+  ],
 }
