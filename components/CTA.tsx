@@ -1,14 +1,12 @@
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import ButtonCheckout from "./ButtonCheckout";
-import { Button } from "./ui/button";
 import ButtonSignin from "./ButtonSignin";
 
 const CTA = () => {
   return (
-    <section className="relative hero overflow-hidden min-h-screen">
+    <section className="relative flex justify-center items-center overflow-hidden min-h-screen">
       <div className="absolute inset-0 z-[-1]">
-        <AspectRatio ratio={16 / 9}>
+        <AspectRatio ratio={16 / 9} className="w-full h-full">
           <Image
             src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1744&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Background"
@@ -17,14 +15,11 @@ const CTA = () => {
           />
         </AspectRatio>
       </div>
-      <div className="relative hero-overlay bg-neutral bg-opacity-70"></div>
-      <div className="relative hero-content text-center text-neutral-content p-8">
-        <div className="flex flex-col items-center max-w-xl p-8 md:p-0">
+      <div className="relative z-10 p-8">
         <h2 className="font-bold text-2xl lg:text-4xl text-transparent gradient-text animate-gradient mb-8">
           Use AI and Learn dynamically
         </h2>
-          <ButtonSignin />
-        </div>
+        <ButtonSignin />
       </div>
     </section>
   );

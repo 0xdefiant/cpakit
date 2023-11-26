@@ -50,9 +50,9 @@ const Pricing = () => {
                     <div className="flex flex-col justify-end mb-[4px] text-lg ">
                       <p className="relative">
                         <span className="absolute bg-base-content h-[1.5px] inset-x-0 top-[53%]"></span>
-                        <span className="text-base-content/80">
+                        <del className="text-base-content/80">
                           ${plan.priceAnchor}
-                        </span>
+                        </del>
                       </p>
                     </div>
                   )}
