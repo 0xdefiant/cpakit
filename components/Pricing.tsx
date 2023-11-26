@@ -92,7 +92,10 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <ButtonCheckout priceId={plan.priceId}/>
+                <ButtonCheckout
+                  mode="subscription"
+                  priceId={config.stripe.plans[0].priceId}
+                />
                 </CardFooter>
             </Card>
           ))}
