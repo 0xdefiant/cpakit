@@ -5,7 +5,7 @@ const config = {
   appName: "CPA Kit",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The #1 AI study tool for the CPA Exam.",
+    "The #1 AI accounting tool for Entrepeneurs and CPA's.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "cpastudy.online",
   crisp: {
@@ -28,16 +28,14 @@ const config = {
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "Perfect for small projects",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 79,
+        price: 19,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
-        priceAnchor: 99,
+        priceAnchor: 29,
         features: [
-          {
-            name: "NextJS boilerplate",
-          },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
+          { name: "Tax AI Model" },
+          { name: "Financial Statement Template" },
+          { name: "Form Examples" },
+          { name: "Template Tax Questions" },
         ],
       },
       {
@@ -53,11 +51,11 @@ const config = {
         priceAnchor: 149,
         features: [
           {
-            name: "NextJS boilerplate",
+            name: "Financial Statement Generation",
           },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
+          { name: "AI Auditor" },
+          { name: "Tax AI Model" },
+          { name: "CPA Exam AI Model" },
           { name: "1 year of updates" },
           { name: "24/7 support" },
         ],
@@ -74,9 +72,9 @@ const config = {
     // subdomain to use when sending emails, if you don't have a subdomain, just remove it. Highly recommended to have one (i.e. mg.yourdomain.com or mail.yourdomain.com)
     subdomain: "mail",
     // REQUIRED — Email 'From' field to be used when sending magic login links
-    fromNoReply: `CPA AI <noreply@mail.cpastudy.online>`,
+    fromNoReply: `CPA Kit <noreply@mail.cpastudy.online>`,
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
-    fromAdmin: `Anthony at CPA Study <anthony@mail.cpastudy.online>`,
+    fromAdmin: `Anthony at CPA Kit <anthony@mail.cpastudy.online>`,
     // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
     supportEmail: "anthony@mail.cpastudy.online",
     // When someone replies to supportEmail sent by the app, forward it to the email below (otherwise it's lost). If you set supportEmail to empty, this will be ignored.

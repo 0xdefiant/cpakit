@@ -59,7 +59,7 @@ const Header = () => {
             <Image
               src={logo}
               alt={`${config.appName} logo`}
-              className="w-8"
+              className="w-8 text-transparent gradient-text animate-gradient"
               placeholder="blur"
               priority={true}
               width={32}
@@ -120,7 +120,7 @@ const Header = () => {
           {/* Your logo/name on small screens */}
           <div className="flex items-center justify-between">
             <Link
-              className="flex items-center gap-2 shrink-0 "
+              className="flex items-center gap-2 shrink-0"
               title={`${config.appName} hompage`}
               href="/"
             >
