@@ -6,31 +6,22 @@ import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import { Button } from '@/components/ui/button'
 import { Input } from './ui/input';
+import { Textarea } from "@/components/ui/textarea"
 import { useSession,  } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShadowIcon, ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
-import { useToast } from './ui/use-toast';
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   const session = useSession();
   const [copiedMessageId, setCopiedMessageId] = useState(null);
-  const { toast } = useToast();
-
-  const copyToClipboard = (content: string, messageId: string) => {
-    navigator.clipboard.writeText(content).then(() => {
-      setCopiedMessageId(messageId);
-      setTimeout(() => setCopiedMessageId(null), 3000);
-    });
-  };
 
   const copyMarkdown = (text: string, messageId: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedMessageId(messageId);
-      setTimeout(() => setCopiedMessageId(null), 3000);
-      toast({
-        description: "Content copied to clipboard.",
-      });
+      setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 3000);
     });
   };
 
@@ -40,7 +31,7 @@ export default function Chat() {
       return !inline ? (
         <div onClick={copyCode} className="cursor-pointer">
           <pre className={className ?? ''}>
-            <code {...props}>{children}</code>
+            <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold" {...props}>{children}</code>
           </pre>
         </div>
       ) : (
@@ -73,7 +64,7 @@ export default function Chat() {
                     <AvatarFallback className="mr-2">{session.data?.user?.name || "Account"}</AvatarFallback>
                   )}
                   <div className="flex-1 min-w-0">
-                    <ReactMarkdown className="prose block max-w-none overflow-ellipsis">{m.content}</ReactMarkdown>
+                    <ReactMarkdown className="prose dark:prose-dark block max-w-none text-gray-800 dark:text-gray-200">{m.content}</ReactMarkdown>
                   </div>
                 </>
               ) : (
@@ -81,7 +72,7 @@ export default function Chat() {
                   <ShadowIcon className="h-6 w-6 mr-2 flex-shrink-0" />
                   <div className="relative flex-1 min-w-0">
                     <ReactMarkdown 
-                      className="prose block max-w-none overflow-ellipsis" 
+                      className="prose dark:prose-dark block max-w-none text-gray-800 dark:text-gray-200" 
                       remarkPlugins={[gfm]}
                       components={renderers}
                     >
@@ -95,7 +86,7 @@ export default function Chat() {
               {copiedMessageId === m.id ? (
                 <CheckIcon className="ml-2" />
               ) : (
-                <ClipboardIcon className="ml-2 cursor-pointer" onClick={() => copyToClipboard(m.content, m.id)} />
+                <ClipboardIcon className="ml-2 cursor-pointer" onClick={() => copyMarkdown(m.content, m.id)} />
               )}
             </div>
           </div>
@@ -103,21 +94,16 @@ export default function Chat() {
       </section>
 
 
-
-        <form className="flex mb-8 space-x-4" onSubmit={handleSubmit}>
-        <Input
-          className="rounded-md p-2 flex-1"
-          value={input}
-          onChange={handleInputChange}
-          placeholder="Say something..."
-        />
-        <Button
-          className="border-solid border-2 border-white p-2 rounded-md"
-          type="submit"
-        >
-          Send
-        </Button>
-      </form>
+        <form className="grid w-full gap-2" onSubmit={handleSubmit}>
+          <Textarea
+            value={input}
+            onChange={handleInputChange}
+            placeholder="Say something..."
+          />
+          <Button type='submit'>
+            Send Question
+          </Button>
+        </form>
     </div>
   );
 }
