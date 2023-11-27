@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "react-hot-toast";
 import apiClient from "@/libs/api";
-
 import {
   Form,
   FormControl,
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { ArrowRightCircleIcon as ArrowRightCircle } from "lucide-react"; // Import the ArrowLeftIcon
 
 const schema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -32,7 +32,7 @@ const ButtonLead = ({ extraStyle }: { extraStyle?: string }) => {
     try {
       await apiClient.post("/lead", data);
 
-      toast.success("Thanks for joining the waitlist!");
+      toast.success("Thanks for joining the community. Look for an Email in you inbox soon!");
       form.reset();
     } catch (error) {
       console.log(error);
@@ -43,7 +43,9 @@ const ButtonLead = ({ extraStyle }: { extraStyle?: string }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={`space-y-3 ${extraStyle || ""}`}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={`flex flex-col space-y-3 ${extraStyle || ""}`}>
+      <span className="font-semibold">Join the Community</span>
+      <div className="flex items-center space-x-2">
         <FormField
           control={form.control}
           name="email"
@@ -69,9 +71,12 @@ const ButtonLead = ({ extraStyle }: { extraStyle?: string }) => {
           {isLoading ? (
             <span className="loading loading-spinner loading-xs"></span>
           ) : (
-            "Join the Community!"
+            <>
+              <ArrowRightCircle className="inline-block" />
+            </>
           )}
         </Button>
+      </div>
       </form>
     </Form>
   );
