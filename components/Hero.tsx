@@ -8,10 +8,10 @@ const Hero = () => {
     <section className="max-w-7xl mx-auto bg-base-100 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-20 px-8 py-8 lg:py-20">
       <div className="flex flex-col gap-10 lg:gap-14 items-center justify-center text-center lg:text-left lg:items-start">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Accounting knowledge from zero to proficient in days, not weeks
+          Transform Your Accounting Workflow with AI-Powered Tools
         </h1>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-        The AI CPA Study Kit arms you with cutting-edge tools to conquer exams, 
+        CPA Kit arms you with cutting-edge tools to conquer exams, 
         hone expertise, and uncover new insights in mere minutes - no matter your starting point.
         </p>
         <ButtonLead />
