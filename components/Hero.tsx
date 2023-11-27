@@ -11,8 +11,8 @@ const Hero = () => {
           Transform Your Accounting Workflow with AI-Powered Tools
         </h1>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-        CPA Kit arms you with cutting-edge tools to conquer exams, 
-        hone expertise, and uncover new insights in mere minutes - no matter your starting point.
+        CPA Kit arms you with cutting-edge tools to hone expertise,
+        conquer exams, and uncover new insights in mere minutes - no matter your starting point.
         </p>
         <ButtonLead />
       </div>
