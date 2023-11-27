@@ -44,11 +44,11 @@ const config = {
         priceId:
           process.env.NODE_ENV === "development"
             ? "price_456"
-            : "price_456",
+            : "price_1OGqsxDv9HOULY9bG9sE0A3l",
         name: "Advanced",
         description: "You need more power",
-        price: 99,
-        priceAnchor: 149,
+        price: 24,
+        priceAnchor: 59,
         features: [
           {
             name: "Financial Statement Generation",

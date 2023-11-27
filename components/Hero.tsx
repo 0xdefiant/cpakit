@@ -1,7 +1,7 @@
 import Image from "next/image";
 import TestimonialsAvatars from "./TestimonialsAvatars";
 import config from "@/config";
-import { Button } from "@/components/ui/button";
+import ButtonLead from "./ButtonLead";
 
 const Hero = () => {
   return (
@@ -14,9 +14,7 @@ const Hero = () => {
         The AI CPA Study Kit arms you with cutting-edge tools to conquer exams, 
         hone expertise, and uncover new insights in mere minutes - no matter your starting point.
         </p>
-        <Button className="btn btn-gradient animate-shimmer btn-wide">
-          Get {config.appName}
-        </Button>
+        <ButtonLead />
       </div>
 
       <div className="lg:w-full">
