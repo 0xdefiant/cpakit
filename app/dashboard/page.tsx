@@ -1,6 +1,8 @@
 import Chat from '@/components/Chat'
 import ButtonCheckout from '@/components/ButtonCheckout';
 import config from '@/config';
+import ButtonTest from '@/components/TestInput';
+import DisplayTests from '@/components/DisplayTests';
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,8 @@ export default async function Dashboard() {
           mode="subscription"
           priceId={config.stripe.plans[0].priceId}
         />
+        <ButtonTest />
+        <DisplayTests />
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Private Chat</h1>
           <Chat />
       </section>
