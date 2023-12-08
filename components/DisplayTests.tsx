@@ -9,7 +9,7 @@ const DisplayTests = () => {
   const { data: session } = useSession();
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: number;  // Updated type here
 
     const fetchTests = async () => {
       if (session?.user?.id) {
@@ -28,8 +28,8 @@ const DisplayTests = () => {
     };
 
     if (session) {
-      fetchTests(); 
-      intervalId = setInterval(fetchTests, 2000); // Poll every 1 seconds
+      fetchTests();
+      intervalId = setInterval(fetchTests, 2000); // Poll every 2 seconds
     }
 
     return () => {
