@@ -3,6 +3,27 @@ import connectMongo from "@/libs/mongoose";
 import { URL } from "url";
 import Test from "@/models/Test";
 
+export async function POST(req: NextRequest) {
+  await connectMongo();
+
+  const body = await req.json();
+  console.log(body)
+
+  if (!body.test || !body.userId) {
+    return NextResponse.json({ error: "Test and userId are required" }, { status: 400 });
+  }
+
+  try {
+    // Create a new test record with the user _id and the test string
+    const newTest = await Test.create({ test: body.test, userId: body.userId });
+
+    return NextResponse.json(newTest);
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   await connectMongo();
 
