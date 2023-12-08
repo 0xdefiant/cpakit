@@ -5,7 +5,7 @@ const config = {
   appName: "CPA Kit",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The #1 AI accounting tool for Entrepeneurs and CPA's",
+    "AI accounting tool for Taxes",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "cpakit.org",
   crisp: {
