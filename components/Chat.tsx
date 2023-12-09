@@ -64,7 +64,7 @@ export default function Chat() {
                     <AvatarFallback className="mr-2">{session.data?.user?.name || "Account"}</AvatarFallback>
                   )}
                   <div className="flex-1 min-w-0">
-                    <ReactMarkdown className="prose dark:prose-dark block max-w-none text-gray-800 dark:text-gray-200">{m.content}</ReactMarkdown>
+                    <ReactMarkdown className="leading-7 [&:not(:first-child)]:mt-6">{m.content}</ReactMarkdown>
                   </div>
                 </>
               ) : (
@@ -72,7 +72,7 @@ export default function Chat() {
                   <ShadowIcon className="h-6 w-6 mr-2 flex-shrink-0" />
                   <div className="relative flex-1 min-w-0">
                     <ReactMarkdown 
-                      className="prose dark:prose-dark block max-w-none text-gray-800 dark:text-gray-200" 
+                      className="leading-7 [&:not(:first-child)]:mt-6" 
                       remarkPlugins={[gfm]}
                       components={renderers}
                     >

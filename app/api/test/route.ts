@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url, 'http://localhost');
   const userId = url.searchParams.get('userId');
-  console.log("Received userID:", userId);
+  // console.log("Received userID:", userId);
 
   if (!userId) {
     return NextResponse.json({ error: "userId is required" }, { status: 400 });
@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
   try {
     // Only select the 'test' field
     const tests = await Test.find({ userId: userId }).select('test');
-    console.log("Fetched tests:", tests); // Debug log
-
+    // console.log("Fetched tests:", tests);
+    
     if (!tests || tests.length === 0) {
       return NextResponse.json({ message: "No tests found for this userId" }, { status: 404 });
     }

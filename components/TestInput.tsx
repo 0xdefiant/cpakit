@@ -64,7 +64,7 @@ const ButtonTest = ({ extraStyle }: { extraStyle?: string }) => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="tom@cruise.com"
+                  placeholder="try and break me"
                   autoComplete="text"
                   className="input input-bordered w-full placeholder:opacity-60"
                   {...field}
