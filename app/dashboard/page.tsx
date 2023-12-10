@@ -13,14 +13,10 @@ export default async function Dashboard() {
   return (
     <main className="min-h-screen p-8 pb-24">
       <section className="max-w-xl mx-auto space-y-8">
-        <ButtonCheckout
-          mode="subscription"
-          priceId={config.stripe.plans[0].priceId}
-        />
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">General Chat</h1>
+          <Chat />
         <ButtonTest />
         <DisplayTests />
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Private Chat</h1>
-          <Chat />
       </section>
     </main>
   );

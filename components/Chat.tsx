@@ -7,6 +7,7 @@ import gfm from 'remark-gfm';
 import { Button } from '@/components/ui/button'
 import { Input } from './ui/input';
 import { Textarea } from "@/components/ui/textarea"
+import { Label } from './ui/label';
 import { useSession,  } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShadowIcon, ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
@@ -93,9 +94,12 @@ export default function Chat() {
         ))}
       </section>
 
-
-        <form className="grid w-full gap-2" onSubmit={handleSubmit}>
-          <Textarea
+        <div className="grid w-full max-w-sm items-center gap-1.5 my-2">
+          <Label htmlFor="picture">File Upload</Label>
+          <Input id="picture" type="file" />
+        </div>
+        <form className="flex w-full max-w-sm items-center space-x-2" onSubmit={handleSubmit}>
+          <Input
             value={input}
             onChange={handleInputChange}
             placeholder="Say something..."

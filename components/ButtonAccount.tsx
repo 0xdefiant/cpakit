@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
+
 const ButtonAccount = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,7 +39,7 @@ const ButtonAccount = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="flex items-center">
+        <Button className="flex items-center">
             {session?.user?.image ? (
               <Avatar className="mr-2">
               <AvatarImage
@@ -76,11 +77,11 @@ const ButtonAccount = () => {
             )}
           </Button>
           </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="overflow-hidden rounded-xl shadow-xl ring-1 ring-base-content ring-opacity-5 bg-base-100 p-1">
+            <PopoverContent className="w-60">
+              <div className="overflow-hidden rounded-xl shadow-xl p-1">
                 <div className="space-y-0.5 text-sm">
-                  <button
-                    className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
+                  <Button
+                    className="flex items-center hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleBilling}
                   >
                     <svg
@@ -96,8 +97,8 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Billing
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     className="flex items-center gap-2 hover:bg-error/20 hover:text-error duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
                     onClick={handleSignOut}
                   >
@@ -119,7 +120,7 @@ const ButtonAccount = () => {
                       />
                     </svg>
                     Logout
-                  </button>
+                  </Button>
                 </div>
               </div>
             </PopoverContent>
