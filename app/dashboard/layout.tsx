@@ -4,7 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/next-auth";
 import config from "@/config";
 import { ModeToggle } from "@/components/modeToggle";
-import SideNavbar from "@/components/SideNavbar";
+import ButtonAccount from '@/components/ButtonAccount';
+import AppNavbar from "@/components/AppNavbar";
 
 export default async function LayoutPrivate({
   children,
@@ -19,12 +20,19 @@ export default async function LayoutPrivate({
 
   return (
     <div className="flex min-h-screen">
-      <SideNavbar />
       <div className="flex-1">
-        <div className="flex justify-center w-full px-4 py-2">
-          <ModeToggle />
+        <div className="flex justify-between w-full px-4 py-2">
+          <div className="flex justify-start">
+            <ButtonAccount />
+          </div>
+          <div className="flex justify-center">
+            <AppNavbar />
+          </div>
+          <div className="flex justify-end">
+            <ModeToggle />
+          </div>
         </div>
-        <div className="max-w-2xl mx-auto p-4 md:pl-64">
+        <div className="max-w-2xl mx-auto p-4">
           {children}
         </div>
       </div>
