@@ -79,8 +79,7 @@ const ButtonAccount = () => {
             )}
           </Button>
           </PopoverTrigger>
-            <PopoverContent className="w-60">
-              <div className="overflow-hidden rounded-xl shadow-xl p-1">
+            <PopoverContent className="w-auto">
                 <div className="space-y-0.5 text-sm">
                   <button
                     className="flex items-center hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
@@ -97,7 +96,6 @@ const ButtonAccount = () => {
                   <span>Logout</span>
                   </button>
                 </div>
-              </div>
             </PopoverContent>
           </Popover>
     );
