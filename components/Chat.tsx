@@ -18,7 +18,7 @@ import { Message } from 'ai';
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   const session = useSession();
-  const responseEndTimer = useRef<NodeJS.Timeout | null>(null);
+  const responseEndTimer = useRef<number | null>(null);
   const lastAssistantMessageRef = useRef<Message | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
 
@@ -66,15 +66,15 @@ export default function Chat() {
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-
+  
       if (lastMessage.role === 'assistant') {
         lastAssistantMessageRef.current = lastMessage;
-
+  
         // Clear existing timer
         if (responseEndTimer.current) {
           clearTimeout(responseEndTimer.current);
         }
-
+  
         // Start a new timer
         responseEndTimer.current = setTimeout(() => {
           if (lastAssistantMessageRef.current) {
@@ -86,7 +86,7 @@ export default function Chat() {
               saveChatMessage(prompt, response);
             }
           }
-        }, 5000); // Adjust this timeout as needed
+        }, 5000) as unknown as number; // Cast to number
       }
     }
 
