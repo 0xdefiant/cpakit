@@ -12,28 +12,38 @@ import { Label } from './ui/label';
 import { useSession,  } from 'next-auth/react';
 import { Send } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ShadowIcon, ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
+import { ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
+import { Pyramid } from 'lucide-react';
 import { Message } from 'ai';
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit } = useChat();
   const session = useSession();
+  const [lastMessageSaved, setLastMessageSaved] = useState(false);
   const responseEndTimer = useRef<number | null>(null);
   const lastAssistantMessageRef = useRef<Message | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    setLastMessageSaved(false); // Reset the flag when the user submits a new message
+    originalHandleSubmit(event); // Call the original handleSubmit function from useChat
+  };
+
+  // RELEVANT CODE
   const saveChatMessage = async (prompt: string, response: string) => {
-    if (!session.data) return;
+    if (!session.data || lastMessageSaved) return;
     try {
       await apiClient.post('/store/chatMessage', {
         prompt,
         response,
-        userId: session.data.user.id, // Assuming session.data.user.id is the correct path
+        userId: session.data.user.id,
       });
+      setLastMessageSaved(true);
     } catch (e) {
       console.error("Error saving chat message:", e);
     }
   };
+  
 
   const copyMarkdown = (text: string, messageId: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -61,13 +71,13 @@ export default function Chat() {
     },
     // ... other custom renderers if needed ...
   };
-
-
+  
+  // RELEVANT CODE
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
   
-      if (lastMessage.role === 'assistant') {
+      if (lastMessage.role === 'assistant' && !lastMessageSaved) {
         lastAssistantMessageRef.current = lastMessage;
   
         // Clear existing timer
@@ -86,17 +96,16 @@ export default function Chat() {
               saveChatMessage(prompt, response);
             }
           }
-        }, 5000) as unknown as number; // Cast to number
+        }, 5000) as unknown as number;
       }
     }
-
     // Cleanup timer on component unmount
     return () => {
       if (responseEndTimer.current) {
         clearTimeout(responseEndTimer.current);
       }
     };
-  }, [messages, session.data]);
+  }, [messages, session.data, lastMessageSaved]);
  
   return (
     <div className="mx-auto w-full max-w-lg">
@@ -123,7 +132,7 @@ export default function Chat() {
                 </>
               ) : (
                 <>
-                  <ShadowIcon className="h-6 w-6 mr-2 flex-shrink-0" />
+                  <Pyramid color="yellow" className="h-6 w-6 mr-2 flex-shrink-0" />
                   <div className="relative flex-1 min-w-0">
                     <ReactMarkdown 
                       className="leading-7 [&:not(:first-child)]:mt-6" 
