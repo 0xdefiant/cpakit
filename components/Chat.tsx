@@ -29,7 +29,6 @@ export default function Chat() {
     originalHandleSubmit(event); // Call the original handleSubmit function from useChat
   };
 
-  // RELEVANT CODE
   const saveChatMessage = async (prompt: string, response: string) => {
     if (!session.data || lastMessageSaved) return;
     try {
@@ -71,8 +70,8 @@ export default function Chat() {
     },
     // ... other custom renderers if needed ...
   };
+
   
-  // RELEVANT CODE
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];

@@ -29,7 +29,7 @@ const DisplayTests = () => {
 
     if (session) {
       fetchTests();
-      intervalId = window.setInterval(fetchTests, 10000) as unknown as number; // Poll every 2 seconds
+      intervalId = window.setInterval(fetchTests, 10000) as unknown as number; // Poll every 10 seconds
     }
 
     return () => {

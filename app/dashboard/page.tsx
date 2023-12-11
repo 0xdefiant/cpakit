@@ -1,10 +1,16 @@
 import Chat from '@/components/Chat'
 import ButtonCheckout from '@/components/ButtonCheckout';
 import config from '@/config';
-import ButtonTest from '@/components/TestInput';
-import DisplayTests from '@/components/DisplayTests';
+import { ChatDisplay } from '@/components/ChatDisplay';
+// import ButtonTest from '@/components/TestInput';
+// import DisplayTests from '@/components/DisplayTests';
 
 export const dynamic = "force-dynamic";
+
+/*
+<ButtonTest />
+<DisplayTests />
+*/
 
 // This is a private page: It's protected by the layout.js component which ensures the user is authenticated.
 // It's a server compoment which means you can fetch data (like the user profile) before the page is rendered.
@@ -15,8 +21,7 @@ export default async function Dashboard() {
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">General Chat</h1>
           <Chat />
-        <ButtonTest />
-        <DisplayTests />
+          <ChatDisplay />
       </section>
     </main>
   );
