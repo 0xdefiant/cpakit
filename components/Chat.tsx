@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useChat } from 'ai/react';
 import ReactMarkdown from 'react-markdown';
+import apiClient from '@/libs/api';
 import gfm from 'remark-gfm';
 import { Button } from '@/components/ui/button'
 import { Input } from './ui/input';
@@ -12,11 +13,27 @@ import { useSession,  } from 'next-auth/react';
 import { Send } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShadowIcon, ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
+import { Message } from 'ai';
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   const session = useSession();
+  const responseEndTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastAssistantMessageRef = useRef<Message | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
+
+  const saveChatMessage = async (prompt: string, response: string) => {
+    if (!session.data) return;
+    try {
+      await apiClient.post('/store/chatMessage', {
+        prompt,
+        response,
+        userId: session.data.user.id, // Assuming session.data.user.id is the correct path
+      });
+    } catch (e) {
+      console.error("Error saving chat message:", e);
+    }
+  };
 
   const copyMarkdown = (text: string, messageId: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -45,6 +62,41 @@ export default function Chat() {
     // ... other custom renderers if needed ...
   };
 
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+
+      if (lastMessage.role === 'assistant') {
+        lastAssistantMessageRef.current = lastMessage;
+
+        // Clear existing timer
+        if (responseEndTimer.current) {
+          clearTimeout(responseEndTimer.current);
+        }
+
+        // Start a new timer
+        responseEndTimer.current = setTimeout(() => {
+          if (lastAssistantMessageRef.current) {
+            const promptIndex = messages.slice(0, -1).reverse().findIndex(m => m.role === 'user');
+            if (promptIndex !== -1) {
+              const prompt = messages[messages.length - 2 - promptIndex]?.content;
+              const response = lastAssistantMessageRef.current.content;
+              console.log("Detected complete prompt and response", { prompt, response });
+              saveChatMessage(prompt, response);
+            }
+          }
+        }, 5000); // Adjust this timeout as needed
+      }
+    }
+
+    // Cleanup timer on component unmount
+    return () => {
+      if (responseEndTimer.current) {
+        clearTimeout(responseEndTimer.current);
+      }
+    };
+  }, [messages, session.data]);
  
   return (
     <div className="mx-auto w-full max-w-lg">
