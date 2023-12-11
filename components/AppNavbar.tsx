@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/libs/utils';
-import Link from 'next/link';
+import Link from 'next/link'; // How can I use link and server side rnedering to make moving between navigation items quicker???
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,8 +14,6 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
-import ButtonCheckout from "./ButtonCheckout";
-import config from "@/config";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -57,25 +55,28 @@ const components: { title: string; href: string; description: string }[] = [
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<"a"> & { href: string }
+>(({ className, title, href, children, ...props }, ref) => {
   return (
     <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
+      {/* Wrap the anchor tag with Link */}
+      <Link href={href} passHref>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </Link>
     </li>
   )
 })
@@ -106,13 +107,13 @@ const AppNavbar = () => {
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/Tax" title="Introduction">
+              <ListItem href="/dashboard/intro" title="Introduction">
                 Re-usable components built using Radix UI and Tailwind CSS.
               </ListItem>
-              <ListItem href="/tax" title="Tax Kit">
+              <ListItem href="/dashboard/tax" title="Tax Kit">
                 Generate your Tax Forms. 
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
+              <ListItem href="/dashboard/advisory" title="Advisory">
                 Styles for headings, paragraphs, lists...etc
               </ListItem>
             </ul>
