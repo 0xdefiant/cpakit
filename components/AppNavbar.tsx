@@ -94,10 +94,10 @@ const AppNavbar = () => {
                 <NavigationMenuLink asChild>
                   <a
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    href="/"
+                    href="/dashboard"
                   >
                     <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
+                      Dashboard
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
                       Beautifully designed components built with Radix UI and
@@ -106,11 +106,11 @@ const AppNavbar = () => {
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduction">
+              <ListItem href="/Tax" title="Introduction">
                 Re-usable components built using Radix UI and Tailwind CSS.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
+              <ListItem href="/tax" title="Tax Kit">
+                Generate your Tax Forms. 
               </ListItem>
               <ListItem href="/docs/primitives/typography" title="Typography">
                 Styles for headings, paragraphs, lists...etc

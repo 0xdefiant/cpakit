@@ -71,7 +71,7 @@ export default function Chat() {
     // ... other custom renderers if needed ...
   };
 
-  
+
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
@@ -155,11 +155,11 @@ export default function Chat() {
         ))}
       </section>
 
-        <div className="grid w-full max-w-sm items-center gap-1.5 my-2">
+        <div className="grid w-60 max-w-sm items-center gap-1.5 my-2">
           <Label htmlFor="picture">File Upload</Label>
-          <Input id="picture" type="file" />
+          <Input type="file" />
         </div>
-        <form className="flex w-full max-w-sm items-center space-x-2" onSubmit={handleSubmit}>
+        <form className="flex w-full max-w-sm space-x-2" onSubmit={handleSubmit}>
           <Textarea
             value={input}
             onChange={handleInputChange}

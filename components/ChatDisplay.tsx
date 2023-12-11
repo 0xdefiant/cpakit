@@ -47,7 +47,8 @@ export function ChatDisplay() {
 
     return (
         <div>
-        <Accordion type="single" collapsible className="w-full">
+        <h3 className="mt-8 scroll-m-20 text-2xl font-semibold tracking-tight">Chat History</h3>
+        <Accordion type="single" collapsible className="">
             {chatMessages.map((chat, index) => (
                 <AccordionItem key={index} value={`item-${index}`}>
                     <AccordionTrigger>{chat.prompt}</AccordionTrigger>
