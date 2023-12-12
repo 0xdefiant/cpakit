@@ -1,7 +1,5 @@
-// /app/api/store/chatMessage/route.ts
-
 import { NextResponse, NextRequest } from "next/server";
-import ChatMessage from '@/models/ChatMessage';
+import TaxChatMessage from "@/models/TaxChatMessage";
 import { URL } from "url";
 import connectMongo from "@/libs/mongoose";
 
@@ -9,7 +7,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   await connectMongo();
 
   const body = await req.json();
-  console.log("this is the Tax body:", body);
+  console.log("this is the body:", body);
 
   if (!body.prompt || !body.response || !body.userId) {
     return NextResponse.json({ error: "Prompt, response, and userId are required" }, { status: 400 });
@@ -17,9 +15,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   try {
     // Create a new test record with the user _id and the test string
-    const newChat = await ChatMessage.create({ prompt: body.prompt, response: body.response, userId: body.userId });
+    const newTaxChat = await TaxChatMessage.create({ prompt: body.prompt, response: body.response, userId: body.userId });
 
-    return NextResponse.json(newChat);
+    return NextResponse.json(newTaxChat);
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -37,13 +35,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-      const chatMessages = await ChatMessage.find({ userId: userId }).select('prompt response -_id');
+      const taxchatMessage = await TaxChatMessage.find({ userId: userId }).select('prompt response -_id');
       
-      if (chatMessages.length === 0) {
+      if (TaxChatMessage.length === 0) {
           return NextResponse.json({ message: "No chat messages found for this userId" }, { status: 404 });
       }
 
-      return NextResponse.json(chatMessages);
+      return NextResponse.json(taxchatMessage);
   } catch (e) {
       console.error(e);
       return NextResponse.json({ error: e.message }, { status: 500 });

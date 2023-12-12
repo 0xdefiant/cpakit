@@ -14,6 +14,7 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
+import { Pyramid } from 'lucide-react';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -97,6 +98,7 @@ const AppNavbar = () => {
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                     href="/dashboard"
                   >
+                    <Pyramid />
                     <div className="mb-2 mt-4 text-lg font-medium">
                       Dashboard
                     </div>
