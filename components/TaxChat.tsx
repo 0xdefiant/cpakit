@@ -16,7 +16,7 @@ import { ClipboardIcon, CheckIcon } from '@radix-ui/react-icons';
 import { Pyramid } from 'lucide-react';
 import { Message } from 'ai';
 
-export default function Chat() {
+export default function TaxChat() {
   const { messages, input, handleInputChange, handleSubmit: originalHandleSubmit } = useChat();
   const session = useSession();
   const [lastMessageSaved, setLastMessageSaved] = useState(false);

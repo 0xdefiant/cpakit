@@ -1,7 +1,6 @@
-
-// import ButtonTest from '@/components/TestInput';
-// import DisplayTests from '@/components/DisplayTests';
-
+// import CreateTaxAssistant from "@/components/CreateTaxAssistant";
+// <CreateTaxAssistant />
+import RunThread from "@/components/RunThread";
 import TaxChat from "@/components/TaxChat";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +19,7 @@ export default async function Tax() {
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Tax Chat</h1>
         <TaxChat />
+        <RunThread />
       </section>
     </main>
   );

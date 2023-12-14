@@ -41,6 +41,7 @@
     "clsx": "^2.0.0",
     "crisp-sdk-web": "^1.0.21",
     "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
     "focus-trap-react": "^10.2.3",
     "form-data": "^4.0.0",
     "lucide-react": "^0.292.0",
