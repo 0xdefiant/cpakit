@@ -2,7 +2,6 @@
 // import apiClient from '@/libs/api'; ** use this when storing to mongoDB
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { ThreadMessagesPage } from 'openai/resources/beta/threads/messages/messages';
 // import fsPromises from 'fs'; this was in the demo runAssistant.js
 
 const openai = new OpenAI();
