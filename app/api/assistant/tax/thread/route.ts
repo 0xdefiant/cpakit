@@ -65,16 +65,19 @@ export async function POST(req: NextRequest) {
     //);
     
     const waitForRunCompletion = async (openai: OpenAI, threadId: string, runId: string) => {
-        let runRetrieve;
-        while (true) {
-            runRetrieve = await openai.beta.threads.runs.retrieve(threadId, runId);
-            if (runRetrieve.status === 'completed') {
-                break;
-            }
-            // Wait for 1 second before the next check
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        return runRetrieve;
+      let runRetrieve;
+      let isCompleted = false; // Added a flag to control the loop
+  
+      while (!isCompleted) {
+          runRetrieve = await openai.beta.threads.runs.retrieve(threadId, runId);
+          if (runRetrieve.status === 'completed') {
+              isCompleted = true; // Set the flag to true to break the loop
+          } else {
+              // Wait for 1 second before the next check
+              await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+      }
+      return runRetrieve;
     }
   
     // Usage
