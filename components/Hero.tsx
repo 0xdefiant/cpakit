@@ -10,9 +10,9 @@ const Hero = () => {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           ai accounting agent
         </h1>
-        <p>
-          what's that?
-        </p>
+        <a href="" className="leading-7 [&:not(:first-child)]:mt-6">
+          what is an agent?
+        </a>
         <ButtonLead />
       </div>
 
