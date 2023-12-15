@@ -89,11 +89,28 @@ export async function POST(req: NextRequest) {
     );
 
     messageList.data.forEach((message, index) => {
-      console.log(`Message ${index}:`, message.content[0]?.text?.value);
+      message.content.forEach((contentItem) => {
+        if (contentItem.type === 'text' && contentItem.text) {
+          console.log(`Message ${index}:`, contentItem.text.value);
+        } else if (contentItem.type === 'image_file') {
+          console.log(`Message ${index} contains an image.`);
+        } else {
+          console.log(`Message ${index} contains an unrecognized content type.`);
+        }
+      });
     });
 
-    const allMessageContents = messageList.data.map((message) => {
-      return message.content[0]?.text?.value;
+    // Update the code below to use the same logic as above
+    const allMessageContents = messageList.data.map((message, index) => {
+      return message.content.map((contentItem) => {
+        if (contentItem.type === 'text' && contentItem.text) {
+          return `Message ${index}: ${contentItem.text.value}`;
+        } else if (contentItem.type === 'image_file') {
+          return `Message ${index} contains an image.`;
+        } else {
+          return `Message ${index} contains an unrecognized content type.`;
+        }
+      }).join(', '); // Joining the contents of each message with a comma
     });
 
     // console.log("Full Message List:", messageList);
