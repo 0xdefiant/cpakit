@@ -18,9 +18,10 @@ import { format } from 'path';
 interface ApiResponse {
     allMessageContents: string[];
     threadData: {
-      threadId: string;
+      thread_id: string;
       assistantId: string;
       runId: string;
+      userId: string;
       metadata: unknown;
     };
   }
@@ -40,16 +41,28 @@ export default function RunThread() {
     resolver: zodResolver(schema),
   })
 
+  // thread_id: { thread_id: string }
+
   const handleSubmit = async (data: { prompt: string}) => {
     setIsLoading(true);
     try {
       if (!session || !session.user?.id) {
         throw new Error("User session is not available");
       }
-  
-      const response = await apiClient.post("/assistant/tax/threadCreate", { ...data , userId: session.user.id }) as ApiResponse;
+      
+      // Write some logic to find if there is already a thread created...
+      // 
+
+      
+      // const addMessage = await apiClient.post("/assistant/tax/addMessage", { ...data, thread_id, userId: session.user.id }) as ApiResponse;
+
+      const response = await apiClient.post("/assistant/tax/threadCreate", { ...data, userId: session.user.id }) as ApiResponse;
       // console.log("RUN THREAD response:", response);
       // console.log("response.allMessageContents", response.allMessageContents);
+      const storeThread = await apiClient.post('/store/thread_id', {
+        thread_id: response.threadData.thread_id,
+        userId: response.threadData.userId
+      });
 
 
       if (Array.isArray(response.allMessageContents)) {
@@ -92,12 +105,12 @@ export default function RunThread() {
   return (
     <div>
         <div className="messages">
-      {messages.map(message => renderMessage(message))}
-    </div>
+            {messages.map(message => renderMessage(message))}
+        </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className={`flex flex-col space-y-3`}>
-          <span className="font-semibold">test submit </span>
+          <span className="font-semibold">Test Run Thread</span>
           <div className="flex items-center space-x-2">
             <FormField
               control={form.control}

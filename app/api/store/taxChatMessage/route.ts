@@ -3,7 +3,7 @@ import TaxChatMessage from "@/models/TaxChatMessage";
 import { URL } from "url";
 import connectMongo from "@/libs/mongoose";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await connectMongo();
 
   const body = await req.json();

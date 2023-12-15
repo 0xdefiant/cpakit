@@ -3,7 +3,7 @@
 
 
 // import apiClient from '@/libs/api'; ** use this when storing to mongoDB
-import { metadata } from '@/app/layout';
+import apiClient from '@/libs/api';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 // import fsPromises from 'fs'; this was in the demo runAssistant.js
@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
     const thread = await openai.beta.threads.create();
 
     console.log("Create Thread:", thread);
+    console.log("ThreadId", thread.id);
+
 
     /*
     const thread = await openai.beta.threads.create({
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
         thread.id, 
         {
             assistant_id: 'asst_S1dfgmEKogEJlp7mNf9TUHkp', // Tax Accounting Agent
-            metadata: { "userID": body.userId }
+            metadata: { "userId": body.userId }
             // model: "gpt-4-1106-preview", OVERRIDE
             // instructions: body.newInstructions, // If the user wants to override the Assistant Instructions
             // tools: [{"type": "code_interpreter"}, {"type": "retrieval"}] // able to override
@@ -68,12 +70,12 @@ export async function POST(req: NextRequest) {
       //  run.id
     //);
     
-    const waitForRunCompletion = async (openai: OpenAI, threadId: string, runId: string) => {
+    const waitForRunCompletion = async (openai: OpenAI, thread_id: string, run_id: string) => {
       let runRetrieve;
       let isCompleted = false; // Added a flag to control the loop
   
       while (!isCompleted) {
-          runRetrieve = await openai.beta.threads.runs.retrieve(threadId, runId);
+          runRetrieve = await openai.beta.threads.runs.retrieve(thread_id, run_id);
           if (runRetrieve.status === 'completed') {
               isCompleted = true; // Set the flag to true to break the loop
           } else {
@@ -117,9 +119,10 @@ export async function POST(req: NextRequest) {
 
     const threadCreateAndRun = {
       threadData: {
-            threadId: thread.id,
+            thread_id: thread.id,
             assistantId: runRetrieveDone.assistant_id,
             runId: runRetrieveDone.id,
+            userId: body.userId,
             metadata: runRetrieveDone.metadata
       },
       allMessageContents
