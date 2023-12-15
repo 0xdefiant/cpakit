@@ -44,7 +44,7 @@ const ButtonLead = ({ extraStyle }: { extraStyle?: string }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className={`flex flex-col space-y-3 ${extraStyle || ""}`}>
-      <span className="font-semibold">Join the Community</span>
+      <span className="font-semibold">Build with us</span>
       <div className="flex items-center space-x-2">
         <FormField
           control={form.control}
