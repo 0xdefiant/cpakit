@@ -15,14 +15,20 @@ import toast from 'react-hot-toast';
 import { ArrowRightCircle } from 'lucide-react';
 import { format } from 'path';
 
+interface ApiResponse {
+    allMessageContents: string[];
+    threadData: {
+      threadId: string;
+      assistantId: string;
+      runId: string;
+      metadata: unknown;
+    };
+  }
+
 const schema = z.object({
     prompt: z.string().refine(value => value !== '', { message: "Invalid prompt input." }),
   });
 
-interface ApiResponse {
-allMessageContents: string[];
-// other properties as per the actual response
-}
 
 export default function RunThread() {
   const { data: session } = useSession();
@@ -41,7 +47,7 @@ export default function RunThread() {
         throw new Error("User session is not available");
       }
   
-      const response = await apiClient.post("/assistant/tax/threadCreate", { ...data , userId: session.user.id });
+      const response = await apiClient.post("/assistant/tax/threadCreate", { ...data , userId: session.user.id }) as ApiResponse;
       console.log("RUN THREAD response:", response);
       console.log("response.allMessageContents", response.allMessageContents);
 
