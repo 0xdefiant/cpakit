@@ -56,7 +56,7 @@ export default function RunThread() {
   };
 
   // UPDATE THE CODE TO DISPLAY 'RENDERMESSAGE DID NOT WORK' IF THIS CONST DOES NOT WORK
-  const renderMessage = (message) => {
+  const renderMessage = (message: any) => {
     try {
       if (message && message.content) {
         return (
