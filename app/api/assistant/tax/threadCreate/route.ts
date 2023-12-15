@@ -69,18 +69,18 @@ export async function POST(req: NextRequest) {
     const waitForRunCompletion = async (openai: OpenAI, thread_id: string, run_id: string) => {
         let runRetrieve;
         let attempt = 0; // Counter for the number of attempts
-    
-        while (true) {
+        let isCompleted = false;
+
+        while (!isCompleted) {
             runRetrieve = await openai.beta.threads.runs.retrieve(thread_id, run_id);
     
-            // Break the loop if the run is completed, failed, cancelled, or expired
             const finalStatuses = ['completed', 'failed', 'cancelled', 'expired'];
             if (finalStatuses.includes(runRetrieve.status)) {
+                isCompleted = true;
                 break;
             }
     
-            // Exponential backoff: increase the wait time on each attempt
-            const waitTime = Math.min(1000 * (2 ** attempt), 30000); // Cap the wait time at 30 seconds
+            const waitTime = Math.min(1000 * (2 ** attempt), 30000); // Cap at 30 seconds
             await new Promise(resolve => setTimeout(resolve, waitTime));
             attempt++;
         }
