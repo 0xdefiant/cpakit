@@ -1,5 +1,9 @@
-// pages/api/assistant.js
+// This route, Creates a Thread, and then starts a Run from the prompt given by the User.
+// It is tied directly to the tax Assistant (Anthony needs to add files to this assistant)
+
+
 // import apiClient from '@/libs/api'; ** use this when storing to mongoDB
+import { metadata } from '@/app/layout';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 // import fsPromises from 'fs'; this was in the demo runAssistant.js
@@ -84,21 +88,17 @@ export async function POST(req: NextRequest) {
     const runRetrieveDone = await waitForRunCompletion(openai, thread.id, run.id);
     console.log("Run Retrieve Done:", runRetrieveDone); // Need to create slight delay or check for the status to be completed
 
+    /* TODO:
+    I want this API to return a dictionary called 'threadCreateAndRun', the first two keys will be 'threadData', and 'messageData'.
+
+    The thread data will include another dictionary with the thread.id, the assistant.id, and the run.id, which will come from the runRetrieve element above.
+    The message data will include an array that it stored in 'allMessageContents'.
+    */
+
     const messageList = await openai.beta.threads.messages.list(
         thread.id
     );
-
-    messageList.data.forEach((message, index) => {
-      message.content.forEach((contentItem) => {
-        if (contentItem.type === 'text' && contentItem.text) {
-          console.log(`Message ${index}:`, contentItem.text.value);
-        } else if (contentItem.type === 'image_file') {
-          console.log(`Message ${index} contains an image.`);
-        } else {
-          console.log(`Message ${index} contains an unrecognized content type.`);
-        }
-      });
-    });
+    console.log("Full Message List:", messageList);
 
     // Update the code below to use the same logic as above
     const allMessageContents = messageList.data.map((message, index) => {
@@ -113,7 +113,20 @@ export async function POST(req: NextRequest) {
       }).join(', '); // Joining the contents of each message with a comma
     });
 
-    // console.log("Full Message List:", messageList);
+    console.log("allMessageContents: ", allMessageContents);
+
+    const threadCreateAndRun = {
+      threadData: {
+            threadId: thread.id,
+            assistantId: runRetrieveDone.assistant_id,
+            runId: runRetrieveDone.id,
+            metadata: runRetrieveDone.metadata
+      },
+      allMessageContents
+    };
+
+    console.log("ThreadCreateAndRun", threadCreateAndRun);
+
     // console.log("Message: data: ", messageList.data);
     // console.log("Message: data[0]: ", messageList.data[0].content); //   { type: 'text', text: { value: 'this is a test', annotations: [] } }
     // console.log("Message: data[1]: ", messageList.data[1].content); //   { type: 'text', text: { value: 'this is a test', annotations: [] } }
@@ -121,7 +134,7 @@ export async function POST(req: NextRequest) {
     
     // const messageContent = messageList?.data[0]?.content[0]?.text?.value;
     // Send back the assistant's response
-    return NextResponse.json(allMessageContents);
+    return NextResponse.json(threadCreateAndRun); // update with a new element 'threadCreateAndRun
   } catch (error) {
     console.error('Assistant API error:', error);
     return NextResponse.json({ message: 'Error creating assistant' });
