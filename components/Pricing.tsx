@@ -20,7 +20,7 @@ const Pricing = () => {
         <div className="flex flex-col text-center w-full mb-20">
           <p className="font-medium text-primary mb-8">Pricing</p>
           <h2 className="font-bold text-2xl lg:text-5xl text-transparent gradient-text animate-gradient">
-            Raise, Save, and be Compliant 
+            trying to save you money
           </h2>
           <h2 className="font-bold text-2xl lg:text-5xl mt-6">😄</h2>
         </div>
@@ -31,7 +31,7 @@ const Pricing = () => {
               {plan.isFeatured && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
                   <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                    POPULAR
+                    popular
                   </h3>
                 </div>
               )}

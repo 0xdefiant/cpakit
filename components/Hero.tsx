@@ -8,12 +8,11 @@ const Hero = () => {
     <section className="max-w-7xl mx-auto bg-base-100 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-20 px-8 py-8 lg:py-20">
       <div className="flex flex-col gap-10 lg:gap-14 items-center justify-center text-center lg:text-left lg:items-start">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Transform Your Accounting Workflow with AI-Powered Tools
+          ai accounting agent
         </h1>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
-        CPA Kit arms you with cutting-edge tools to hone expertise,
-        conquer exams, and uncover new insights in mere minutes - no matter your starting point.
-        </p>
+        <a href="docs.cpakit.org" className="leading-7 [&:not(:first-child)]:mt-6">
+        what's that?
+        </a>
         <ButtonLead />
       </div>
 
