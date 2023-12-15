@@ -48,8 +48,8 @@ export default function RunThread() {
       }
   
       const response = await apiClient.post("/assistant/tax/threadCreate", { ...data , userId: session.user.id }) as ApiResponse;
-      console.log("RUN THREAD response:", response);
-      console.log("response.allMessageContents", response.allMessageContents);
+      // console.log("RUN THREAD response:", response);
+      // console.log("response.allMessageContents", response.allMessageContents);
 
 
       if (Array.isArray(response.allMessageContents)) {
@@ -63,11 +63,8 @@ export default function RunThread() {
         console.log("not array???")
         throw new Error("Invalid response format");
       }
-      /*
-      const formattedThreadData = response.data.threadData;
+      const formattedThreadData = response.threadData;
       setThreadData(formattedThreadData);
-      console.log("SetThreadData: ", formattedThreadData);
-      */
       form.reset();
     } catch (error) {
       console.error('Error sending message:', error);
