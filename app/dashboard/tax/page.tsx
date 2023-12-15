@@ -1,5 +1,6 @@
 // import CreateTaxAssistant from "@/components/CreateTaxAssistant";
 // <CreateTaxAssistant />
+import { DisplayThread } from "@/components/DisplayThread";
 import RunThread from "@/components/RunThread";
 import TaxChat from "@/components/TaxChat";
 
@@ -20,6 +21,7 @@ export default async function Tax() {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Tax Chat</h1>
         <TaxChat />
         <RunThread />
+        <DisplayThread />
       </section>
     </main>
   );

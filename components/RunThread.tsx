@@ -14,6 +14,8 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { ArrowRightCircle } from 'lucide-react';
 import { format } from 'path';
+import { Send, Loader } from 'lucide-react';
+import { Textarea } from './ui/textarea';
 
 interface ApiResponse {
     allMessageContents: string[];
@@ -43,32 +45,45 @@ export default function RunThread() {
 
   // thread_id: { thread_id: string }
 
-  const handleSubmit = async (data: { prompt: string}) => {
+  const handleSubmit = async (data: { prompt: string }) => {
     setIsLoading(true);
     try {
       if (!session || !session.user?.id) {
         throw new Error("User session is not available");
       }
-      
+  
       // Write some logic to find if there is already a thread created...
-      // 
-
-      
+      // ...
+  
+      // If a thread already exists, use 'addMessage' instead of creating a new thread
       // const addMessage = await apiClient.post("/assistant/tax/addMessage", { ...data, thread_id, userId: session.user.id }) as ApiResponse;
-
+  
+      // Otherwise, create a new thread
       const response = await apiClient.post("/assistant/tax/threadCreate", { ...data, userId: session.user.id }) as ApiResponse;
-      // console.log("RUN THREAD response:", response);
-      // console.log("response.allMessageContents", response.allMessageContents);
-      const storeThread = await apiClient.post('/store/thread_id', {
+  
+      // Wait for 1 second (if needed for processing)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+      if (!response.threadData || !response.threadData.thread_id || !response.threadData.userId || !response.threadData.assistantId || !response.threadData.runId) {
+        throw new Error("Required thread data is missing");
+      } 
+      console.log("This is the Response: ", response)
+      // Store the thread information
+      const storeThread = await apiClient.post('/store/thread', {
         thread_id: response.threadData.thread_id,
-        userId: response.threadData.userId
+        userId: response.threadData.userId,
+        assistantId: response.threadData.assistantId,
+        runId: response.threadData.runId,
+        allMessageContents: response.allMessageContents
       });
-
-
+  
+      console.log("this is what was stored RunThread: ", storeThread);
+  
+      // Processing the response messages
       if (Array.isArray(response.allMessageContents)) {
-        const formattedMessages = response.allMessageContents.map((item: string, index: number) => ({
-            id: index.toString(),
-            content: item,
+        const formattedMessages = response.allMessageContents.map((item, index) => ({
+          id: index.toString(),
+          content: item,
         }));
         setMessages(formattedMessages);
         console.log("Messages Set: ", formattedMessages);
@@ -76,17 +91,34 @@ export default function RunThread() {
         console.log("not array???")
         throw new Error("Invalid response format");
       }
+  
+      // Set the thread data and reset the form
       const formattedThreadData = response.threadData;
       setThreadData(formattedThreadData);
       form.reset();
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Error communicating with the assistant.');
+      toast.error('Error communicating with the assistant.'); //
       setMessages([]); // Reset messages in case of error
+    } finally {
+      setIsLoading(false);
     }
-  
-    setIsLoading(false);
   };
+  
+
+  /* const saveThread = async (thread_id: string, userId: string) => {
+    if (!session.data || lastMessageSaved) return;
+    try {
+      await apiClient.post('/store/thread', {
+        thread_id,
+        
+        userId: session.data.user.id,
+      });
+      setLastMessageSaved(true);
+    } catch (e) {
+      console.error("Error saving chat message:", e);
+    }
+  }; */
 
   const renderMessage = (message: any) => {
     try {
@@ -103,26 +135,22 @@ export default function RunThread() {
   };
 
   return (
-    <div>
-        <div className="messages">
-            {messages.map(message => renderMessage(message))}
-        </div>
-
+    <div className="mx-auto w-full max-w-lg">
+    <div className="messages">
+        {messages.map(message => renderMessage(message))}
+    </div>
+    <h1 className="font-semibold my-2">Test Run Thread</h1>
+    <section>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className={`flex flex-col space-y-3`}>
-          <span className="font-semibold">Test Run Thread</span>
-          <div className="flex items-center space-x-2">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
             <FormField
               control={form.control}
               name="prompt"
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="try and break me"
-                      autoComplete="text"
-                      className="input input-bordered w-full placeholder:opacity-60"
+                    <Textarea
+                      placeholder="Type your message here"
                       {...field}
                     />
                   </FormControl>
@@ -132,17 +160,16 @@ export default function RunThread() {
                 </FormItem>
               )}
             />
-
-            <Button type="submit" className="btn btn-primary btn-block" disabled={isLoading}>
+            <Button className="flex w-full space-x-2" type="submit" disabled={isLoading}>
               {isLoading ? (
-                <span className="loading loading-spinner loading-xs"></span>
+                <Loader />
               ) : (
-                <ArrowRightCircle className="inline-block" />
+                <Send />
               )}
             </Button>
-          </div>
         </form>
       </Form>
+      </section>
     </div>
   );
 }

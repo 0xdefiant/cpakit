@@ -7,10 +7,22 @@ const storeThread = new mongoose.Schema(
             type: String,
             required: true,
         },
+        assistantId: {
+            type: String,
+            required: true,
+        },
+        runId: {
+            type: String,
+            required: true,
+        },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+        },
+        allMessageContents: {
+            type: Array,
+            required: true
         }
     },
     {

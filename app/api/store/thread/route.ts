@@ -9,12 +9,19 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log(" '/store/thread_id/', This is the body: ", body);
 
-    if ( !body.thread_id || !body.userId ) {
-        return NextResponse.json({ error: "Needs thread_id or userId"}, { status: 400 });
+    if ( !body.thread_id || !body.userId || !body.assistantId || !body.runId || !body.allMessageContents ) {
+        return NextResponse.json({ error: "Needs more id's"}, { status: 400 });
     }
 
     try {
-        const newStoreThread = await storeThread.create({ thread_id: body.thread_id, userId: body.userId });
+        const newStoreThread = await storeThread.create({ 
+            thread_id: body.thread_id,
+            userId: body.userId,
+            assistantId: body.assistantId,
+            runId: body.runId,
+            allMessageContents: body.allMessageContents
+         });
+        console.log("This is what was Stored from the thread: ", newStoreThread);
 
         return NextResponse.json(newStoreThread);
     } catch (e) {
@@ -34,7 +41,7 @@ export async function GET(req: NextRequest) {
     }
   
     try {
-        const retrieveThread = await storeThread.find({ userId: userId }).select('thread_id -_id');
+        const retrieveThread = await storeThread.find({ userId: userId }).select('thread_id allMessageContents -_id');
         
         if (storeThread.length === 0) {
             return NextResponse.json({ message: "No threads found for this userId" }, { status: 404 });
