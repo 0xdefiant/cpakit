@@ -11,8 +11,7 @@ const Hero = () => {
           ai accounting agent
         </h1>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-        CPA Kit arms you with cutting-edge tools to hone expertise,
-        conquer exams, and uncover new insights in mere minutes - no matter your starting point.
+        financial storytelling
         </p>
         <ButtonLead />
       </div>
