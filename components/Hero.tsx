@@ -10,9 +10,9 @@ const Hero = () => {
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           ai accounting agent
         </h1>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
-        financial storytelling
-        </p>
+        <a href="docs.cpakit.org" className="leading-7 [&:not(:first-child)]:mt-6">
+        what's that?
+        </a>
         <ButtonLead />
       </div>
 
