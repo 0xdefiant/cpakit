@@ -48,7 +48,7 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
         fontFamily: {
-          sans: ["var(--font-sans)", ...fontFamily.sans],
+          mono: ['var(--font-geist-mono)'],
         },
         card: {
           DEFAULT: "hsl(var(--card))",

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Inter as FontSans } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import { Viewport } from "next";
 import PlausibleProvider from "next-plausible";
 import { getSEOTags } from "@/libs/seo";
