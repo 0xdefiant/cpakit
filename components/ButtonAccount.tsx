@@ -75,7 +75,7 @@ const ButtonAccount = () => {
             {isLoading ? (
               <Loader className="loading-xs" />
             ) : (
-              <ChevronDown className={`w-5 h-5 duration-200 opacity-50 ${open ? "rotate-180" : ""}`} />
+              <ChevronDown />
             )}
           </Button>
           </PopoverTrigger>

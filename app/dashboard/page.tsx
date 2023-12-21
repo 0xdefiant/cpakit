@@ -1,5 +1,5 @@
-import ButtonTest from '@/components/TestInput';
-import DisplayTests from '@/components/DisplayTests';
+import { DashboardTable } from "@/components/DashboardTable";
+
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +11,8 @@ export default async function Dashboard() {
     <main className="min-h-screen p-8 pb-24">
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Dashboard</h1>
-        <ButtonTest />
-        <DisplayTests />
       </section>
+      <DashboardTable />
     </main>
   );
 }

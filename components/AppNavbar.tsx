@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/libs/utils';
 import Link from 'next/link'; // How can I use link and server side rnedering to make moving between navigation items quicker???
 import {
@@ -14,7 +14,15 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
+import { ModeToggle } from './modeToggle';
+import { ProfileSettings } from './ProfileSettings';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
 import { Pyramid } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { boolean } from 'zod';
+import apiClient from '@/libs/api';
+import { ChevronDown, User, Loader, CreditCard, LogOut } from 'lucide-react';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -85,9 +93,82 @@ ListItem.displayName = "ListItem"
 
 
 const AppNavbar = () => {
+  const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  };
+
+  const handleBilling = async () => {
+    setIsLoading(true);
+    try {
+      const { url }: { url: string } = await apiClient.post(
+        "/stripe/create-portal",
+        {
+          returnUrl: window.location.href,
+        }
+      );
+      window.location.href = url;
+    } catch (e) {
+      console.error(e);
+    }
+    setIsLoading(false);
+  };
+
+  if (status === "unauthenticated") return null;
+
+
   return (
     <NavigationMenu>
       <NavigationMenuList>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger>
+        <button className="flex items-center">
+            {session?.user?.image ? (
+              <Avatar className="mr-2">
+                <AvatarImage
+                  src={session?.user?.image}
+                  alt={session?.user?.name || "Account"}
+                />
+                <AvatarFallback>{session.user?.name || "Account"}</AvatarFallback>
+              </Avatar>
+            ) : (
+              <User className="text-xl font-semibold tracking-tight" />
+            )}
+
+            {session?.user?.name || "Account"}
+          </button>
+        </NavigationMenuTrigger>
+          <NavigationMenuContent>
+          <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+            <li>
+            <button
+              className="flex items-center hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
+              onClick={handleBilling}
+            >
+            <CreditCard className="mr-2 h-4 w-4"/>
+              <span>Billing</span>
+            </button>
+            </li>
+            <li>
+              <button
+                className="flex items-center hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
+                onClick={handleSignOut}
+              >
+              <LogOut className="mr-2 h-4 w-4"></LogOut>
+              <span>Logout</span>
+              </button>
+            </li>
+            <li>
+                <ProfileSettings />
+            </li>
+            <li>
+            <ModeToggle />
+            </li>
+          </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
           <NavigationMenuContent>
