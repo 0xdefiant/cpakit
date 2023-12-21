@@ -62,14 +62,6 @@ return (
                       placeholder="Type your message here"
                       {...field}
                     />
-                    <Textarea
-                      placeholder="Type your message here"
-                      {...field}
-                    />
-                    <Textarea
-                      placeholder="Type your message here"
-                      {...field}
-                    />
                   </FormControl>
                   {fieldState.error && (
                     <FormMessage>{fieldState.error.message}</FormMessage>
