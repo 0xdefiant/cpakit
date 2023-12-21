@@ -51,32 +51,7 @@ return (
     <h1 className="font-semibold my-2">Test Run Thread</h1>
     <section>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
-            <FormField
-              control={form.control}
-              name="messageUser"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Type your message here"
-                      {...field}
-                    />
-                  </FormControl>
-                  {fieldState.error && (
-                    <FormMessage>{fieldState.error.message}</FormMessage>
-                  )}
-                </FormItem>
-              )}
-            />
-            <Button className="flex w-full space-x-2" type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <Loader />
-              ) : (
-                <Send />
-              )}
-            </Button>
-        </form>
+        Put Assistant Logic Here
       </Form>
       </section>
     </div>
