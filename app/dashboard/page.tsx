@@ -1,3 +1,4 @@
+import Assistant from "@/components/Assistant";
 import { DashboardTable } from "@/components/DashboardTable";
 
 
@@ -12,6 +13,7 @@ export default async function Dashboard() {
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Dashboard</h1>
       </section>
+      <Assistant />
       <DashboardTable />
     </main>
   );
