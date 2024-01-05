@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-, "runAssistant.js", "libs/assistant.js"  ],
+, "runAssistant.js", "libs/assistant.js", "ntf.js"  ],
   "exclude": [
     "node_modules"
   ]

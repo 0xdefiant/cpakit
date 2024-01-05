@@ -36,6 +36,7 @@
     "@vercel/kv": "^1.0.0",
     "@vercel/og": "^0.5.20",
     "ai": "^2.2.24",
+    "alchemy-sdk": "^3.1.0",
     "axios": "^1.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",

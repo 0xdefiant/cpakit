@@ -1,6 +1,5 @@
 import Assistant from "@/components/Assistant";
-import { DashboardTable } from "@/components/DashboardTable";
-
+import NftDashboardTable from "@/components/DashboardTable";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +12,7 @@ export default async function Dashboard() {
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Fund Dashboard</h1>
       </section>
-      <DashboardTable />
+      <NftDashboardTable />
     </main>
   );
 }
