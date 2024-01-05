@@ -8,49 +8,49 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table"
+import Image from "next/image";
   
   const threads = [
     {
-      thread: "INV001",
-      completionStatus: "Paid",
+      chain: '/logos/sol.png',
+      transactionType: "Paid",
       totalAmount: "$250.00",
-      transactionType: "Credit Card",
+      token: "Credit Card",
     },
+
     {
-      thread: "INV002",
-      completionStatus: "Pending",
+      chain: '/logos/sol.png',
+      transactionType: "Pending",
       totalAmount: "$150.00",
-      transactionType: "PayPal",
+      token: "PayPal",
     },
+
     {
-      thread: "INV003",
-      completionStatus: "Unpaid",
+      chain: '/logos/sol.png',
+      transactionType: "Unpaid",
       totalAmount: "$350.00",
-      transactionType: "Bank Transfer",
+      token: "Bank Transfer",
     },
+
     {
-      thread: "INV004",
-      completionStatus: "Paid",
+      chain: '/logos/sol.png',
+      transactionType: "Paid",
       totalAmount: "$450.00",
-      transactionType: "Credit Card",
+      token: "Credit Card",
     },
+
     {
-      thread: "INV005",
-      completionStatus: "Paid",
+      chain: '/logos/sol.png',
+      transactionType: "Paid",
       totalAmount: "$550.00",
-      transactionType: "PayPal",
+      token: "PayPal",
     },
+
     {
-      thread: "INV006",
-      completionStatus: "Pending",
-      totalAmount: "$200.00",
-      transactionType: "Bank Transfer",
-    },
-    {
-      thread: "INV007",
-      completionStatus: "Unpaid",
+      chain: '/logos/sol.png',
+      transactionType: "Unpaid",
       totalAmount: "$300.00",
-      transactionType: "Credit Card",
+      token: "Credit Card",
     },
   ]
 
@@ -64,7 +64,7 @@ import {
     });
   
     return total;
-  }// update this javascript react code to add the totalAmount elements from each thread to the total variable.
+  }
   
   export function DashboardTable() {
     return (
@@ -72,18 +72,26 @@ import {
         <TableCaption>A list of your recent threads.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Thread</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
+            <TableHead className="w-[100px]">Chain</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Token</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {threads.map((thread) => (
-            <TableRow key={thread.thread}>
-              <TableCell className="font-medium">{thread.thread}</TableCell>
-              <TableCell>{thread.completionStatus}</TableCell>
+            <TableRow key={thread.chain}>
+              <TableCell className="font-medium">
+                <Image
+                src={thread.chain}
+                alt="Chain Image"
+                width={50}
+            
+                height={50}
+                />
+              </TableCell>
               <TableCell>{thread.transactionType}</TableCell>
+              <TableCell>{thread.token}</TableCell>
               <TableCell className="text-right">{thread.totalAmount}</TableCell>
             </TableRow>
           ))}

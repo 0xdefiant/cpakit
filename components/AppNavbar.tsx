@@ -163,9 +163,6 @@ const AppNavbar = () => {
             <li>
                 <ProfileSettings />
             </li>
-            <li>
-            <ModeToggle />
-            </li>
           </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
