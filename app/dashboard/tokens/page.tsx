@@ -1,6 +1,4 @@
 import TokenDashboardTable from "@/components/TokenDashboardTable";
-import 'dotenv/config';
-
 
 export const dynamic = "force-dynamic";
 

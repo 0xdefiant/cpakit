@@ -1,11 +1,11 @@
-export const dynamic = 'force-dynamic'
-
 const apikey = process.env.ALCHEMY_API_KEY;
 
 export async function POST(request: Request) {
+    console.log("API Route Called");
+
     const requestJson = await request.json();
     const address = requestJson.address;
-    console.log("this is address: ", address);
+    console.log("Address received in API route: ", address);
 
     const balanceResponse = await fetch(`https://eth-mainnet.g.alchemy.com/v2/${apikey}`, {
       method: 'POST',
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     })
   
     const balanceData = await balanceResponse.json();
-    console.log("data from /token", balanceData);
+    console.log("Address Balance Data: ", balanceData);
 
     const tokenMetadataPromises = balanceData.result.tokenBalances.map(async (token: any) => {
         const metadataResponse = await fetch(`https://eth-mainnet.g.alchemy.com/v2/${apikey}`, {
@@ -43,17 +43,16 @@ export async function POST(request: Request) {
     });
 
     const tokenMetadata = await Promise.all(tokenMetadataPromises);
-    console.log("token metadata", tokenMetadata);
+    console.log("Token Metadata: ", tokenMetadata);
 
-    // Combine balance and metadata information
     const combinedTokenData = tokenMetadata.map((metadata, index) => {
         return {
-            ...metadata, // Spread operator to include all properties of metadata
-            balance: balanceData.result.tokenBalances[index].tokenBalance // Add balance from corresponding index
+            ...metadata,
+            balance: balanceData.result.tokenBalances[index].tokenBalance
         };
     });
 
-    console.log("Combined Token Data: ", combinedTokenData)
+    console.log("Combined Token Data: ", combinedTokenData);
 
     return new Response(JSON.stringify({ combinedTokenData }), {
         status: 200,

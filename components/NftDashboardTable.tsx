@@ -10,8 +10,6 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table"
-import Image from "next/image";
-import 'dotenv';
 import React, { useState, useEffect } from 'react';
 import { Alchemy, Network } from 'alchemy-sdk';
 
