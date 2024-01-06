@@ -1,5 +1,6 @@
-import ButtonTest from '@/components/TestInput';
-import DisplayTests from '@/components/DisplayTests';
+import TaxChat from "@/components/TaxChat";
+import RunThread from "@/components/RunThread";
+import { DisplayThread } from "@/components/DisplayThread";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,9 @@ export default async function Advisory() {
       <section className="max-w-xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Advisory</h1>
         <p>Believe it or not, there is a correct way</p>
+        <TaxChat />
+        <RunThread />
+        <DisplayThread />
       </section>
     </main>
   );

@@ -11,6 +11,7 @@ import {
     TableRow,
   } from "@/components/ui/table"
 import Image from "next/image";
+import 'dotenv';
 import React, { useState, useEffect } from 'react';
 import { Alchemy, Network } from 'alchemy-sdk';
 
@@ -31,7 +32,7 @@ type NftMetadata = {
 
   const alchemy = new Alchemy(settings);
 
-  const DashboardTable = () => {
+  const NftDashboardTable = () => {
     const [nftMetadata, setNftMetadata] = useState<NftMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -88,6 +89,7 @@ type NftMetadata = {
       };
   
       fetchNftMetadata();
+      console.log("nft metadata", fetchNftMetadata)
     }, []);
   
     if (isLoading) return <div>Loading...</div>;
@@ -98,41 +100,6 @@ type NftMetadata = {
         chain: '/logos/sol.png',
         transactionType: "Paid",
         totalAmount: "$250.00",
-        token: "Credit Card",
-      },
-
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Pending",
-        totalAmount: "$150.00",
-        token: "PayPal",
-      },
-
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Unpaid",
-        totalAmount: "$350.00",
-        token: "Bank Transfer",
-      },
-
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Paid",
-        totalAmount: "$450.00",
-        token: "Credit Card",
-      },
-
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Paid",
-        totalAmount: "$550.00",
-        token: "PayPal",
-      },
-
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Unpaid",
-        totalAmount: "$300.00",
         token: "Credit Card",
       },
     ] */
@@ -179,4 +146,4 @@ type NftMetadata = {
     );
   };
 
-export default DashboardTable;
+export default NftDashboardTable;

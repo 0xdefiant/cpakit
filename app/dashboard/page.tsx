@@ -1,5 +1,5 @@
 import Assistant from "@/components/Assistant";
-import NftDashboardTable from "@/components/DashboardTable";
+import NftDashboardTable from "@/components/NftDashboardTable";
 
 export const dynamic = "force-dynamic";
 

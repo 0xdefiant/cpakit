@@ -187,10 +187,10 @@ const AppNavbar = () => {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/dashboard/intro" title="Introduction">
+              <ListItem href="/dashboard/nft" title="NFTs">
                 Re-usable components built using Radix UI and Tailwind CSS.
               </ListItem>
-              <ListItem href="/dashboard/tax" title="Tax Kit">
+              <ListItem href="/dashboard/tokens" title="Tokens">
                 Generate your Tax Forms. 
               </ListItem>
               <ListItem href="/dashboard/advisory" title="Advisory">
