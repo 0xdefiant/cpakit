@@ -11,36 +11,40 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table"
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
-  interface NftItem {
-    contract: {
-      name: string;
-      openSeaMetadata: {
-        floorprice: number;
-      };
-      tokenType: string;
+
+interface NftItem {
+  contract: {
+    name: string;
+    openSeaMetadata: {
+      floorprice: number;
     };
-    tokenId: string;
-    tokenUri: string;
-    image: {
-      cachedUrl: string;
-    };
-    timeLastUpdated: string;
-  }
+    tokenType: string;
+  };
+  tokenId: string;
+  tokenUri: string;
+  image: {
+    cachedUrl: string;
+  };
+  timeLastUpdated: string;
+}
 
 const NftDashboardTable = () => {
   const [nftMetadata, setNftMetadata] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [address, setAddress] = useState(''); // Added state to store the user-entered address
 
   useEffect(() => {
+    if (!address) return;
+
     const fetchNftMetadata = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Assuming address is a parameter that should be included in the request
-        const address = "0x0f82438E71EF21e07b6A5871Df2a481B2Dd92A98";
         const response = await fetch(`/api/nfts?address=${address}`, {
           headers: {
             'Content-Type': 'application/json'
@@ -80,10 +84,11 @@ const NftDashboardTable = () => {
     };
 
     fetchNftMetadata();
-  }, []);
+  }, [address]);
   
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+  };
 
   const nftTotal = () => {
     return nftMetadata.reduce((total, meta) => total + meta.floorPrice, 0);
@@ -91,6 +96,17 @@ const NftDashboardTable = () => {
   
   return (
     <div>
+      <Input
+        type="text"
+        value={address}
+        onChange={handleAddressChange}
+        placeholder="Enter Ethereum Address"
+      />
+      <Button onClick={() => setAddress(address)}>Fetch NFTs</Button>
+
+      {isLoading && <div>Loading...</div>}
+      {error && <div>Error: {error}</div>}
+      {!isLoading && !error && (
       <Table>
         <TableCaption>A list of your NFTs.</TableCaption>
         <TableHeader>
@@ -123,6 +139,7 @@ const NftDashboardTable = () => {
           </TableRow>
         </TableFooter>
       </Table>
+    )}
     </div>
   );
 };

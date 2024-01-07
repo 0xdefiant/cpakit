@@ -23,8 +23,12 @@ const TokenDashboardTable = () => {
     const [tokenMetadata, setTokenMetadata] = useState<TokenMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [address, setAddress] = useState(''); // Added state to store the user entered address
+
 
     useEffect(() => {
+        if (!address) return; // Do not fetch data if the address is not entered
+
         const fetchData = async () => {
             setIsLoading(true);
             setError(null);
@@ -35,7 +39,7 @@ const TokenDashboardTable = () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ address: "0xf15Ffd776A3981b0Cd9f9401df455fCB7dEf8e1A" }) // Properly structured JSON
+                    body: JSON.stringify({ address }) // Create an input form for the user to pick an address
                 });
                 console.log("This is the response: ", response)
     
@@ -66,10 +70,11 @@ const TokenDashboardTable = () => {
         };
     
         fetchData();
-    }, []);
+    }, [address]);
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAddress(e.target.value);
+    };
 
     const tokenTotal = () => {
         return tokenMetadata.reduce((total, meta) => total + meta.balance, 0);
@@ -77,6 +82,17 @@ const TokenDashboardTable = () => {
 
     return (
         <div>
+            <input
+                type="text"
+                value={address}
+                onChange={handleAddressChange}
+                placeholder="Enter Ethereum Address"
+            />
+            <button onClick={() => setAddress(address)}>Fetch Tokens</button>
+
+            {isLoading && <div>Loading...</div>}
+            {error && <div>Error: {error}</div>}
+            {!isLoading && !error && (
             <Table>
                 <TableCaption>A list of your tokens.</TableCaption>
                 <TableHeader>
@@ -113,6 +129,7 @@ const TokenDashboardTable = () => {
                     </TableRow>
                 </TableFooter>
             </Table>
+        )}
         </div>
     );
 };
