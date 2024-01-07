@@ -181,20 +181,19 @@ const AppNavbar = () => {
                       Dashboard
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components built with Radix UI and
-                      Tailwind CSS.
+                      Beautifully designed dashboard and financial statement generations.
                     </p>
                   </Link>
                 </NavigationMenuLink>
               </li>
               <ListItem href="/dashboard/nfts" title="NFTs">
-                Re-usable components built using Radix UI and Tailwind CSS.
+                Track your nfts.
               </ListItem>
               <ListItem href="/dashboard/tokens" title="Tokens">
-                Generate your Tax Forms. 
+                Track your tokens. 
               </ListItem>
-              <ListItem href="/dashboard/advisory" title="Advisory">
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="/dashboard/txs" title="Transactions">
+                Tracking for all token and nft transactions.
               </ListItem>
             </ul>
           </NavigationMenuContent>

@@ -98,6 +98,7 @@ const NftDashboardTable = () => {
     <div>
       <Input
         type="text"
+        className='my-2'
         value={address}
         onChange={handleAddressChange}
         placeholder="Enter Ethereum Address"
@@ -111,7 +112,7 @@ const NftDashboardTable = () => {
         <TableCaption>A list of your NFTs.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>NFT</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Floor Price</TableHead>

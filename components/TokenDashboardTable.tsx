@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useState, useEffect } from 'react';
 import {
     Table,
     TableBody,
@@ -10,7 +11,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import React, { useState, useEffect } from 'react';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 type TokenMetadata = {
     name: string;
@@ -82,13 +84,14 @@ const TokenDashboardTable = () => {
 
     return (
         <div>
-            <input
+            <Input
                 type="text"
+                className='my-2'
                 value={address}
                 onChange={handleAddressChange}
                 placeholder="Enter Ethereum Address"
             />
-            <button onClick={() => setAddress(address)}>Fetch Tokens</button>
+            <Button onClick={() => setAddress(address)}>Fetch Tokens</Button>
 
             {isLoading && <div>Loading...</div>}
             {error && <div>Error: {error}</div>}

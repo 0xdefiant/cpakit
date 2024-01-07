@@ -1,5 +1,3 @@
-import { any } from "zod";
-
 const apikey = process.env.ALCHEMY_API_KEY;
 
 export async function GET(request: Request) {
@@ -22,7 +20,7 @@ export async function GET(request: Request) {
     const NFTsForOwner = await fetch(`https://eth-mainnet.g.alchemy.com/nft/v3/${apikey}/getNFTsForOwner?owner=${walletAddress}&withMetadata=true&excludeFilters[]=SPAM&excludeFilters[]=AIRDROPS&spamConfidenceLevel=LOW&pageSize=100`, {
       method: 'GET',
       headers: {
-        'accept': 'application/json'
+        'accept': 'application/json',
       },
     });
 
