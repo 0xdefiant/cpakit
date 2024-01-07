@@ -1,4 +1,5 @@
 import { cn } from "@/libs/utils"
+import React from "react";
 
 function Skeleton({
   className,
