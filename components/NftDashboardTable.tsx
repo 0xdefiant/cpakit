@@ -13,7 +13,7 @@ import {
   } from "@/components/ui/table"
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-
+import { Skeleton } from './ui/skeleton';
 
 interface NftItem {
   contract: {
@@ -96,51 +96,81 @@ const NftDashboardTable = () => {
   
   return (
     <div>
-      <Input
-        type="text"
-        className='my-2'
-        value={address}
-        onChange={handleAddressChange}
-        placeholder="Enter Ethereum Address"
-      />
-      <Button onClick={() => setAddress(address)}>Fetch NFTs</Button>
+        <Input
+            type="text"
+            className='my-2'
+            value={address}
+            onChange={handleAddressChange}
+            placeholder="Enter Ethereum Address"
+        />
+        <Button onClick={() => setAddress(address)}>Fetch NFTs</Button>
 
-      {isLoading && <div>Loading...</div>}
-      {error && <div>Error: {error}</div>}
-      {!isLoading && !error && (
-      <Table>
-        <TableCaption>A list of your NFTs.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>NFT</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Floor Price</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {nftMetadata.map((metaData) => (
-            <TableRow key={metaData.id}>
-              <img
-              src={metaData.imageUrl}
-              height={50}
-              width={50}
-              alt="Collection Image"
-              />
-              <TableCell>{metaData.name}</TableCell>
-              <TableCell>{metaData.tokenType}</TableCell>
-              <TableCell className="text-right">{`$${metaData.floorPrice}`}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total Floor Price</TableCell>
-            <TableCell className="text-right">{`$${nftTotal().toFixed(2)}`}</TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    )}
+        {isLoading && (
+            <Table>
+                <TableCaption>Waiting for address to find NFTs...</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>NFT</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="text-right">Floor Price</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {[...Array(2)].map((_, index) => (
+                        <TableRow key={index}>
+                            <TableCell><Skeleton className="w-[50px] h-[50px] rounded-full" /></TableCell>
+                            <TableCell><Skeleton className="w-[80px] h-[20px] rounded-full" /></TableCell>
+                            <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
+                            <TableCell className=''>
+                                <div className="flex justify-end">
+                                    <Skeleton className="w-[80px] h-[20px] rounded-full" />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        )}
+
+        {error && <div>Error: {error}</div>}
+
+        {!isLoading && !error && (
+            <Table>
+                <TableCaption>A list of your NFTs.</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>NFT</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="text-right">Floor Price</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {nftMetadata.map((metaData) => (
+                        <TableRow key={metaData.id}>
+                            <TableCell>
+                                <img
+                                    src={metaData.imageUrl}
+                                    height={50}
+                                    width={50}
+                                    alt="Collection Image"
+                                />
+                            </TableCell>
+                            <TableCell>{metaData.name}</TableCell>
+                            <TableCell>{metaData.tokenType}</TableCell>
+                            <TableCell className="text-right">{`$${metaData.floorPrice}`}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TableCell colSpan={3}>Total Floor Price</TableCell>
+                        <TableCell className="text-right">{`$${nftTotal().toFixed(2)}`}</TableCell>
+                    </TableRow>
+                </TableFooter>
+            </Table>
+        )}
     </div>
   );
 };

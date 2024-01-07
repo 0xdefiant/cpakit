@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 type TxMetadata = {
     tokenName: string;
@@ -122,40 +123,71 @@ const TxDashboardTable = () => {
                 placeholder="Enter Ethereum Address"
             />
             <Button onClick={() => setAddress(address)}>Fetch Txs</Button>
-
-            {isLoading && <div>Loading...</div>}
-            {error && <div>Error: {error}</div>}
-            {!isLoading && !error && (
-            <Table>
-                <TableCaption>A list of your Txs.</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>From</TableHead>
-                        <TableHead>To</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead className="text-right">Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {TxMetadata.map((metaData, index) => (
-                        <TableRow key={index}>
-                            <TableCell>{metaData.tokenSymbol}</TableCell>
-                            <TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
-                            <TableCell>{formatAddress(metaData.toAddress)}</TableCell>
-                            <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
-                            <TableCell className="text-right">{formatDecimal(metaData.value_decimal)}</TableCell>
+    
+            {isLoading && (
+                <Table>
+                    <TableCaption>Waiting for address to find Transactions...</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Symbol</TableHead>
+                            <TableHead>From</TableHead>
+                            <TableHead>To</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead className="text-right">Value</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={4}>Total Tx Value</TableCell>
-                        <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
-        )}
+                    </TableHeader>
+                    <TableBody>
+                        {/* Assuming 5 columns based on your table structure */}
+                        {[...Array(1)].map((_, index) => (
+                            <TableRow key={index}>
+                                <TableCell><Skeleton className="w-[40px] h-[40px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[40px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell className=''>
+                                    <div className="flex justify-end">
+                                        <Skeleton className="w-[60px] h-[20px] rounded-full" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            )}
+    
+            {error && <div>Error: {error}</div>}
+    
+            {!isLoading && !error && (
+                <Table>
+                    <TableCaption>A list of your Txs.</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Symbol</TableHead>
+                            <TableHead>From</TableHead>
+                            <TableHead>To</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead className="text-right">Value</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {TxMetadata.map((metaData, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{metaData.tokenSymbol}</TableCell>
+                                <TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
+                                <TableCell>{formatAddress(metaData.toAddress)}</TableCell>
+                                <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
+                                <TableCell className="text-right">{formatDecimal(metaData.value_decimal)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell colSpan={4}>Total Tx Value</TableCell>
+                            <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
+                        </TableRow>
+                    </TableFooter>
+                </Table>
+            )}
         </div>
     );
 };

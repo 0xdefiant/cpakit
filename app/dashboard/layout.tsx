@@ -21,11 +21,13 @@ export default async function LayoutPrivate({
   return (
     <div className="flex min-h-screen">
       <div className="flex-1">
-        <div className="flex justify-between w-full px-4 py-2">
-          <div className="flex justify-start">
-          <AppNavbar />
-          </div>
+      <header className="bg-base-200 relative">
+        <div className="container mx-auto px-4 py-4 gradient-navbar-border">
+          <nav className="flex items-center justify-between" aria-label="Global">
+            <AppNavbar />
+          </nav>
         </div>
+      </header>
         <div className="max-w-2xl mx-auto p-4">
           {children}
         </div>

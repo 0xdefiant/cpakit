@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 type TokenMetadata = {
     name: string;
@@ -92,49 +93,80 @@ const TokenDashboardTable = () => {
                 placeholder="Enter Ethereum Address"
             />
             <Button onClick={() => setAddress(address)}>Fetch Tokens</Button>
-
-            {isLoading && <div>Loading...</div>}
-            {error && <div>Error: {error}</div>}
-            {!isLoading && !error && (
-            <Table>
-                <TableCaption>A list of your tokens.</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Logo</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>Units</TableHead>
-                        <TableHead className="text-right">Units</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {tokenMetadata.map((metaData, index) => (
-                        <TableRow key={index}>
-                            <TableCell>
-                                <img
-                                    src={metaData.logo}
-                                    height={25}
-                                    width={25}
-                                    alt="Token Logo"
-                                />
-                            </TableCell>
-                            <TableCell>{metaData.name}</TableCell>
-                            <TableCell>{metaData.symbol}</TableCell>
-                            <TableCell className="text-right">{metaData.balance.toFixed(2)}</TableCell>
-                            <TableCell>{metaData.symbol}</TableCell>
+    
+            {isLoading && (
+                <Table>
+                    <TableCaption>Waiting for address to find Tokens...</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Logo</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Symbol</TableHead>
+                            <TableHead>Units</TableHead>
+                            <TableHead className="text-right">Units</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={4}>Total Token Value</TableCell>
-                        <TableCell className="text-right">{tokenTotal().toFixed(2)}</TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
-        )}
+                    </TableHeader>
+                    <TableBody>
+                        {/* Assuming 5 columns based on your table structure */}
+                        {[...Array(2)].map((_, index) => (
+                            <TableRow key={index}>
+                                <TableCell><Skeleton className="w-[20px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[40px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[80px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell className=''>
+                                    <div className="flex justify-end">
+                                        <Skeleton className="w-[80px] h-[20px] rounded-full" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            )}
+    
+            {error && <div>Error: {error}</div>}
+    
+            {!isLoading && !error && (
+                <Table>
+                    <TableCaption>A list of your tokens.</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Logo</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Symbol</TableHead>
+                            <TableHead>Units</TableHead>
+                            <TableHead className="text-right">Units</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {tokenMetadata.map((metaData, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <img
+                                        src={metaData.logo}
+                                        height={25}
+                                        width={25}
+                                        alt="Token Logo"
+                                    />
+                                </TableCell>
+                                <TableCell>{metaData.name}</TableCell>
+                                <TableCell>{metaData.symbol}</TableCell>
+                                <TableCell className="text-right">{metaData.balance.toFixed(2)}</TableCell>
+                                <TableCell>{metaData.symbol}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell colSpan={4}>Total Token Value</TableCell>
+                            <TableCell className="text-right">{tokenTotal().toFixed(2)}</TableCell>
+                        </TableRow>
+                    </TableFooter>
+                </Table>
+            )}
         </div>
-    );
+    );    
 };
 
 export default TokenDashboardTable;
