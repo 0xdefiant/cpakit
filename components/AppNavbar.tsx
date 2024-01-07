@@ -187,7 +187,7 @@ const AppNavbar = () => {
                   </Link>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/dashboard/nft" title="NFTs">
+              <ListItem href="/dashboard/nfts" title="NFTs">
                 Re-usable components built using Radix UI and Tailwind CSS.
               </ListItem>
               <ListItem href="/dashboard/tokens" title="Tokens">

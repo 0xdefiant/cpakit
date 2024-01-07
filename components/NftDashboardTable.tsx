@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useState, useEffect } from 'react';
 import {
     Table,
     TableBody,
@@ -10,138 +11,120 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table"
-import React, { useState, useEffect } from 'react';
-import { Alchemy, Network } from 'alchemy-sdk';
 
-type NftMetadata = {
-  name: string;
-  id: string;
-  floorPrice: number;
-  tokenType: string;
-  tokenUri: string;
-  imageUrl: string;
-  timeLastUpdated: string;
-};
-
-  const settings = {
-    apiKey: process.env.ALCHEMY_API_KEY, // Replace with your Alchemy API Key.
-    network: Network.ETH_MAINNET, // Replace with your network.
-  };
-
-  const alchemy = new Alchemy(settings);
-
-  const NftDashboardTable = () => {
-    const [nftMetadata, setNftMetadata] = useState<NftMetadata[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const fetchNftMetadata = async () => {
-        try {
-          // Assume you have a list of token IDs you want to fetch
-          const nftContracts = [
-            {
-              contractAddress: "0x60E4d786628Fea6478F785A6d7e704777c86a7c6",
-              tokenIds: ["10386"]
-            },
-            {
-              contractAddress: "0x60E4d786628Fea6478F785A6d7e704777c86a7c6",
-              tokenIds: ["28478"]
-            },
-            {
-              contractAddress: "0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D",
-              tokenIds: ["4317"]
-            }
-            // Add more objects with contract addresses and token IDs as needed
-          ];
-          const metadataList: NftMetadata[] = [];
-  
-          for (const nftContract of nftContracts) {
-            for (const tokenId of nftContract.tokenIds) {
-              const data = await alchemy.nft.getNftMetadata(
-                nftContract.contractAddress,
-                tokenId, {}
-              );
-          
-              // Process and add the fetched data to metadataList
-              if (data) {
-                metadataList.push({
-                  name: data.contract?.name || 'Unknown',
-                  id: data.tokenId,
-                  floorPrice: data.contract?.openSeaMetadata?.floorPrice || 0,
-                  tokenType: data.tokenType,
-                  tokenUri: data.tokenUri,
-                  imageUrl: data.image.pngUrl,
-                  timeLastUpdated: data.timeLastUpdated
-                });
-              }
-            }
-          }
-  
-          setNftMetadata(metadataList);
-        } catch (err) {
-          setError('Failed to fetch NFT metadata');
-        } finally {
-          setIsLoading(false);
-        }
+  interface NftItem {
+    contract: {
+      name: string;
+      openSeaMetadata: {
+        floorprice: number;
       };
-  
-      fetchNftMetadata();
-      console.log("nft metadata", fetchNftMetadata)
-    }, []);
-  
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
-
-    /* const threads = [
-      {
-        chain: '/logos/sol.png',
-        transactionType: "Paid",
-        totalAmount: "$250.00",
-        token: "Credit Card",
-      },
-    ] */
-
-    const nftTotal = () => {
-      return nftMetadata.reduce((total, meta) => total + meta.floorPrice, 0);
+      tokenType: string;
     };
+    tokenId: string;
+    tokenUri: string;
+    image: {
+      cachedUrl: string;
+    };
+    timeLastUpdated: string;
+  }
+
+const NftDashboardTable = () => {
+  const [nftMetadata, setNftMetadata] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchNftMetadata = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Assuming address is a parameter that should be included in the request
+        const address = "0x0f82438E71EF21e07b6A5871Df2a481B2Dd92A98";
+        const response = await fetch(`/api/nfts?address=${address}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("json Response: ", data)
+        console.log("json Response, nft owner, ownerd nfts: ", data.NFTsForOwnerResponse.ownedNfts)
+        console.log("json Response, block timestamp: ", data.NFTsForOwnerResponse.validAt.blockTimestamp)
+        console.log("json Response, opensea: ", data.NFTsForOwnerResponse.validAt.openSeaMetadata);
+
+        const nftArray = await data.NFTsForOwnerResponse.ownedNfts;
+
+        const metadataList = nftArray
+        .filter((item: any ) => item.contract.openSeaMetadata.floorPrice != null && item.contract.openSeaMetadata.floorPrice > 0)
+        .map((item: any) => ({
+          name: item.contract.name,
+          id: item.tokenId,
+          floorPrice: item.contract.openSeaMetadata.floorPrice,
+          tokenType: item.contract.tokenType,
+          tokenUri: item.tokenUri,
+          imageUrl: item.image.cachedUrl,
+          timeLastUpdated: item.timeLastUpdated,
+        }));
+        setNftMetadata(metadataList);
+        console.log("NFT Metadata Fetched Successfully");
+      } catch (err) {
+        setError('Failed to fetch NFT metadata');
+        console.error(err);
+      }
+      setIsLoading(false);
+    };
+
+    fetchNftMetadata();
+  }, []);
   
-    return (
-      <div>
-        <Table>
-          <TableCaption>A list of your NFTs.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Floor Price</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {nftMetadata.map((metaData) => (
-              <TableRow key={metaData.id}>
-                <img
-                src={metaData.imageUrl}
-                height={70}
-                width={70}
-                alt="Collection Image"
-                />
-                <TableCell>{metaData.name}</TableCell>
-                <TableCell>{metaData.tokenType}</TableCell>
-                <TableCell className="text-right">{`$${metaData.floorPrice}`}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>Total Floor Price</TableCell>
-              <TableCell className="text-right">{`$${nftTotal().toFixed(2)}`}</TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </div>
-    );
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const nftTotal = () => {
+    return nftMetadata.reduce((total, meta) => total + meta.floorPrice, 0);
   };
+  
+  return (
+    <div>
+      <Table>
+        <TableCaption>A list of your NFTs.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead className="text-right">Floor Price</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {nftMetadata.map((metaData) => (
+            <TableRow key={metaData.id}>
+              <img
+              src={metaData.imageUrl}
+              height={50}
+              width={50}
+              alt="Collection Image"
+              />
+              <TableCell>{metaData.name}</TableCell>
+              <TableCell>{metaData.tokenType}</TableCell>
+              <TableCell className="text-right">{`$${metaData.floorPrice}`}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={3}>Total Floor Price</TableCell>
+            <TableCell className="text-right">{`$${nftTotal().toFixed(2)}`}</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
+  );
+};
 
 export default NftDashboardTable;
