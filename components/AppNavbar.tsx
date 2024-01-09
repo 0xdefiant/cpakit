@@ -14,6 +14,7 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
+import { Skeleton } from './ui/skeleton';
 import { ModeToggle } from './modeToggle';
 import { ProfileSettings } from './ProfileSettings';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -92,6 +93,19 @@ const ListItem = React.forwardRef<
 })
 ListItem.displayName = "ListItem"
 
+const NavbarSkeleton = () => (
+  <div className="flex justify-between items-start w-full">
+    {/* Mimic the structure of the navigation menu */}
+    <div className="flex">
+      <Skeleton className="w-[40px] h-[40px] rounded-full mr-2"></Skeleton>
+      <Skeleton className="w-[300px] h-[20px] rounded-full mt-2"></Skeleton>
+    </div>
+
+    <div className="flex align-right">
+      <Skeleton className="w-[100px] h-[30px]"></Skeleton>
+    </div>
+  </div>
+);
 
 const AppNavbar = () => {
   const { data: session, status } = useSession();
@@ -117,10 +131,12 @@ const AppNavbar = () => {
     setIsLoading(false);
   };
 
+  if (status === "loading") return <NavbarSkeleton />;
   if (status === "unauthenticated") return null;
 
 
   return (
+    <div className='flex justify-between items-start w-full'>
     <NavigationMenu>
       <NavigationMenuList>
       <NavigationMenuItem>
@@ -163,9 +179,6 @@ const AppNavbar = () => {
             </li>
             <li>
                 <ProfileSettings />
-            </li>
-            <li>
-                <WalletInput />
             </li>
           </ul>
           </NavigationMenuContent>
@@ -220,6 +233,10 @@ const AppNavbar = () => {
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
+    <div className='flex align-right'>
+      <WalletInput />
+    </div>
+    </div>
   );
 };
 

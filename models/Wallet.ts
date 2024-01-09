@@ -3,12 +3,24 @@ import toJSON from "./plugins/toJSON";
 
 const walletSchema = new mongoose.Schema(
     {
-    wallet: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      required: true,
-    },
+      name: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        required: true,
+      },
+      wallet: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        required: true,
+      },
+      description: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        required: true,
+      },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
