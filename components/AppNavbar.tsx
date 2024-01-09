@@ -19,6 +19,7 @@ import { ProfileSettings } from './ProfileSettings';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { Pyramid } from 'lucide-react';
+import { WalletInput } from './WalletResources';
 import { useSession, signOut } from 'next-auth/react';
 import { boolean } from 'zod';
 import apiClient from '@/libs/api';
@@ -55,8 +56,8 @@ const components: { title: string; href: string; description: string }[] = [
       "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
   },
   {
-    title: "Tooltip",
-    href: "/das",
+    title: "Transactions",
+    href: "/dashboard/txs", 
     description:
       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
   },
@@ -162,6 +163,9 @@ const AppNavbar = () => {
             </li>
             <li>
                 <ProfileSettings />
+            </li>
+            <li>
+                <WalletInput />
             </li>
           </ul>
           </NavigationMenuContent>

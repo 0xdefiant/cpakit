@@ -107,10 +107,9 @@ const TokenDashboardTable = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {/* Assuming 5 columns based on your table structure */}
-                        {[...Array(2)].map((_, index) => (
+                        {[...Array(1)].map((_, index) => (
                             <TableRow key={index}>
-                                <TableCell><Skeleton className="w-[20px] h-[20px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[45px] h-[45px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[40px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[80px] h-[20px] rounded-full" /></TableCell>

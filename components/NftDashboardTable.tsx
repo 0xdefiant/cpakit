@@ -117,7 +117,7 @@ const NftDashboardTable = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {[...Array(2)].map((_, index) => (
+                    {[...Array(1)].map((_, index) => (
                         <TableRow key={index}>
                             <TableCell><Skeleton className="w-[50px] h-[50px] rounded-full" /></TableCell>
                             <TableCell><Skeleton className="w-[80px] h-[20px] rounded-full" /></TableCell>

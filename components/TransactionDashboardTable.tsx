@@ -140,7 +140,7 @@ const TxDashboardTable = () => {
                         {/* Assuming 5 columns based on your table structure */}
                         {[...Array(1)].map((_, index) => (
                             <TableRow key={index}>
-                                <TableCell><Skeleton className="w-[40px] h-[40px] rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[40px] h-[20px] rounded-full" /></TableCell>
