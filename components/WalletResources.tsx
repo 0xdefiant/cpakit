@@ -117,12 +117,12 @@ const WalletInput =  () => {
       return (
         <Sheet>
             <SheetTrigger asChild>
-                <button
+                <Button
+                    variant="outline"
                     className="flex items-center hover:bg-base-300 duration-200 w-full rounded-lg font-medium"
                 >
                     <Wallet className="h-5 w-5" />
-                    <span className='font-medium px-4 py-2 text-sm'>Wallets</span>
-                </button>
+                </Button>
             </SheetTrigger>
             <SheetContent typeof="form">
                 <SheetHeader>
@@ -141,7 +141,7 @@ const WalletInput =  () => {
                                     variant="outline"
                                     className="btn btn-primary btn-block w-full"
                                     >
-                                        Add <Wallet className="inline-block ml-2" />
+                                        Add Address
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px]">

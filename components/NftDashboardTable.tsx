@@ -46,6 +46,7 @@ const NftDashboardTable = () => {
 
       try {
         const response = await fetch(`/api/nfts?address=${address}`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }

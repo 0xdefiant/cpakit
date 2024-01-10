@@ -32,14 +32,6 @@ export async function GET(request: Request) {
         const TXsForOwnerResponse = await TXsForOwner.json();
         console.log("route.ts TXsfor owner response: ", TXsForOwnerResponse)
 
-    /*Assuming TXsForOwnerResponse contains an array of TXs, each with its metadata
-        const TXdataArray = TXsForOwnerResponse.ownedNfts.map((tx: any) => {
-            return {
-            ...tx, // spread operator to include all properties of the TX
-            // Additional properties can be added here if needed
-            };
-        }); */
-
         const isSpamSymbol = (symbol: any) => {
             const spamWords = ["visit", "claim", "rewards", "gift"];
             return spamWords.some(spamWord => symbol.toLowerCase().includes(spamWord));

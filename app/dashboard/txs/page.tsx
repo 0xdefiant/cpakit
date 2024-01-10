@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function Txs() {
   return (
     <main className="min-h-screen p-8 pb-24">
-      <section className="max-w-xl mx-auto space-y-8">
+      <section className="max-w-4xl mx-auto space-y-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Transactions</h1>
         <p>Track all transactions</p>
         <TxDashboardTable />
