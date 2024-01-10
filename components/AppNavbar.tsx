@@ -175,10 +175,10 @@ const AppNavbar = () => {
                 Tracking for all token and nft transactions.
               </ListItem>
               <ListItem href="/dashboard/advisory" title="Advisory">
-                Ask for AI's advice from all angles.
+                Ask for ChatGPT&lsquo;s advice from all angles.
               </ListItem>
               <ListItem href="/dashboard/consolidation" title="Consolidate">
-                Put Together Financials
+                Put Together Financials.
               </ListItem>
             </ul>
           </NavigationMenuContent>
