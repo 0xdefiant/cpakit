@@ -31,6 +31,7 @@ const ButtonLead = ({ extraStyle }: { extraStyle?: string }) => {
     setIsLoading(true);
     try {
       await apiClient.post("/lead", data);
+      await apiClient.post("/lead/send", data)
 
       toast.success("Thanks for joining the community. Look for an Email in you inbox soon!");
       form.reset();

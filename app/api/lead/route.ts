@@ -19,9 +19,6 @@ export async function POST(req: NextRequest) {
 
     if (!lead) {
       await Lead.create({ email: body.email });
-
-      // Here you can add your own logic
-      // For instance, sending a welcome email (use the the sendEmail helper function from /libs/mailgun)
     }
 
     return NextResponse.json({});
