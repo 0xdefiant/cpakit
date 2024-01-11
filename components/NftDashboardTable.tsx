@@ -69,7 +69,6 @@ const NftDashboardTable = () => {
           setWallets(result.props.wallets);
         } catch (err) {
           console.error('Failed to load wallets', err);
-          // Handle error here
         }
       };
       loadWallets();
@@ -87,18 +86,14 @@ const NftDashboardTable = () => {
             setUserNfts(data);
           } catch (err) {
             console.error("Failed to fetch user's NFTs", err);
-            // Handle error here
           }
         }
       };
       fetchUserNfts();
     }, [session]);
     
-
     useEffect(() => {
-      // Early return if address is not available
       if (!address) return;
-
     
       const fetchNftMetadata = async () => {
         setIsLoading(true);
@@ -112,7 +107,6 @@ const NftDashboardTable = () => {
             }
           });
     
-          // Check if the response is not ok and throw an error
           if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
           }
@@ -137,7 +131,6 @@ const NftDashboardTable = () => {
             setNftMetadata(metadataList);
             console.log("NFT Metadata Fetched Successfully");
           } else {
-            // Handle the case where data.metadataList is not as expected
             throw new Error('Invalid metadata format');
           }
         } catch (err) {
@@ -165,7 +158,6 @@ const NftDashboardTable = () => {
       console.log("wallets: ", wallets)
       
       const selectedWallet = wallets.find(wallet => wallet.wallet === address);
-      console.log("Selected Wallet: ", selectedWallet);
       const walletName = selectedWallet ? selectedWallet.name : '';
       console.log('walletName: ', walletName);
 
@@ -194,22 +186,27 @@ const NftDashboardTable = () => {
       console.error('Failed to save NFT data', err);
       toast.error('Failed to save NFT data.')
     } finally {
-      setIsSaving(false); // End saving regardless of outcome
+      setIsSaving(false);
     }
   };
     
-  
+  // Update the code, currently when the NFT is selected from the dropdown, it renders the loading state
+  // with all of the skeletons. Update the code to render the table with the saved data.
+
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setAddress(inputValue);
-    setIsInEmpty( inputValue === '')
+    setIsInEmpty( inputValue === '' && !value)
   };
 
   const handleNftSelection = (nftId: any) => {
+      setOpen(false);
       const selectedNft = userNfts.find((nft: NftItem) => nft.id === nftId);
       if (selectedNft) {
-          setNftMetadata([selectedNft]);
-          setOpen(false); // Close the popover after selection
+        setNftMetadata([selectedNft]);
+        setIsInEmpty(false);
+        setIsLoading(false); // Set loading to false as we have the selected NFT data
+        setError(null);
       }
   };
 
@@ -268,7 +265,7 @@ const NftDashboardTable = () => {
       </div>
 
       {isInputEmpty && (
-        <div className='mt-4'>Please enter an Ethereum address to fetch NFTs.</div>
+        <div className='mt-4'>Please enter an Ethereum address or select one from the dropdown.</div>
       )}
 
         {isLoading && !isInputEmpty && (
@@ -301,7 +298,7 @@ const NftDashboardTable = () => {
 
         {error && <div>Error: {error}</div>}
 
-        {!isLoading && !error && !isInputEmpty && (
+       {!isLoading && !error && !isInputEmpty && (
             <Table>
                 <TableCaption>  
                   <div className="flex justify-between">
