@@ -12,30 +12,93 @@ import {
     TableRow,
   } from "@/components/ui/table"
 import { Input } from './ui/input';
+import { useSession } from 'next-auth/react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
+import EthereumIcon from 'cryptocurrency-icons/svg/icon/eth.svg';
+import Image from 'next/image';
+import { getWallets } from '@/libs/getWallets';
+
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/libs/utils"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface NftItem {
   name: string;
   address: string;
+  walletName: string;
+  wallet: string;
   floorPrice: number;
   tokenType: string;
-  tokenId: string;
+  id: string;
   tokenUri: string;
   imageUrl: string;
   timeLastUpdated: string;
 }
 
 const NftDashboardTable = () => {
+  const { data: session } = useSession();
   const [nftMetadata, setNftMetadata] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInputEmpty, setIsInEmpty] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [address, setAddress] = useState(''); // Added state to store the user-entered address
+  const [address, setAddress] = useState(''); 
+  const [isSaving, setIsSaving] = useState(false);
+  const [wallets, setWallets] = useState<any[]>([]);
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  const [userNfts, setUserNfts] = useState<NftItem[]>([]);
+
+    useEffect(() => {
+      const loadWallets = async () => {
+        try {
+          const result = await getWallets();
+          setWallets(result.props.wallets);
+        } catch (err) {
+          console.error('Failed to load wallets', err);
+          // Handle error here
+        }
+      };
+      loadWallets();
+    }, []);
+
+    useEffect(() => {
+      const fetchUserNfts = async () => {
+        if (session?.user?.id) {
+          try {
+            const response = await fetch(`/api/NFT?userId=${session.user.id}`);
+            if (!response.ok) {
+              throw new Error(`Error: ${response.status}`);
+            }
+            const data = await response.json();
+            setUserNfts(data);
+          } catch (err) {
+            console.error("Failed to fetch user's NFTs", err);
+            // Handle error here
+          }
+        }
+      };
+      fetchUserNfts();
+    }, [session]);
+    
 
     useEffect(() => {
       // Early return if address is not available
       if (!address) return;
+
     
       const fetchNftMetadata = async () => {
         setIsLoading(true);
@@ -57,17 +120,19 @@ const NftDashboardTable = () => {
           const data = await response.json();
           console.log("JSON Response: ", data);
     
-          // Ensure data.metadataList exists and is an array
           if (data?.metadataList && Array.isArray(data.metadataList)) {
             const metadataList = data.metadataList.map((item: any) => ({
               name: item.name,
-              id: item.tokenId,
+              address: item.address,
               floorPrice: item.floorPrice,
               tokenType: item.tokenType,
+              id: item.id,
               tokenUri: item.tokenUri,
               imageUrl: item.imageUrl,
               timeLastUpdated: item.timeLastUpdated,
             }));
+
+            console.log("Metadatalist: ", metadataList)
     
             setNftMetadata(metadataList);
             console.log("NFT Metadata Fetched Successfully");
@@ -84,7 +149,54 @@ const NftDashboardTable = () => {
       };
     
       fetchNftMetadata();
-    }, [address]);
+    }, [address, wallets]);
+
+    const saveNftData = async () => {
+      setIsSaving(true); 
+
+      console.log("userID: ", session.user.id);
+      console.log("NFT data: ", nftMetadata) 
+      
+      if (!session?.user?.id) {
+        console.error("User ID not found in session");
+        return;
+      }
+      
+      console.log("wallets: ", wallets)
+      
+      const selectedWallet = wallets.find(wallet => wallet.wallet === address);
+      console.log("Selected Wallet: ", selectedWallet);
+      const walletName = selectedWallet ? selectedWallet.name : '';
+      console.log('walletName: ', walletName);
+
+      try {
+        const response = await fetch('/api/NFT', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: session.user.id,
+            walletName: walletName,
+            wallet: address,
+            nftData: nftMetadata,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Result Message: ", result.message);
+      toast.success('NFT data saved successfully');
+    } catch (err) {
+      console.error('Failed to save NFT data', err);
+      toast.error('Failed to save NFT data.')
+    } finally {
+      setIsSaving(false); // End saving regardless of outcome
+    }
+  };
     
   
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,10 +205,18 @@ const NftDashboardTable = () => {
     setIsInEmpty( inputValue === '')
   };
 
+  const handleNftSelection = (nftId: any) => {
+      const selectedNft = userNfts.find((nft: NftItem) => nft.id === nftId);
+      if (selectedNft) {
+          setNftMetadata([selectedNft]);
+          setOpen(false); // Close the popover after selection
+      }
+  };
+
   const nftTotal = () => {
     return nftMetadata.reduce((total, meta) => total + meta.floorPrice, 0);
   };
-  
+
   return (
     <div>
       <div className='flex items-center'>
@@ -107,7 +227,44 @@ const NftDashboardTable = () => {
             onChange={handleAddressChange}
             placeholder="Enter Ethereum Address"
         />
-        <Button onClick={() => setAddress(address)}>Fetch NFTs</Button>
+    <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+            <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-[200px] justify-between"
+            >
+                {value
+                    ? userNfts.find(nft => nft.id === value)?.name
+                    : "Select NFT..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+            <Command>
+                <CommandInput placeholder="Search NFT..." />
+                <CommandEmpty>No NFT found</CommandEmpty>
+                <CommandGroup>
+                    {userNfts.map(nft => (
+                        <CommandItem
+                            key={nft.id}
+                            value={nft.id}
+                            onSelect={(currentValue) => {
+                                setValue(currentValue === value ? "" : currentValue);
+                                handleNftSelection(currentValue);
+                            }}
+                        >
+                            <Check
+                                className={`mr-2 h-4 w-4 ${value === nft.id ? "opacity-100" : "opacity-0"}`}
+                            />
+                            {nft.name}
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+            </Command>
+        </PopoverContent>
+    </Popover>
       </div>
 
       {isInputEmpty && (
@@ -146,11 +303,28 @@ const NftDashboardTable = () => {
 
         {!isLoading && !error && !isInputEmpty && (
             <Table>
-                <TableCaption>A list of your NFTs.</TableCaption>
+                <TableCaption>  
+                  <div className="flex justify-between">
+                    <span>This Addresses NFTs.</span>
+                    <div>
+                      {isSaving ? (
+                        <Button disabled>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Please wait
+                        </Button>
+                      ) : (
+                        <Button variant="secondary" onClick={saveNftData}>
+                          Save NFT Data
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </TableCaption>
                 <TableHeader>
                     <TableRow>
+                        <TableHead>NFT</TableHead>
                         <TableHead>Name</TableHead>
-                        <TableHead>Type</TableHead>
+                        <TableHead>Token Id</TableHead>
                         <TableHead className="text-right">Floor Price</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -166,15 +340,33 @@ const NftDashboardTable = () => {
                                 />
                             </TableCell>
                             <TableCell>{metaData.name}</TableCell>
-                            <TableCell>{metaData.tokenType}</TableCell>
-                            <TableCell className="text-right">{`$${metaData.floorPrice}`}</TableCell>
+                            <TableCell>{metaData.id}</TableCell>
+                            <TableCell className="text-right">
+                              <Image
+                              src={EthereumIcon}
+                              alt='ETH' 
+                              className="inline-block h-4 w-4 mr-2" 
+                              priority={true}
+                              width={50}
+                              height={50}
+                              />
+                              {`${metaData.floorPrice}`}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
                 <TableFooter>
                     <TableRow>
                         <TableCell colSpan={3}>Total Floor Price</TableCell>
-                        <TableCell className="text-right">{`$${nftTotal().toFixed(2)}`}</TableCell>
+                        <TableCell className="text-right">
+                            <Image
+                              src={EthereumIcon}
+                              alt='ETH' 
+                              className="inline-block h-4 w-4 mr-2" 
+                              priority={true}
+                              width={50}
+                              height={50}
+                            />
+                          {`${nftTotal().toFixed(2)}`}</TableCell>
                     </TableRow>
                 </TableFooter>
             </Table>

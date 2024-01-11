@@ -12,22 +12,22 @@ export async function POST(req: Request) {
 
 
     try {
-    // Create a new test record with the user _id and the test string
-    const newWallet = await Wallet.create({ 
-        wallet: body.wallet,         
-        name: body.name, 
-        description: body.description, 
-        userId: body.userId });
-    console.log("New Wallet: ", newWallet);
+        // Create a new test record with the user _id and the test string
+        const newWallet = await Wallet.create({ 
+            wallet: body.wallet,         
+            name: body.name, 
+            description: body.description, 
+            userId: body.userId });
+        console.log("New Wallet: ", newWallet);
 
-    const response = {
-        wallet: newWallet.wallet,
-        name: newWallet.name,
-        description: newWallet.description,
-        id: newWallet._id
-    }
+        const response = {
+            wallet: newWallet.wallet,
+            name: newWallet.name,
+            description: newWallet.description,
+            id: newWallet._id
+        }
 
-    return Response.json(response);
+        return Response.json(response);
     } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });
