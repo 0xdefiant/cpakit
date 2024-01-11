@@ -32,6 +32,7 @@ type TokenMetadata = {
 const TokenDashboardTable = () => {
     const [tokenMetadata, setTokenMetadata] = useState<TokenMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState(''); // Added state to store the user entered address
 
@@ -93,7 +94,9 @@ const TokenDashboardTable = () => {
     }, [address]);
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAddress(e.target.value);
+        const inputValue = e.target.value;
+        setAddress(inputValue);
+        setIsInputEmpty(inputValue === '');
     };
 
     const TokenTotal = () => {
@@ -112,16 +115,22 @@ const TokenDashboardTable = () => {
 
     return (
         <div>
+            <div className='flex items-center'>
             <Input
                 type="text"
-                className='my-2'
+                className='mr-2'
                 value={address}
                 onChange={handleAddressChange}
                 placeholder="Enter Ethereum Address"
             />
             <Button onClick={() => setAddress(address)}>Fetch Tokens</Button>
+            </div>
+
+            {isInputEmpty && (
+                <div>Please enter an Ethereum address to fetch NFTs.</div>
+            )}
     
-            {isLoading && (
+            {isLoading && !isInputEmpty && (
                 <Table>
                     <TableCaption>Waiting for address to find Tokens...</TableCaption>
                     <TableHeader>
@@ -153,7 +162,7 @@ const TokenDashboardTable = () => {
     
             {error && <div>Error: {error}</div>}
     
-            {!isLoading && !error && (
+            {!isLoading && !error && !isInputEmpty && (
                 <Table>
                     <TableCaption>A list of your tokens.</TableCaption>
                     <TableHeader>

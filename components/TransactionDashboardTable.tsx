@@ -23,11 +23,13 @@ type TxMetadata = {
     tx_hash: string;
     block_timestamp: string;
     value_decimal: number;
+    usdPrice: number;
 };
 
 const TxDashboardTable = () => {
     const [TxMetadata, setTxMetadata] = useState<TxMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState(''); // Added state to store the user entered address
 
@@ -64,6 +66,7 @@ const TxDashboardTable = () => {
                         tx_hash: item.transaction_hash,
                         block_timestamp: item.block_timestamp,
                         value_decimal: item.value_decimal,
+                        usdPrice: item.usdPrice,
                     };
                 });
     
@@ -80,7 +83,9 @@ const TxDashboardTable = () => {
     }, [address]);
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAddress(e.target.value);
+        const inputValue = e.target.value;
+        setAddress(inputValue);
+        setIsInputEmpty(inputValue === '');
     };
 
     const TxTotal = () => {
@@ -105,26 +110,36 @@ const TxDashboardTable = () => {
     const formatDecimal = (value: number | string) => {
         const numericValue = typeof value === 'string' ? parseFloat(value) : value;
         if (numericValue < 1) {
-            return numericValue.toFixed(4); // 4 decimal places for values below 1
+            return numericValue.toFixed(6); // 4 decimal places for values below 1
         } else {
             const formattedValue = numericValue.toFixed(3);
             return formattedValue.replace(/\.000$/, ''); // Remove trailing .000
         }
     };
+
+    const isUserInvolved = (tx: TxMetadata) => {
+        return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
+    };
       
 
     return (
         <div>
+            <div className='flex items-center'>
             <Input
                 type="text"
-                className='my-2'
+                className='mr-2'
                 value={address}
                 onChange={handleAddressChange}
                 placeholder="Enter Ethereum Address"
             />
             <Button onClick={() => setAddress(address)}>Fetch Txs</Button>
+            </div>
+
+            {isInputEmpty && (
+                <div>Please enter an Ethereum address to fetch NFTs.</div>
+            )}
     
-            {isLoading && (
+            {isLoading && !isInputEmpty && (
                 <Table>
                     <TableCaption>Waiting for address to find Transactions...</TableCaption>
                     <TableHeader>
@@ -157,7 +172,7 @@ const TxDashboardTable = () => {
     
             {error && <div>Error: {error}</div>}
     
-            {!isLoading && !error && (
+            {!isLoading && !error && !isInputEmpty && (
                 <Table>
                     <TableCaption>A list of your Txs.</TableCaption>
                     <TableHeader>
@@ -166,23 +181,25 @@ const TxDashboardTable = () => {
                             <TableHead>From</TableHead>
                             <TableHead>To</TableHead>
                             <TableHead>Time</TableHead>
+                            <TableHead>Units</TableHead>
                             <TableHead className="text-right">Value</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {TxMetadata.map((metaData, index) => (
-                            <TableRow key={index}>
+                                <TableRow key={index}>
                                 <TableCell>{metaData.tokenSymbol}</TableCell>
-                                <TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
-                                <TableCell>{formatAddress(metaData.toAddress)}</TableCell>
+                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-200" : ""}>{formatAddress(metaData.fromAddress)}</TableCell>
+                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-200" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
                                 <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
-                                <TableCell className="text-right">{formatDecimal(metaData.value_decimal)}</TableCell>
+                                <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
+                                <TableCell className="text-right">{(metaData.usdPrice.toString())}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                     <TableFooter>
                         <TableRow>
-                            <TableCell colSpan={4}>Total Tx Value</TableCell>
+                            <TableCell colSpan={5}>Total Tx Value</TableCell>
                             <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
                         </TableRow>
                     </TableFooter>

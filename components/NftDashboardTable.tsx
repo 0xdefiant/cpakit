@@ -34,6 +34,7 @@ interface NftItem {
 const NftDashboardTable = () => {
   const [nftMetadata, setNftMetadata] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInputEmpty, setIsInEmpty] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState(''); // Added state to store the user-entered address
 
@@ -59,9 +60,7 @@ const NftDashboardTable = () => {
         const data = await response.json();
         console.log("json Response: ", data)
         console.log("json Response, nft owner, ownerd nfts: ", data.NFTsForOwnerResponse.ownedNfts)
-        console.log("json Response, block timestamp: ", data.NFTsForOwnerResponse.validAt.blockTimestamp)
-        console.log("json Response, opensea: ", data.NFTsForOwnerResponse.validAt.openSeaMetadata);
-
+        
         const nftArray = await data.NFTsForOwnerResponse.ownedNfts;
 
         const metadataList = nftArray
@@ -88,7 +87,9 @@ const NftDashboardTable = () => {
   }, [address]);
   
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(e.target.value);
+    const inputValue = e.target.value;
+    setAddress(inputValue);
+    setIsInEmpty( inputValue === '')
   };
 
   const nftTotal = () => {
@@ -97,16 +98,22 @@ const NftDashboardTable = () => {
   
   return (
     <div>
+      <div className='flex items-center'>
         <Input
             type="text"
-            className='my-2'
+            className='mr-2'
             value={address}
             onChange={handleAddressChange}
             placeholder="Enter Ethereum Address"
         />
         <Button onClick={() => setAddress(address)}>Fetch NFTs</Button>
+      </div>
 
-        {isLoading && (
+      {isInputEmpty && (
+        <div className='mt-4'>Please enter an Ethereum address to fetch NFTs.</div>
+      )}
+
+        {isLoading && !isInputEmpty && (
             <Table>
                 <TableCaption>Waiting for address to find NFTs...</TableCaption>
                 <TableHeader>
@@ -136,12 +143,11 @@ const NftDashboardTable = () => {
 
         {error && <div>Error: {error}</div>}
 
-        {!isLoading && !error && (
+        {!isLoading && !error && !isInputEmpty && (
             <Table>
                 <TableCaption>A list of your NFTs.</TableCaption>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>NFT</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead className="text-right">Floor Price</TableHead>

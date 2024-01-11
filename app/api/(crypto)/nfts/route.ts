@@ -33,12 +33,12 @@ export async function GET(request: Request) {
     // Assuming NFTsForOwnerResponse contains an array of NFTs, each with its metadata
     const nftDataArray = NFTsForOwnerResponse.ownedNfts.map((nft: any) => {
       return {
-        ...nft, // spread operator to include all properties of the NFT
-        // Additional properties can be added here if needed
+        ...nft,
       };
     });
 
     console.log("NFT Data Array: ", nftDataArray);
+    console.log("NFT Data Array: ", NFTsForOwnerResponse);
 
     return Response.json({ NFTsForOwnerResponse })
 
