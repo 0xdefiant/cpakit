@@ -30,7 +30,6 @@ export async function GET(request: Request) {
 
     const NFTsForOwnerResponse = await NFTsForOwner.json();
 
-    // Assuming NFTsForOwnerResponse contains an array of NFTs, each with its metadata
     const nftDataArray = NFTsForOwnerResponse.ownedNfts.map((nft: any) => {
       return {
         ...nft,
@@ -38,9 +37,45 @@ export async function GET(request: Request) {
     });
 
     console.log("NFT Data Array: ", nftDataArray);
-    console.log("NFT Data Array: ", NFTsForOwnerResponse);
 
-    return Response.json({ NFTsForOwnerResponse })
+    let metadataList = NFTsForOwnerResponse.ownedNfts
+      .filter((item: any ) => item.contract.openSeaMetadata.floorPrice != null && item.contract.openSeaMetadata.floorPrice > 0)
+      .map((item: any) => ({
+        name: item.contract.name,
+        address: item.contract.address,
+        id: item.tokenId,
+        floorPrice: item.contract.openSeaMetadata.floorPrice,
+        tokenType: item.contract.tokenType,
+        tokenUri: item.tokenUri,
+        imageUrl: item.image.cachedUrl,
+        timeLastUpdated: item.timeLastUpdated,
+    }));
+
+    for (let nft of metadataList) {
+      try {
+        console.log("NFT Address, ", nft.address)
+        const floorPriceResponse = await fetch(`https://eth-mainnet.g.alchemy.com/nft/v3/${apikey}/getFloorPrice?contractAddress=${nft.address}`, {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json'
+          }
+        });
+
+        if (!floorPriceResponse.ok) {
+          throw new Error(`Error fetching floor price data: ${floorPriceResponse.status}`);
+        }
+
+        const floorPriceData = await floorPriceResponse.json();
+        console.log("FloorPriceData: ", floorPriceData)
+        nft.floorPrice = floorPriceData.openSea.floorPrice;
+      } catch (error) {
+        console.error(`Error fetching floor price for NFT ${nft.id}:`, error);
+        nft.floorPrice = null; // Set to null if there was an error
+      }
+    }
+    // Write logic to update the floorPrice Variaqble.
+    console.log("metadataList: ", metadataList)
+    return Response.json({ metadataList })
 
   } catch (error) {
     console.error(error);

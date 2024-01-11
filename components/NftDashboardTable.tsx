@@ -16,18 +16,13 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
 interface NftItem {
-  contract: {
-    name: string;
-    openSeaMetadata: {
-      floorprice: number;
-    };
-    tokenType: string;
-  };
+  name: string;
+  address: string;
+  floorPrice: number;
+  tokenType: string;
   tokenId: string;
   tokenUri: string;
-  image: {
-    cachedUrl: string;
-  };
+  imageUrl: string;
   timeLastUpdated: string;
 }
 
@@ -38,53 +33,59 @@ const NftDashboardTable = () => {
   const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState(''); // Added state to store the user-entered address
 
-  useEffect(() => {
-    if (!address) return;
-
-    const fetchNftMetadata = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(`/api/nfts?address=${address}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
+    useEffect(() => {
+      // Early return if address is not available
+      if (!address) return;
+    
+      const fetchNftMetadata = async () => {
+        setIsLoading(true);
+        setError(null);
+    
+        try {
+          const response = await fetch(`/api/nfts?address=${address}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+    
+          // Check if the response is not ok and throw an error
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
           }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
+    
+          const data = await response.json();
+          console.log("JSON Response: ", data);
+    
+          // Ensure data.metadataList exists and is an array
+          if (data?.metadataList && Array.isArray(data.metadataList)) {
+            const metadataList = data.metadataList.map((item: any) => ({
+              name: item.name,
+              id: item.tokenId,
+              floorPrice: item.floorPrice,
+              tokenType: item.tokenType,
+              tokenUri: item.tokenUri,
+              imageUrl: item.imageUrl,
+              timeLastUpdated: item.timeLastUpdated,
+            }));
+    
+            setNftMetadata(metadataList);
+            console.log("NFT Metadata Fetched Successfully");
+          } else {
+            // Handle the case where data.metadataList is not as expected
+            throw new Error('Invalid metadata format');
+          }
+        } catch (err) {
+          setError('Failed to fetch NFT metadata');
+          console.error(err);
+        } finally {
+          setIsLoading(false);
         }
-
-        const data = await response.json();
-        console.log("json Response: ", data)
-        console.log("json Response, nft owner, ownerd nfts: ", data.NFTsForOwnerResponse.ownedNfts)
-        
-        const nftArray = await data.NFTsForOwnerResponse.ownedNfts;
-
-        const metadataList = nftArray
-        .filter((item: any ) => item.contract.openSeaMetadata.floorPrice != null && item.contract.openSeaMetadata.floorPrice > 0)
-        .map((item: any) => ({
-          name: item.contract.name,
-          id: item.tokenId,
-          floorPrice: item.contract.openSeaMetadata.floorPrice,
-          tokenType: item.contract.tokenType,
-          tokenUri: item.tokenUri,
-          imageUrl: item.image.cachedUrl,
-          timeLastUpdated: item.timeLastUpdated,
-        }));
-        setNftMetadata(metadataList);
-        console.log("NFT Metadata Fetched Successfully");
-      } catch (err) {
-        setError('Failed to fetch NFT metadata');
-        console.error(err);
-      }
-      setIsLoading(false);
-    };
-
-    fetchNftMetadata();
-  }, [address]);
+      };
+    
+      fetchNftMetadata();
+    }, [address]);
+    
   
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
