@@ -31,11 +31,12 @@ const TxDashboardTable = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [address, setAddress] = useState(''); // Added state to store the user entered address
+    const [address, setAddress] = useState('');
+
 
 
     useEffect(() => {
-        if (!address) return; // Do not fetch data if the address is not entered
+        if (!address) return;
 
         const fetchData = async () => {
             setIsLoading(true);
@@ -58,6 +59,10 @@ const TxDashboardTable = () => {
                 console.log('API processed response:', data);
 
                 const organizedData = data.map((item: any) => {
+                    let usdPriceValue = 0;
+                    if (item.usdPrice && item.usdPrice.props && !isNaN(Number(item.usdPrice.props.usdPrice))) {
+                        usdPriceValue = Number(item.usdPrice.props.usdPrice);
+                    }
                     return {
                         tokenName: item.token_name,
                         tokenSymbol: item.token_symbol,
@@ -66,11 +71,15 @@ const TxDashboardTable = () => {
                         tx_hash: item.transaction_hash,
                         block_timestamp: item.block_timestamp,
                         value_decimal: item.value_decimal,
-                        usdPrice: item.usdPrice,
+                        usdPrice: usdPriceValue
                     };
                 });
+                console.log("organized data: ", organizedData)
+                console.log("usdPrice hopefully: ", Number(organizedData[0]?.usdPrice?.props));
     
-                setTxMetadata(organizedData);
+                Promise.all(organizedData).then((completedData) => {
+                    setTxMetadata(completedData);
+                });
             } catch (error) {
                 console.error('Fetching error:', error);
                 setError('Failed to load data');
@@ -97,7 +106,7 @@ const TxDashboardTable = () => {
 
     const formatAddress = (address: string) => {
         if (!address || address.length < 9) {
-          return address; // Return the original address if it's too short to format
+          return address;
         }
         return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
       };
@@ -110,16 +119,20 @@ const TxDashboardTable = () => {
     const formatDecimal = (value: number | string) => {
         const numericValue = typeof value === 'string' ? parseFloat(value) : value;
         if (numericValue < 1) {
-            return numericValue.toFixed(6); // 4 decimal places for values below 1
+            return numericValue.toFixed(6);
         } else {
             const formattedValue = numericValue.toFixed(3);
-            return formattedValue.replace(/\.000$/, ''); // Remove trailing .000
+            return formattedValue.replace(/\.000$/, ''); 
         }
     };
 
     const isUserInvolved = (tx: TxMetadata) => {
         return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
     };
+
+    // create a function for a button to call an API to get the price of the token involved at the time of the transaction
+    // This function should be a GET request that sends each transactions block_timestamp and symbol to the API.
+    // The result of this request should then be added to the metadata object as usdPrice to be rendered below.
       
 
     return (
@@ -152,7 +165,6 @@ const TxDashboardTable = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {/* Assuming 5 columns based on your table structure */}
                         {[...Array(1)].map((_, index) => (
                             <TableRow key={index}>
                                 <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
@@ -189,11 +201,13 @@ const TxDashboardTable = () => {
                         {TxMetadata.map((metaData, index) => (
                                 <TableRow key={index}>
                                 <TableCell>{metaData.tokenSymbol}</TableCell>
-                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-200" : ""}>{formatAddress(metaData.fromAddress)}</TableCell>
-                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-200" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
+                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.fromAddress)}</TableCell>
+                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
                                 <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
                                 <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
-                                <TableCell className="text-right">{(metaData.usdPrice.toString())}</TableCell>
+                                <TableCell className="text-right">
+                                    {Number.isFinite(metaData.usdPrice) ? `$${metaData.usdPrice.toFixed(2)}` : 'N/A'}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

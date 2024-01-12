@@ -1,7 +1,6 @@
 import { getSession } from "next-auth/react";
 
 export async function getWallets() {
-    // Extract user ID from the context or session
         const session = await getSession();
         const userId = session?.user?.id;
     

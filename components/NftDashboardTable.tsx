@@ -190,9 +190,6 @@ const NftDashboardTable = () => {
     }
   };
     
-  // Update the code, currently when the NFT is selected from the dropdown, it renders the loading state
-  // with all of the skeletons. Update the code to render the table with the saved data.
-
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setAddress(inputValue);

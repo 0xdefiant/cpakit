@@ -1,7 +1,9 @@
 const apikey = process.env.MORALIS_API_KEY;
+import { fetchTokenPrice } from "@/libs/fetchTokenPrice";
+
 
 export async function GET(request: Request) {
-    console.log("tx api route called")
+    console.log("tx api route reached")
 
     const url = new URL(request.url);
     const walletAddress = url.searchParams.get('address');
@@ -30,7 +32,6 @@ export async function GET(request: Request) {
         }
 
         const TXsForOwnerResponse = await TXsForOwner.json();
-        console.log("route.ts TXsfor owner response: ", TXsForOwnerResponse)
 
         const isSpamSymbol = (symbol: any, address: string) => {
           const spamWords = ["visit", "claim", "rewards", "gift"];
@@ -40,38 +41,50 @@ export async function GET(request: Request) {
           const isInvalidUSDC = symbol === 'USDC' && address !== '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
       
           return isSpam || isInvalidUSDC;
-      };
+        };
       
-      const filteredTransactions = TXsForOwnerResponse.result.filter((tx: any) => 
-          !tx.possible_spam && !isSpamSymbol(tx.token_symbol, tx.address) &&
-          Number(tx.value) > 0
-      );      
-          // Add USD prices to each transaction
-    for (let tx of filteredTransactions) {
-      try {
-          const txTimePriceResponse = await fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${tx.address}/price?chain=eth&to_block=${tx.block_number}`, {
-              method: 'GET',
-              headers: {
-                  'accept': 'application/json',
-                  'X-API-KEY': apikey
-              },
-          });
+        const filteredTransactions = TXsForOwnerResponse.result.filter((tx: any) => 
+            !tx.possible_spam && !isSpamSymbol(tx.token_symbol, tx.address) &&
+            Number(tx.value) > 0
+        );
+        console.log(" 1) filteredTransactions: ", filteredTransactions[0])
 
-          if (!txTimePriceResponse.ok) {
-              throw new Error(`Error fetching price data: ${txTimePriceResponse.status}`);
-          }
+        for (let tx of filteredTransactions) {
+            try {
+                // console.log("tx, ", tx)
+                console.log("tx.address, ", tx.address)
+                console.log("tx.block_number, ", tx.block_number)
+                console.log("tx.block_timestamp: ", tx.block_timestamp)
+        
+                if (tx.token_symbol.toLowerCase() === 'usdc') {
+                    tx.usdPrice = 1; // Directly assign 1 for USDC transactions
+                    console.log("tx.usdPrice for USDC", tx.usdPrice);
+                } else {
+                    // Fetch token price for non-USDC tokens
+                    const txTimeUsdPrice = await fetchTokenPrice(tx.token_symbol, tx.block_timestamp);
+                    console.log("txTimeUsdPrice: ", txTimeUsdPrice)
+                    tx.usdPrice = txTimeUsdPrice;
+                    console.log("tx.usdPrice", tx.usdPrice);
+                }
+            } catch (error) {
+                console.error(`Error fetching price for transaction ${tx.transaction_hash}:`, error);
+                tx.usdPrice = null; // Setting null if there was an error fetching the price
+            }
+        }
+        if (filteredTransactions.length > 0) {
+            console.log("First transaction:", filteredTransactions[0]);
+            console.log("Last transaction:", filteredTransactions[filteredTransactions.length - 1]);
+        } else {
+            console.log("The transactions array is empty.");
+        }
 
-          const txTimePrice = await txTimePriceResponse.json();
-          tx.usdPrice = txTimePrice.usdPrice;
-      } catch (error) {
-          console.error(`Error fetching price for transaction ${tx.transaction_hash}:`, error);
-          tx.usdPrice = null; // Setting null if there was an error fetching the price
-      }
-  }
-  console.log("Filtered results: ", filteredTransactions);
 
-
-      return Response.json( filteredTransactions )
+    return new Response(JSON.stringify(filteredTransactions), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 
     } catch (error) {
     console.error(error);
