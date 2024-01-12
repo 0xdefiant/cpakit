@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Table,
     TableBody,
@@ -14,6 +14,8 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { Separator } from './ui/separator';
+import { ToastProvider } from '@radix-ui/react-toast';
 
 type TxMetadata = {
     tokenName: string;
@@ -24,6 +26,7 @@ type TxMetadata = {
     block_timestamp: string;
     value_decimal: number;
     usdPrice: number;
+    historicalTokenPrice: number | null;
 };
 
 const TxDashboardTable = () => {
@@ -32,6 +35,7 @@ const TxDashboardTable = () => {
     const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState('');
+    const [toastMessage, setToastMessage] = useState('');
     const [tokenPrice, setTokenPrice] = useState<number | null>(null);
 
 
@@ -130,36 +134,94 @@ const TxDashboardTable = () => {
         return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
     };
 
-    const fetchTokenPrice = async (tokenSymbol: string, blockTimestamp: string) => {
+    const fetchedPricesCache = useRef(new Map()).current;
+
+    const fetchTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string) => {
         try {
+            if (tokenSymbol.toLowerCase() === 'usdc') {
+                updateHistoricalPrice(index, 1);
+                return;
+            }
+
+            // Format to accurately cache, this is not sent to api
+            const date = new Date(blockTimestamp);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const formattedTimestamp = `${day}-${month}-${year}`;
+
+            const cacheKey = `${tokenSymbol.toLowerCase()}-${formattedTimestamp}`;
+
+            if (fetchedPricesCache.has(cacheKey)) {
+                updateHistoricalPrice(index, fetchedPricesCache.get(cacheKey));
+                return;
+            }
+
             const url = `/api/tx/token-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}`;
             const response = await fetch(url, {
-                method: 'GET', // or the method your API requires
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // any other necessary headers
                 },
             });
             if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
             }
-    
+            
             const data = await response.json();
             console.log("Data: ", data)
-            setTokenPrice(data); // Assuming 'price' is the key in the response
+            
+            if (!data) {
+                setToastMessage("Price not fetched, wait a minute and try again");
+                return; // Exit the function if no valid data is found
+            }
+
+            fetchedPricesCache.set(cacheKey, data);
+            updateHistoricalPrice(index, data);
         } catch (error) {
             console.error('Error fetching token price:', error);
-            setTokenPrice(null);
+            setToastMessage("Price not fetched, wait a minute and try again");
+            updateHistoricalPrice(index, null);
         }
     };
 
-    const TokenPriceButton = ({ tokenSymbol, blockTimestamp }: { tokenSymbol: string, blockTimestamp: string }) => (
-        <Button onClick={() => fetchTokenPrice(tokenSymbol, blockTimestamp)}>Fetch Token Price</Button>
+    const updateHistoricalPrice = (index: number, price: number | null) => {
+        setTxMetadata(prevMetadata => prevMetadata.map((item, idx) => 
+            idx === index ? { ...item, historicalTokenPrice: price } : item
+        ));
+    };
+
+    const TokenPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
+        <Button variant='outline' onClick={() => fetchTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
     );
 
-    // Create a button to Call the fetchTokenPrice function to get the token price with the token_symbol and block_timestamp
-    // The result of this request is the price, we should then render it correctly.
-      
+    const renderToast = () => {
+        if (!toastMessage) return null;
+
+        setTimeout(() => setToastMessage(''), 3000); // Hide after 3 seconds
+
+        return (
+            <div style={{
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                backgroundColor: '#323232', // Dark background for modern look
+                color: 'white',
+                padding: '15px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Subtle shadow
+                zIndex: 1000, // Ensure it's on top of other elements
+                transition: 'all 0.3s ease-in-out', // Smooth transition for appearing and disappearing
+                fontSize: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                {toastMessage}
+            </div>
+        );
+    };
+
 
     return (
         <div>
@@ -173,6 +235,8 @@ const TxDashboardTable = () => {
             />
             <Button onClick={() => setAddress(address)}>Fetch Txs</Button>
             </div>
+            <Separator className='my-4' />
+
 
             {isInputEmpty && (
                 <div>Please enter an Ethereum address to fetch NFTs.</div>
@@ -211,6 +275,8 @@ const TxDashboardTable = () => {
             {error && <div>Error: {error}</div>}
     
             {!isLoading && !error && !isInputEmpty && (
+                <div>
+                {renderToast()}
                 <Table>
                     <TableCaption>A list of your Txs.</TableCaption>
                     <TableHeader>
@@ -225,30 +291,30 @@ const TxDashboardTable = () => {
                     </TableHeader>
                     <TableBody>
                         {TxMetadata.map((metaData, index) => (
-                                <TableRow key={index}>
+                            <TableRow key={index}>
                                 <TableCell>{metaData.tokenSymbol}</TableCell>
                                 <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.fromAddress)}</TableCell>
                                 <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
                                 <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
                                 <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
                                 <TableCell className="text-right">
-                                {tokenPrice !== null && (
-                                    <div>Latest Token Price: ${tokenPrice.toFixed(2)}</div>
-                                )}
-                                </TableCell>
-                                <TableCell>
-                                <TokenPriceButton tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                {typeof metaData.historicalTokenPrice === 'number' ? (
+                                        <div>${metaData.historicalTokenPrice.toFixed(2)}</div>
+                                    ) : (
+                                        <TokenPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                        )}
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                     <TableFooter>
                         <TableRow>
-                            <TableCell colSpan={5}>Total Tx Value</TableCell>
+                            <TableCell colSpan={6}>Total Tx Value</TableCell>
                             <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
                         </TableRow>
                     </TableFooter>
                 </Table>
+                </div>
             )}
         </div>
     );
