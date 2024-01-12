@@ -3,7 +3,7 @@ import { fetchTokenPrice } from "@/libs/fetchTokenPrice";
 
 
 export async function GET(request: Request) {
-    console.log("tx api route reached")
+    console.log("-------------------------tx api route reached---------------------")
 
     const url = new URL(request.url);
     const walletAddress = url.searchParams.get('address');
@@ -37,7 +37,6 @@ export async function GET(request: Request) {
           const spamWords = ["visit", "claim", "rewards", "gift"];
           const isSpam = spamWords.some(spamWord => symbol.toLowerCase().includes(spamWord));
       
-          // Check for USDC transactions with the specific address
           const isInvalidUSDC = symbol === 'USDC' && address !== '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
       
           return isSpam || isInvalidUSDC;
@@ -49,18 +48,14 @@ export async function GET(request: Request) {
         );
         console.log(" 1) filteredTransactions: ", filteredTransactions[0])
 
-        for (let tx of filteredTransactions) {
+        // This needs to be on the front end, where the user can over time click to get historical data.
+        // Use the function from here in the front end code.
+        /* for (let tx of filteredTransactions) {
             try {
-                // console.log("tx, ", tx)
-                console.log("tx.address, ", tx.address)
-                console.log("tx.block_number, ", tx.block_number)
-                console.log("tx.block_timestamp: ", tx.block_timestamp)
-        
-                if (tx.token_symbol.toLowerCase() === 'usdc') {
-                    tx.usdPrice = 1; // Directly assign 1 for USDC transactions
+                if (tx.token_symbol && tx.token_symbol.toLowerCase() === 'usdc') {
+                    tx.usdPrice = 1;
                     console.log("tx.usdPrice for USDC", tx.usdPrice);
                 } else {
-                    // Fetch token price for non-USDC tokens
                     const txTimeUsdPrice = await fetchTokenPrice(tx.token_symbol, tx.block_timestamp);
                     console.log("txTimeUsdPrice: ", txTimeUsdPrice)
                     tx.usdPrice = txTimeUsdPrice;
@@ -68,7 +63,7 @@ export async function GET(request: Request) {
                 }
             } catch (error) {
                 console.error(`Error fetching price for transaction ${tx.transaction_hash}:`, error);
-                tx.usdPrice = null; // Setting null if there was an error fetching the price
+                tx.usdPrice = null; 
             }
         }
         if (filteredTransactions.length > 0) {
@@ -77,6 +72,7 @@ export async function GET(request: Request) {
         } else {
             console.log("The transactions array is empty.");
         }
+        */
 
 
     return new Response(JSON.stringify(filteredTransactions), {

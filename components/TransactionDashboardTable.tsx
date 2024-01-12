@@ -32,7 +32,7 @@ const TxDashboardTable = () => {
     const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState('');
-
+    const [tokenPrice, setTokenPrice] = useState<number | null>(null);
 
 
     useEffect(() => {
@@ -130,9 +130,35 @@ const TxDashboardTable = () => {
         return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
     };
 
-    // create a function for a button to call an API to get the price of the token involved at the time of the transaction
-    // This function should be a GET request that sends each transactions block_timestamp and symbol to the API.
-    // The result of this request should then be added to the metadata object as usdPrice to be rendered below.
+    const fetchTokenPrice = async (tokenSymbol: string, blockTimestamp: string) => {
+        try {
+            const url = `/api/tx/token-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}`;
+            const response = await fetch(url, {
+                method: 'GET', // or the method your API requires
+                headers: {
+                    'Content-Type': 'application/json',
+                    // any other necessary headers
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            console.log("Data: ", data)
+            setTokenPrice(data); // Assuming 'price' is the key in the response
+        } catch (error) {
+            console.error('Error fetching token price:', error);
+            setTokenPrice(null);
+        }
+    };
+
+    const TokenPriceButton = ({ tokenSymbol, blockTimestamp }: { tokenSymbol: string, blockTimestamp: string }) => (
+        <Button onClick={() => fetchTokenPrice(tokenSymbol, blockTimestamp)}>Fetch Token Price</Button>
+    );
+
+    // Create a button to Call the fetchTokenPrice function to get the token price with the token_symbol and block_timestamp
+    // The result of this request is the price, we should then render it correctly.
       
 
     return (
@@ -206,7 +232,12 @@ const TxDashboardTable = () => {
                                 <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
                                 <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
                                 <TableCell className="text-right">
-                                    {Number.isFinite(metaData.usdPrice) ? `$${metaData.usdPrice.toFixed(2)}` : 'N/A'}
+                                {tokenPrice !== null && (
+                                    <div>Latest Token Price: ${tokenPrice.toFixed(2)}</div>
+                                )}
+                                </TableCell>
+                                <TableCell>
+                                <TokenPriceButton tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
                                 </TableCell>
                             </TableRow>
                         ))}

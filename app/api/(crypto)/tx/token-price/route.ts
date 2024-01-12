@@ -23,15 +23,6 @@ export async function GET(req: Request) {
             }
           });
     }
-    
-    if (symbol === 'usdc') {
-        return new Response(JSON.stringify({ market_data: { current_price: { usd: 1 } } }), {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    }
 
     const coin = coins.find(coin => coin.symbol.toLowerCase() === symbol);
     console.log("coin: ", coin)
@@ -60,7 +51,7 @@ export async function GET(req: Request) {
         }
 
         const data = await response.json();
-        console.log(`data for ${symbol} on ${apiTimestamp}:`, data.market_data.current_price.usd)
+        console.log(`[token-price] Data for ${symbol} on ${apiTimestamp}:`, data.market_data.current_price.usd)
 
         return new Response(JSON.stringify(data.market_data.current_price.usd), {
             status: 200,
