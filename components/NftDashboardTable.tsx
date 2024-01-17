@@ -35,6 +35,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Separator } from './ui/separator';
 
 interface NftItem {
   name: string;
@@ -58,8 +59,8 @@ const NftDashboardTable = () => {
   const [address, setAddress] = useState(''); 
   const [isSaving, setIsSaving] = useState(false);
   const [wallets, setWallets] = useState<any[]>([]);
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
   const [userNfts, setUserNfts] = useState<NftItem[]>([]);
 
     useEffect(() => {
@@ -221,6 +222,7 @@ const NftDashboardTable = () => {
             onChange={handleAddressChange}
             placeholder="Enter Ethereum Address"
         />
+
     <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
             <Button
@@ -231,7 +233,7 @@ const NftDashboardTable = () => {
             >
                 {value
                     ? userNfts.find(nft => nft.id === value)?.name
-                    : "Select NFT..."}
+                    : "Saved NFTs..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
@@ -260,6 +262,8 @@ const NftDashboardTable = () => {
         </PopoverContent>
     </Popover>
       </div>
+      <Separator className='my-4'/>
+
 
       {isInputEmpty && (
         <div className='mt-4'>Please enter an Ethereum address or select one from the dropdown.</div>

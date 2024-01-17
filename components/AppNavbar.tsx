@@ -60,11 +60,11 @@ const NavbarSkeleton = () => (
     {/* Mimic the structure of the navigation menu */}
     <div className="flex">
       <Skeleton className="w-[40px] h-[40px] rounded-full mr-2"></Skeleton>
-      <Skeleton className="w-[300px] h-[20px] rounded-full mt-2"></Skeleton>
+      <Skeleton className="w-[200px] h-[20px] rounded-full mt-2"></Skeleton>
     </div>
 
     <div className="flex align-right">
-      <Skeleton className="w-[100px] h-[30px]"></Skeleton>
+      <Skeleton className="w-[80px] h-[30px]"></Skeleton>
     </div>
   </div>
 );
@@ -140,7 +140,7 @@ const AppNavbar = () => {
               </button>
             </li>
             <li>
-                <ProfileSettings />
+              <ProfileSettings />
             </li>
           </ul>
           </NavigationMenuContent>

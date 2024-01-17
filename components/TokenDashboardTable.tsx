@@ -15,6 +15,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import BigNumber from 'bignumber.js';
+import { Separator } from './ui/separator';
 
 type TokenMetadata = {
     name: string;
@@ -125,6 +126,7 @@ const TokenDashboardTable = () => {
             />
             <Button onClick={() => setAddress(address)}>Fetch Tokens</Button>
             </div>
+            <Separator className='my-4' />
 
             {isInputEmpty && (
                 <div>Please enter an Ethereum address to fetch NFTs.</div>
