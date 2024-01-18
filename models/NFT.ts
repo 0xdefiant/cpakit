@@ -44,11 +44,10 @@ const NFTSchema = new mongoose.Schema(
       lowercase: true,
       required: true
     },
-    id: {
-      type: String,
-      trim: true,
+    tokenId: {
+      type: Number,
       lowercase: true,
-      required: false
+      required: true
     },
     tokenUri: {
       type: String,
@@ -72,7 +71,6 @@ const NFTSchema = new mongoose.Schema(
   }
 );
 
-// Add plugin that converts mongoose to JSON
 NFTSchema.plugin(toJSON);
 
 export default mongoose.models.NFT || mongoose.model("NFT", NFTSchema);

@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       .map((item: any) => ({
         name: item.contract.name,
         address: item.contract.address,
-        id: item.tokenId,
+        tokenId: item.tokenId,
         floorPrice: item.contract.openSeaMetadata.floorPrice,
         tokenType: item.contract.tokenType,
         tokenUri: item.tokenUri,

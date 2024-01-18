@@ -38,13 +38,14 @@ import {
 import { Separator } from './ui/separator';
 
 interface NftItem {
+  id: string;
   name: string;
   address: string;
   walletName: string;
   wallet: string;
   floorPrice: number;
   tokenType: string;
-  id: string;
+  tokenId: string;
   tokenUri: string;
   imageUrl: string;
   timeLastUpdated: string;
@@ -121,7 +122,7 @@ const NftDashboardTable = () => {
               address: item.address,
               floorPrice: item.floorPrice,
               tokenType: item.tokenType,
-              id: item.id,
+              tokenId: item.tokenId,
               tokenUri: item.tokenUri,
               imageUrl: item.imageUrl,
               timeLastUpdated: item.timeLastUpdated,
@@ -338,7 +339,7 @@ const NftDashboardTable = () => {
                                 />
                             </TableCell>
                             <TableCell>{metaData.name}</TableCell>
-                            <TableCell>{metaData.id}</TableCell>
+                            <TableCell>{metaData.tokenId}</TableCell>
                             <TableCell className="text-right">
                               <Image
                               src={EthereumIcon}

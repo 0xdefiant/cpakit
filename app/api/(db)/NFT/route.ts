@@ -9,14 +9,15 @@ export async function POST(req: Request) {
     console.log("Body: ", body);
 
     // Validate required fields
-    if (!body.userId || !body.walletName || !body.wallet) {
+    if (!body.userId || !body.walletName || !body.wallet || !body.nftData ) {
         return new Response(JSON.stringify({ error: "userId, nftData, walletName, and wallet are required" }), { status: 400 });
     }
+    console.log("NFT DATA: ", body.nftData)
 
     try {
         // Assuming nftData is an array of NFT metadata
         const savedNFTs = await Promise.all(
-          body.nftData.map((nftItem: any) => 
+          body.nftData.map((nftItem: any) =>
             NFT.create({ 
                 userId: body.userId,
                 walletName: body.walletName,
@@ -43,7 +44,7 @@ export async function GET(req: Request) {
     console.log("userId: ", userId)
 
     try {
-        const NFTs = await NFT.find({ userId: userId }).select('walletName wallet name address floorPrice tokenType id tokeUri imageUrl timeLastUpdated')
+        const NFTs = await NFT.find({ userId: userId }).select('walletName wallet name address floorPrice tokenType tokenId tokeUri imageUrl timeLastUpdated')
 
         if (!NFTs || NFTs.length === 0) {
             const noNFTs = Response.json({ message: "No NFTs found for this user"}, { status: 404 });
