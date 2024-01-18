@@ -15,10 +15,13 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
-import { ToastProvider } from '@radix-ui/react-toast';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
 type TxMetadata = {
+    userId: string;
+    wallet: string;
     address: string;
     tokenName: string;
     tokenSymbol: string;
@@ -32,15 +35,16 @@ type TxMetadata = {
 };
 
 const TxDashboardTable = () => {
+    const { data: session } = useSession();
     const [TxMetadata, setTxMetadata] = useState<TxMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [isInputEmpty, setIsInputEmpty] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState('');
     const [toastMessage, setToastMessage] = useState('');
-    const [tokenPrice, setTokenPrice] = useState<number | null>(null);
 
-
+    // FETCHING THE TX DATA FOR A SPECIFIC WALLET
     useEffect(() => {
         if (!address) return;
 
@@ -136,6 +140,7 @@ const TxDashboardTable = () => {
         return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
     };
 
+    // FETCHING THE HISTORICAL TOKEN PRICES
     const fetchedPricesCache = useRef(new Map()).current;
 
     const fetchHistoricalTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string) => {
@@ -145,7 +150,6 @@ const TxDashboardTable = () => {
                 return;
             }
 
-            // Format to accurately cache, this is not sent to api
             const date = new Date(blockTimestamp);
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -197,8 +201,7 @@ const TxDashboardTable = () => {
         <Button variant='outline' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
     );
 
-
-
+    // FETCHING THE CURRENT TOKEN PRICE
     const fetchCurrentTokenPrice = async (index: number, address: string) => {
         try {
             if (address.toLowerCase() === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48') {
@@ -251,6 +254,48 @@ const TxDashboardTable = () => {
     const CurrentPriceButton = ({ index, address }: { index: number, address: string }) => (
         <Button variant='outline' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
     );
+
+    // SAVE TX DATA
+    const saveTxData = async () => {
+        setIsSaving(true);
+
+        console.log("userID: ", session.user.id);
+        console.log("TX data: ", TxMetadata) 
+        
+        if (!session?.user?.id) {
+          console.error("User ID not found in session");
+          return;
+        }
+        
+        // 
+  
+        try {
+          const response = await fetch('/api/TX', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: session.user.id,
+              wallet: address,
+              TxMetadata: TxMetadata,
+          }),
+        });
+          
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log("Result Message: ", result.message);
+        toast.success('TX data saved successfully');
+      } catch (err) {
+        console.error('Failed to save TX data', err);
+        toast.error('Failed to save TX data.')
+      } finally {
+        setIsSaving(false);
+      }
+    };
 
 
     const renderToast = () => {
@@ -336,7 +381,24 @@ const TxDashboardTable = () => {
                 <div>
                 {renderToast()}
                 <Table>
-                    <TableCaption>A list of your Txs.</TableCaption>
+                    <TableCaption>
+                    <div className="flex justify-between">
+                    <span>This Addresses NFTs.</span>
+                    <div>
+                      {isSaving ? (
+                        <Button disabled>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Please wait
+                        </Button>
+                      ) : (
+                        <Button variant="secondary" onClick={saveTxData}>
+                          Save NFT Data
+                        </Button>
+                      )}
+                    </div>
+                    </div>
+                    </TableCaption>
+                    
                     <TableHeader>
                         <TableRow>
                             <TableHead>Symbol</TableHead>
