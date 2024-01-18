@@ -48,6 +48,7 @@ export async function GET(request: Request) {
             "visit", "claim", "rewards", "gift", 
             "https://", ".pro", ".gift", ".net"
         ];
+        
         const textLower = text.toLowerCase();
         return spamIndicators.some(indicator => textLower.includes(indicator));
     };
@@ -75,7 +76,7 @@ export async function GET(request: Request) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            tokens: tokensForRequestBody // Send the array of token addresses
+            tokens: tokensForRequestBody
         })
     });
 

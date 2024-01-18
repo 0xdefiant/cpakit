@@ -16,8 +16,10 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
 import { ToastProvider } from '@radix-ui/react-toast';
+import { useSession } from 'next-auth/react';
 
 type TxMetadata = {
+    address: string;
     tokenName: string;
     tokenSymbol: string;
     fromAddress: string;
@@ -25,7 +27,7 @@ type TxMetadata = {
     tx_hash: string;
     block_timestamp: string;
     value_decimal: number;
-    usdPrice: number;
+    usdPrice: number | null;
     historicalTokenPrice: number | null;
 };
 
@@ -68,6 +70,7 @@ const TxDashboardTable = () => {
                         usdPriceValue = Number(item.usdPrice.props.usdPrice);
                     }
                     return {
+                        address: item.address,
                         tokenName: item.token_name,
                         tokenSymbol: item.token_symbol,
                         fromAddress: item.from_address,
@@ -75,7 +78,6 @@ const TxDashboardTable = () => {
                         tx_hash: item.transaction_hash,
                         block_timestamp: item.block_timestamp,
                         value_decimal: item.value_decimal,
-                        usdPrice: usdPriceValue
                     };
                 });
                 console.log("organized data: ", organizedData)
@@ -136,7 +138,7 @@ const TxDashboardTable = () => {
 
     const fetchedPricesCache = useRef(new Map()).current;
 
-    const fetchTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string) => {
+    const fetchHistoricalTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string) => {
         try {
             if (tokenSymbol.toLowerCase() === 'usdc') {
                 updateHistoricalPrice(index, 1);
@@ -157,7 +159,7 @@ const TxDashboardTable = () => {
                 return;
             }
 
-            const url = `/api/tx/token-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}`;
+            const url = `/api/tx/historical-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -173,7 +175,7 @@ const TxDashboardTable = () => {
             
             if (!data) {
                 setToastMessage("Price not fetched, wait a minute and try again");
-                return; // Exit the function if no valid data is found
+                return; 
             }
 
             fetchedPricesCache.set(cacheKey, data);
@@ -191,9 +193,65 @@ const TxDashboardTable = () => {
         ));
     };
 
-    const TokenPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
-        <Button variant='outline' onClick={() => fetchTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
+    const HistoricalPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
+        <Button variant='outline' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
     );
+
+
+
+    const fetchCurrentTokenPrice = async (index: number, address: string) => {
+        try {
+            if (address.toLowerCase() === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48') {
+                updateCurrentPrice(index, 1);
+                return;
+            }
+
+            const cacheKey = address.toLowerCase();
+
+            if (fetchedPricesCache.has(cacheKey)) {
+                updateCurrentPrice(index, fetchedPricesCache.get(cacheKey));
+                return;
+            }
+
+            const url = `/api/tx/current-price?address=${encodeURIComponent(address)}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("TX dash Table: ", data)
+            const price = data.priceJson.usdPrice;
+            console.log("TX dash Table - usdPrice: ", price)
+
+            if (!data) {
+                setToastMessage("Current price not fetched, wait a minute and try again");
+                return;
+            }
+
+            fetchedPricesCache.set(cacheKey, price);
+            updateCurrentPrice(index, price);
+        } catch (error) {
+            console.error('Error fetching current token price:', error);
+            setToastMessage("Current price not fetched, wait a minute and try again");
+            updateCurrentPrice(index, null);
+        }
+    };
+    const updateCurrentPrice = (index: number, price: number | null) => {
+        setTxMetadata(prevMetadata => prevMetadata.map((item, idx) =>
+            idx === index ? { ...item, usdPrice: price } : item
+        ));
+    };
+    const CurrentPriceButton = ({ index, address }: { index: number, address: string }) => (
+        <Button variant='outline' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
+    );
+
 
     const renderToast = () => {
         if (!toastMessage) return null;
@@ -286,7 +344,8 @@ const TxDashboardTable = () => {
                             <TableHead>To</TableHead>
                             <TableHead>Time</TableHead>
                             <TableHead>Units</TableHead>
-                            <TableHead className="text-right">Value</TableHead>
+                            <TableHead>Historical Price</TableHead>
+                            <TableHead className="text-right">Current Price</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -297,11 +356,18 @@ const TxDashboardTable = () => {
                                 <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
                                 <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
                                 <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
-                                <TableCell className="text-right">
+                                <TableCell>
                                 {typeof metaData.historicalTokenPrice === 'number' ? (
                                         <div>${metaData.historicalTokenPrice.toFixed(2)}</div>
                                     ) : (
-                                        <TokenPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                        <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                        )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                {typeof metaData.usdPrice === 'number' ? ( // TODO: fix this code to render the button when not chosen to fetch current price, and render the current price when the API returns the price
+                                        <div>${metaData.usdPrice.toFixed(2)}</div>
+                                    ) : (
+                                        <CurrentPriceButton index={index} address={metaData.address} />
                                         )}
                                 </TableCell>
                             </TableRow>
