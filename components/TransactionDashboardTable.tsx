@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
     Table,
     TableBody,
@@ -26,12 +26,18 @@ import {
     CommandGroup,
     CommandInput,
     CommandItem,
-  } from "@/components/ui/command"
-  import {
+} from "@/components/ui/command"
+import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-  } from "@/components/ui/popover"
+} from "@/components/ui/popover"
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { CalendarDays } from 'lucide-react';
 
 type TxMetadata = {
     id: string;
@@ -47,6 +53,7 @@ type TxMetadata = {
     value_decimal: number;
     usdPrice: number | null;
     historicalTokenPrice: number | null;
+    grossProfit: number | null;
 };
 
 const TxDashboardTable = () => {
@@ -63,11 +70,11 @@ const TxDashboardTable = () => {
     const [value, setValue] = useState("");
     const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
 
-    // FETCHING THE TX DATA FOR A SPECIFIC WALLET
+    // LIVE FETCHING THE TX DATA FOR A SPECIFIC WALLET
     useEffect(() => {
         if (!address) return;
 
-        const fetchData = async () => {
+        const fetchTxData = async () => {
             setIsLoading(true);
             setError(null);
     
@@ -88,11 +95,8 @@ const TxDashboardTable = () => {
                 console.log('API processed response:', data);
 
                 const organizedData = data.map((item: any) => {
-                    let usdPriceValue = 0;
-                    if (item.usdPrice && item.usdPrice.props && !isNaN(Number(item.usdPrice.props.usdPrice))) {
-                        usdPriceValue = Number(item.usdPrice.props.usdPrice);
-                    }
                     return {
+                        wallet: address,
                         address: item.address,
                         tokenName: item.token_name,
                         tokenSymbol: item.token_symbol,
@@ -103,8 +107,6 @@ const TxDashboardTable = () => {
                         value_decimal: item.value_decimal,
                     };
                 });
-                console.log("organized data: ", organizedData)
-                console.log("usdPrice hopefully: ", Number(organizedData[0]?.usdPrice?.props));
     
                 Promise.all(organizedData).then((completedData) => {
                     setTxMetadata(completedData);
@@ -117,9 +119,10 @@ const TxDashboardTable = () => {
             setIsLoading(false);
         };
     
-        fetchData();
+        fetchTxData();
     }, [address]);
 
+    // GET REQUEST TO GET SAVED WALLETS
     useEffect(() => {
         const loadWallets = async () => {
             try {
@@ -141,6 +144,7 @@ const TxDashboardTable = () => {
                 throw new Error(`Error: ${response.status}`);
               }
               const data = await response.json();
+              console.log("User Tx Data fetched: ", data);
               setUserTXs(data);
             } catch (err) {
               console.error("Failed to fetch user's TXs", err);
@@ -150,31 +154,41 @@ const TxDashboardTable = () => {
         fetchUserTxs();
       }, [session]);
 
+    const groupTransactionsByWallet = (transactions: TxMetadata[]) => {
+        return transactions.reduce((acc: { [key: string]: TxMetadata[] }, tx) => {
+          acc[tx.wallet] = acc[tx.wallet] || [];
+          acc[tx.wallet].push(tx);
+          return acc;
+        }, {});
+      };
+
+    const groupedTXs = useMemo(() => groupTransactionsByWallet(userTXs), [userTXs]);
+
+
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
         setAddress(inputValue);
         setIsInputEmpty(inputValue === '');
     };
-    const handleTXSelection = (TXId: any) => {
+
+    const handleTXSelection = (selectedWallet: string, txs: TxMetadata[] = []) => {
         setOpen(false);
     
-        // Check if 'Select All' was selected
-        if (TXId === "select-all") {
+        if (selectedWallet === "select-all") {
+            // If 'Select All' is chosen, display all transactions
             setTxMetadata(userTXs);
-            setIsInputEmpty(false);
-            setIsLoading(false);
-            setError(null);
             setValue("select-all");
         } else {
-            const selectedTX = userTXs.find((TX: TxMetadata) => TX.id === TXId);
-            if (selectedTX) {
-                setTxMetadata([selectedTX]);
-                setIsInputEmpty(false);
-                setIsLoading(false);
-                setError(null);
-                setValue(TXId);
-            }
+            // Filter transactions to only those belonging to the selected wallet
+            const walletTransactions = userTXs.filter(tx => tx.wallet === selectedWallet);
+            setTxMetadata(walletTransactions);
+            setValue(selectedWallet);
         }
+    
+        // Common updates for any selection
+        setIsInputEmpty(false);
+        setIsLoading(false);
+        setError(null);
     };
 
     const TxTotal = () => {
@@ -205,11 +219,7 @@ const TxDashboardTable = () => {
             return formattedValue.replace(/\.000$/, ''); 
         }
     };
-
-    const isUserInvolved = (tx: TxMetadata) => {
-        return tx.fromAddress.toLowerCase() === address.toLowerCase() || tx.toAddress.toLowerCase() === address.toLowerCase();
-    };
-
+    
     // FETCHING THE HISTORICAL TOKEN PRICES
     const fetchedPricesCache = useRef(new Map()).current;
 
@@ -268,7 +278,7 @@ const TxDashboardTable = () => {
     };
 
     const HistoricalPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
-        <Button variant='outline' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
+        <Button variant='ghost' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
     );
 
     // FETCHING THE CURRENT TOKEN PRICE
@@ -322,8 +332,28 @@ const TxDashboardTable = () => {
         ));
     };
     const CurrentPriceButton = ({ index, address }: { index: number, address: string }) => (
-        <Button variant='outline' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
+        <Button variant='ghost' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
     );
+
+    useEffect(() => {
+        // Calculate new values for TxMetadata
+        const newTxMetadata = TxMetadata.map(item => {
+            if (typeof item.historicalTokenPrice === 'number' && typeof item.usdPrice === 'number') {
+                const profitPerUnit = item.usdPrice - item.historicalTokenPrice;
+                const grossProfit = profitPerUnit * item.value_decimal;
+                return { ...item, grossProfit: grossProfit };
+            }
+            return item;
+        });
+    
+        // Check if there are changes to update
+        const hasChanges = newTxMetadata.some((item, index) => item.grossProfit !== TxMetadata[index].grossProfit);
+    
+        // Only update state if there are changes
+        if (hasChanges) {
+            setTxMetadata(newTxMetadata);
+        }
+    }, [TxMetadata]);
 
     // SAVE TX DATA
     const saveTxData = async () => {
@@ -412,7 +442,7 @@ const TxDashboardTable = () => {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-[200px] justify-between"
+                        className="w-[200px] justify-between mr-2"
                     >
                         {value === "select-all"
                             ? "Select All"
@@ -422,7 +452,7 @@ const TxDashboardTable = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                         <Command>
-                            <CommandInput placeholder="Search TX..." />
+                            <CommandInput placeholder="Search Wallets..." />
                             <CommandEmpty>No TX found</CommandEmpty>
                             <CommandGroup>
                                 <CommandItem
@@ -438,25 +468,34 @@ const TxDashboardTable = () => {
                                     />
                                     Select All
                                 </CommandItem>
-                                {userTXs.map(tx => (
+                                {Object.entries(groupedTXs).map(([walletAddress, txs]) => (
                                     <CommandItem
-                                        key={tx.id}
-                                        value={tx.id}
-                                        onSelect={(currentValue) => {
-                                            setValue(currentValue === value ? "" : currentValue);
-                                            handleTXSelection(currentValue);
-                                        }}
+                                    key={walletAddress}
+                                    value={walletAddress}
+                                    onSelect={() => {
+                                        handleTXSelection(walletAddress, txs);
+                                    }}
                                     >
-                                        <Check
-                                            className={`mr-2 h-4 w-4 ${value === tx.id ? "opacity-100" : "opacity-0"}`}
-                                        />
-                                        {tx.tokenSymbol}
+                                    <Check className={`mr-2 h-4 w-4 ${value === walletAddress ? "opacity-100" : "opacity-0"}`} />
+                                    {wallets.find(w => w.wallet === walletAddress)?.name || formatAddress(walletAddress)}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
                         </Command>
                     </PopoverContent>
                 </Popover>
+                <div>
+                    {isSaving ? (
+                        <Button disabled>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Please wait
+                        </Button>
+                    ) : (
+                        <Button variant="secondary" onClick={saveTxData}>
+                            Save Data
+                        </Button>
+                    )}
+                </div>
             </div>
             <Separator className='my-4' />
 
@@ -471,10 +510,11 @@ const TxDashboardTable = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Symbol</TableHead>
-                            <TableHead>From</TableHead>
-                            <TableHead>To</TableHead>
                             <TableHead>Time</TableHead>
-                            <TableHead className="text-right">Value</TableHead>
+                            <TableHead>Units</TableHead>
+                            <TableHead>Historical Price</TableHead>
+                            <TableHead>Current Price</TableHead>
+                            <TableHead className="text-right">Gain or Loss</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -499,70 +539,111 @@ const TxDashboardTable = () => {
     
             {!isLoading && !error && !isInputEmpty && (
                 <div>
-                {renderToast()}
-                <Table>
-                    <TableCaption>
-                    <div className="flex justify-between">
-                    <span>This Addresses TXs.</span>
-                    <div>
-                      {isSaving ? (
-                        <Button disabled>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Please wait
-                        </Button>
-                      ) : (
-                        <Button variant="secondary" onClick={saveTxData}>
-                          Save TX Data
-                        </Button>
-                      )}
-                    </div>
-                    </div>
-                    </TableCaption>
-                    
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Symbol</TableHead>
-                            <TableHead>From</TableHead>
-                            <TableHead>To</TableHead>
-                            <TableHead>Time</TableHead>
-                            <TableHead>Units</TableHead>
-                            <TableHead>Historical Price</TableHead>
-                            <TableHead className="text-right">Current Price</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {TxMetadata.map((metaData, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{metaData.tokenSymbol}</TableCell>
-                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.fromAddress)}</TableCell>
-                                <TableCell className={isUserInvolved(metaData) ? "bg-yellow-900" : ""}>{formatAddress(metaData.toAddress)}</TableCell>
-                                <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
-                                <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
-                                <TableCell>
-                                {typeof metaData.historicalTokenPrice === 'number' ? (
-                                        <div>${metaData.historicalTokenPrice.toFixed(2)}</div>
-                                    ) : (
-                                        <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
-                                        )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                {typeof metaData.usdPrice === 'number' ? ( // TODO: fix this code to render the button when not chosen to fetch current price, and render the current price when the API returns the price
-                                        <div>${metaData.usdPrice.toFixed(2)}</div>
-                                    ) : (
-                                        <CurrentPriceButton index={index} address={metaData.address} />
-                                        )}
-                                </TableCell>
+                    {renderToast()}
+                    <Table>
+                        <TableCaption>
+                                <span>This Addresses TXs.</span>
+                        </TableCaption>
+
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Symbol</TableHead>
+                                <TableHead>Time</TableHead>
+                                <TableHead>Units</TableHead>
+                                <TableHead>Historical Price</TableHead>
+                                <TableHead>Current Price</TableHead>
+                                <TableHead className="text-right">Gain or Loss</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TableCell colSpan={6}>Total Tx Value</TableCell>
-                            <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
+                        </TableHeader>
+
+                        <TableBody>
+                            {TxMetadata.map((metaData, index) => {
+                                let rowClass = '';
+                                if (metaData.toAddress === metaData.wallet) {
+                                    rowClass = "hover:bg-indigo-600/50"; 
+                                } else if (metaData.fromAddress === metaData.wallet) {
+                                    rowClass = "hover:bg-rose-600/50"; 
+                                }
+                                return (
+                                    <TableRow key={index} className={rowClass}>
+                                        <TableCell>
+                                            <HoverCard>
+                                                <HoverCardTrigger asChild>
+                                                    <Button variant="link">{metaData.tokenSymbol}</Button>
+                                                </HoverCardTrigger>
+                                                <HoverCardContent className="w-80">
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-sm font-semibold">{metaData.tokenSymbol}</h4>
+                                                        <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
+                                                        <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
+                                                        <div className="flex items-center pt-2">
+                                                            <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {formatDate(metaData.block_timestamp)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </HoverCardContent>
+                                            </HoverCard>
+                                        </TableCell>
+                                        {/*<TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
+                                        <TableCell>{formatAddress(metaData.toAddress)}</TableCell>*/}
+                                        <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
+                                        <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
+                                        <TableCell>
+                                            {typeof metaData.historicalTokenPrice === 'number' ? (
+                                                <div>${metaData.historicalTokenPrice.toFixed(2)}</div>
+                                            ) : (
+                                                <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {typeof metaData.usdPrice === 'number' ? (
+                                                <div>${metaData.usdPrice.toFixed(2)}</div>
+                                            ) : (
+                                                <CurrentPriceButton index={index} address={metaData.address} />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {typeof metaData.grossProfit === 'number' ? (
+                                                <div>${metaData.grossProfit.toFixed(2)}</div>
+                                            ) : (
+                                                <HoverCard>
+                                                    <HoverCardTrigger asChild>
+                                                        <Button variant="link">
+                                                        <Skeleton className="text-right w-[60px] h-[20px] rounded-full" />
+                                                        </Button>
+                                                    </HoverCardTrigger>
+                                                    <HoverCardContent className="w-80">
+                                                        <div className="space-y-1">
+                                                            <h4 className="text-sm font-semibold">Generate Historical Price</h4>
+                                                            <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
+                                                            <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
+                                                            <div className="flex items-center pt-2">
+                                                                <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {formatDate(metaData.block_timestamp)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </HoverCardContent>
+                                                </HoverCard>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={5}>Total Tx Value</TableCell>
+                                <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
                 </div>
+
             )}
         </div>
     );
