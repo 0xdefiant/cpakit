@@ -446,7 +446,7 @@ const TxDashboardTable = () => {
                     >
                         {value === "select-all"
                             ? "Select All"
-                            : (userTXs.find(tx => tx.id === value)?.tokenSymbol || "Saved TXs...")}
+                            : (userTXs.find(tx => tx.id === value)?.tokenSymbol || "Search Wallets...")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                     </PopoverTrigger>

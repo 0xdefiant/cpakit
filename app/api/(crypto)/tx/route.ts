@@ -1,6 +1,6 @@
 const apikey = process.env.MORALIS_API_KEY;
 import { fetchTokenPrice } from "@/libs/fetchTokenPrice";
-
+import coins from "@/libs/json/coingeckoFilteredTokens";
 
 export async function GET(request: Request) {
     console.log("-------------------------tx api route reached---------------------")
@@ -41,9 +41,16 @@ export async function GET(request: Request) {
       
           return isSpam || isInvalidUSDC;
         };
+        console.log(coins);
+
+        const isTokenListed = (tokenSymbol: string) => {
+            return coins.some(coin => coin.symbol.toLowerCase() === tokenSymbol.toLowerCase());
+        };
       
         const filteredTransactions = TXsForOwnerResponse.result.filter((tx: any) => 
-            !tx.possible_spam && !isSpamSymbol(tx.token_symbol, tx.address) &&
+            !tx.possible_spam && 
+            isTokenListed(tx.token_symbol) && // Check if the token is listed
+            !isSpamSymbol(tx.token_symbol, tx.address) &&
             Number(tx.value) > 0
         );
         console.log(" 1) filteredTransactions: ", filteredTransactions[0])
