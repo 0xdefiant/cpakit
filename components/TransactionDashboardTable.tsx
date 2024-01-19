@@ -18,8 +18,23 @@ import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { getWallets } from '@/libs/getWallets';
+import { Check, ChevronsUpDown } from "lucide-react"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+  } from "@/components/ui/command"
+  import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
 
 type TxMetadata = {
+    id: string;
     userId: string;
     wallet: string;
     address: string;
@@ -43,6 +58,10 @@ const TxDashboardTable = () => {
     const [error, setError] = useState<string | null>(null);
     const [address, setAddress] = useState('');
     const [toastMessage, setToastMessage] = useState('');
+    const [wallets, setWallets] = useState<any[]>([]);
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState("");
+    const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
 
     // FETCHING THE TX DATA FOR A SPECIFIC WALLET
     useEffect(() => {
@@ -101,10 +120,61 @@ const TxDashboardTable = () => {
         fetchData();
     }, [address]);
 
+    useEffect(() => {
+        const loadWallets = async () => {
+            try {
+                const result = await getWallets();
+                setWallets(result.props.wallets);
+            } catch (err) {
+                console.error("Failed to load wallets", err)
+            }
+        }
+        loadWallets();
+    }, []);
+
+    useEffect(() => {
+        const fetchUserTxs = async () => {
+          if (session?.user?.id) {
+            try {
+              const response = await fetch(`/api/TX?userId=${session.user.id}`);
+              if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+              }
+              const data = await response.json();
+              setUserTXs(data);
+            } catch (err) {
+              console.error("Failed to fetch user's TXs", err);
+            }
+          }
+        };
+        fetchUserTxs();
+      }, [session]);
+
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
         setAddress(inputValue);
         setIsInputEmpty(inputValue === '');
+    };
+    const handleTXSelection = (TXId: any) => {
+        setOpen(false);
+    
+        // Check if 'Select All' was selected
+        if (TXId === "select-all") {
+            setTxMetadata(userTXs);
+            setIsInputEmpty(false);
+            setIsLoading(false);
+            setError(null);
+            setValue("select-all");
+        } else {
+            const selectedTX = userTXs.find((TX: TxMetadata) => TX.id === TXId);
+            if (selectedTX) {
+                setTxMetadata([selectedTX]);
+                setIsInputEmpty(false);
+                setIsLoading(false);
+                setError(null);
+                setValue(TXId);
+            }
+        }
     };
 
     const TxTotal = () => {
@@ -281,7 +351,7 @@ const TxDashboardTable = () => {
               TxMetadata: TxMetadata,
           }),
         });
-          
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -336,13 +406,63 @@ const TxDashboardTable = () => {
                 onChange={handleAddressChange}
                 placeholder="Enter Ethereum Address"
             />
-            <Button onClick={() => setAddress(address)}>Fetch Txs</Button>
+                <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-[200px] justify-between"
+                    >
+                        {value === "select-all"
+                            ? "Select All"
+                            : (userTXs.find(tx => tx.id === value)?.tokenSymbol || "Saved TXs...")}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search TX..." />
+                            <CommandEmpty>No TX found</CommandEmpty>
+                            <CommandGroup>
+                                <CommandItem
+                                    key="select-all"
+                                    value="select-all"
+                                    onSelect={() => {
+                                    setValue("select-all");
+                                    handleTXSelection("select-all");
+                                }}
+                                >
+                                    <Check
+                                        className={`mr-2 h-4 w-4 ${value === "select-all" ? "opacity-100" : "opacity-0"}`}
+                                    />
+                                    Select All
+                                </CommandItem>
+                                {userTXs.map(tx => (
+                                    <CommandItem
+                                        key={tx.id}
+                                        value={tx.id}
+                                        onSelect={(currentValue) => {
+                                            setValue(currentValue === value ? "" : currentValue);
+                                            handleTXSelection(currentValue);
+                                        }}
+                                    >
+                                        <Check
+                                            className={`mr-2 h-4 w-4 ${value === tx.id ? "opacity-100" : "opacity-0"}`}
+                                        />
+                                        {tx.tokenSymbol}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
             </div>
             <Separator className='my-4' />
 
 
             {isInputEmpty && (
-                <div>Please enter an Ethereum address to fetch NFTs.</div>
+                <div>Please enter an Ethereum address to fetch TXs.</div>
             )}
     
             {isLoading && !isInputEmpty && (
@@ -383,7 +503,7 @@ const TxDashboardTable = () => {
                 <Table>
                     <TableCaption>
                     <div className="flex justify-between">
-                    <span>This Addresses NFTs.</span>
+                    <span>This Addresses TXs.</span>
                     <div>
                       {isSaving ? (
                         <Button disabled>
@@ -392,7 +512,7 @@ const TxDashboardTable = () => {
                         </Button>
                       ) : (
                         <Button variant="secondary" onClick={saveTxData}>
-                          Save NFT Data
+                          Save TX Data
                         </Button>
                       )}
                     </div>

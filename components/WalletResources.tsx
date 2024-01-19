@@ -118,8 +118,7 @@ const WalletInput =  () => {
         <Sheet>
             <SheetTrigger asChild>
                 <Button
-                    variant="outline"
-                    className="flex items-center hover:bg-base-300 duration-200 w-full rounded-lg font-medium"
+                    variant="ghost"
                 >
                     <Wallet className="h-5 w-5" />
                 </Button>

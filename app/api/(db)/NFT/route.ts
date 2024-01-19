@@ -3,7 +3,7 @@ import NFT from "@/models/NFT";
 
 export async function POST(req: Request) {
     await connectMongo();
-    console.log("Req: ", req)
+    console.log("Req: ", req);
     
     const body = await req.json();
     console.log("Body: ", body);
@@ -16,19 +16,29 @@ export async function POST(req: Request) {
 
     try {
         // Assuming nftData is an array of NFT metadata
-        const savedNFTs = await Promise.all(
-          body.nftData.map((nftItem: any) =>
-            NFT.create({ 
-                userId: body.userId,
-                walletName: body.walletName,
-                wallet: body.wallet,
-                ...nftItem
-            })
-          )
+        const processedNFTs = await Promise.all(
+          body.nftData.map(async (nftItem: any) => {
+              // Check if NFT with this address and tokenId exists
+              let existingNFT = await NFT.findOne({ address: nftItem.address, tokenId: nftItem.tokenId });
+              if (existingNFT) {
+                  // If exists, update the existing NFT
+                  Object.assign(existingNFT, nftItem);
+                  await existingNFT.save();
+                  return existingNFT;
+              } else {
+                  // If not exists, create new NFT
+                  return NFT.create({ 
+                      userId: body.userId,
+                      walletName: body.walletName,
+                      wallet: body.wallet,
+                      ...nftItem
+                  });
+              }
+          })
         );
-        console.log("Saved NFTs: ", savedNFTs)
+        console.log("Processed NFTs: ", processedNFTs)
 
-        return new Response(JSON.stringify({ message: "NFT data saved successfully", data: savedNFTs }), { status: 200 });
+        return new Response(JSON.stringify({ message: "NFT data processed successfully", data: processedNFTs }), { status: 200 });
     } catch (e) {
         console.error(e);
         return Response.json({ error: e.message }, { status: 500 });

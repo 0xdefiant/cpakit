@@ -55,7 +55,7 @@ const NftDashboardTable = () => {
   const { data: session } = useSession();
   const [nftMetadata, setNftMetadata] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isInputEmpty, setIsInEmpty] = useState(true);
+  const [isInputEmpty, setIsInputEmpty] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState(''); 
   const [isSaving, setIsSaving] = useState(false);
@@ -76,6 +76,7 @@ const NftDashboardTable = () => {
       loadWallets();
     }, []);
 
+    // FETCH NFTS ALREADY SAVED BY THE USER
     useEffect(() => {
       const fetchUserNfts = async () => {
         if (session?.user?.id) {
@@ -94,6 +95,7 @@ const NftDashboardTable = () => {
       fetchUserNfts();
     }, [session]);
     
+    // GET ALL THE NFT METADATA WHEN INPUT ADDRESS ORIGINALLY
     useEffect(() => {
       if (!address) return;
     
@@ -186,7 +188,7 @@ const NftDashboardTable = () => {
       toast.success('NFT data saved successfully');
     } catch (err) {
       console.error('Failed to save NFT data', err);
-      toast.error('Failed to save NFT data.')
+      toast.error('Failed to save NFT data, or the NFT has already been saved!')
     } finally {
       setIsSaving(false);
     }
@@ -195,19 +197,30 @@ const NftDashboardTable = () => {
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setAddress(inputValue);
-    setIsInEmpty( inputValue === '' && !value)
+    setIsInputEmpty( inputValue === '' && !value)
   };
 
   const handleNftSelection = (nftId: any) => {
-      setOpen(false);
-      const selectedNft = userNfts.find((nft: NftItem) => nft.id === nftId);
-      if (selectedNft) {
-        setNftMetadata([selectedNft]);
-        setIsInEmpty(false);
-        setIsLoading(false); // Set loading to false as we have the selected NFT data
+    setOpen(false);
+
+    // Check if 'Select All' was selected
+    if (nftId === "select-all") {
+        setNftMetadata(userNfts);
+        setIsInputEmpty(false);
+        setIsLoading(false);
         setError(null);
-      }
-  };
+        setValue("select-all");
+    } else {
+        const selectedNft = userNfts.find((nft: NftItem) => nft.id === nftId);
+        if (selectedNft) {
+            setNftMetadata([selectedNft]);
+            setIsInputEmpty(false);
+            setIsLoading(false);
+            setError(null);
+            setValue(nftId);
+        }
+    }
+};
 
   const nftTotal = () => {
     return nftMetadata.reduce((total, meta) => total + meta.floorPrice, 0);
@@ -226,23 +239,36 @@ const NftDashboardTable = () => {
 
     <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-            <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-[200px] justify-between"
-            >
-                {value
-                    ? userNfts.find(nft => nft.id === value)?.name
-                    : "Saved NFTs..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
+          <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-[200px] justify-between"
+          >
+              {value === "select-all"
+                  ? "Select All"
+                  : (userNfts.find(nft => nft.id === value)?.name || "Saved NFTs...")}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
             <Command>
                 <CommandInput placeholder="Search NFT..." />
                 <CommandEmpty>No NFT found</CommandEmpty>
                 <CommandGroup>
+                    <CommandItem
+                        key="select-all"
+                        value="select-all"
+                        onSelect={() => {
+                          setValue("select-all");
+                          handleNftSelection("select-all");
+                      }}
+                    >
+                        <Check
+                            className={`mr-2 h-4 w-4 ${value === "select-all" ? "opacity-100" : "opacity-0"}`}
+                        />
+                        Select All
+                    </CommandItem>
                     {userNfts.map(nft => (
                         <CommandItem
                             key={nft.id}
@@ -324,6 +350,7 @@ const NftDashboardTable = () => {
                         <TableHead>NFT</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Token Id</TableHead>
+                        <TableHead>Last Floor Price Update</TableHead>
                         <TableHead className="text-right">Floor Price</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -340,6 +367,7 @@ const NftDashboardTable = () => {
                             </TableCell>
                             <TableCell>{metaData.name}</TableCell>
                             <TableCell>{metaData.tokenId}</TableCell>
+                            <TableCell>{metaData.timeLastUpdated}</TableCell>
                             <TableCell className="text-right">
                               <Image
                               src={EthereumIcon}
@@ -355,7 +383,7 @@ const NftDashboardTable = () => {
                 </TableBody>
                 <TableFooter>
                     <TableRow>
-                        <TableCell colSpan={3}>Total Floor Price</TableCell>
+                        <TableCell colSpan={4}>Total Floor Price</TableCell>
                         <TableCell className="text-right">
                             <Image
                               src={EthereumIcon}
