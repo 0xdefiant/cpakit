@@ -17,8 +17,11 @@ export async function POST(req: Request) {
     try {
         const savedTxs = await Promise.all(
             body.TxMetadata.map(async (TxItem: any) => {
-                // Check if TX with this transaction hash exists
-                let existingTx = await TX.findOne({ tx_hash: TxItem.tx_hash });
+
+                let existingTx = await TX.findOne({ 
+                    tx_hash: TxItem.tx_hash,
+                    log_index: TxItem.log_index
+                });
                 if (existingTx) {
                     // If exists, update the existing TX
                     Object.assign(existingTx, TxItem);

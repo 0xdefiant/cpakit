@@ -49,6 +49,7 @@ type TxMetadata = {
     fromAddress: string;
     toAddress: string;
     tx_hash: string;
+    log_index: number;
     block_timestamp: string;
     value_decimal: number;
     usdPrice: number | null;
@@ -92,7 +93,7 @@ const TxDashboardTable = () => {
                 }
     
                 const data = await response.json();
-                console.log('API processed response:', data);
+                console.log('API response:', data);
 
                 const organizedData = data.map((item: any) => {
                     return {
@@ -103,6 +104,7 @@ const TxDashboardTable = () => {
                         fromAddress: item.from_address,
                         toAddress: item.to_address,
                         tx_hash: item.transaction_hash,
+                        log_index: item.log_index,
                         block_timestamp: item.block_timestamp,
                         value_decimal: item.value_decimal,
                     };
@@ -111,6 +113,7 @@ const TxDashboardTable = () => {
                 Promise.all(organizedData).then((completedData) => {
                     setTxMetadata(completedData);
                 });
+                console.log("completed Data: ", organizedData)
             } catch (error) {
                 console.error('Fetching error:', error);
                 setError('Failed to load data');
@@ -562,6 +565,9 @@ const TxDashboardTable = () => {
                                 }
                                 return (
                                     <TableRow key={index} className={rowClass}>
+                                        <TableCell>
+                                            {index}
+                                        </TableCell>
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>

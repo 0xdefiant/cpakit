@@ -49,6 +49,10 @@ const TxMetadataSchema = new mongoose.Schema(
       type: String,
       trim: true,
       lowercase: true,
+      required: true
+    },
+    log_index: {
+      type: Number,
       required: true,
       unique: true
     },
