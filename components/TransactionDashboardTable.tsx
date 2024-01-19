@@ -184,7 +184,6 @@ const TxDashboardTable = () => {
             setTxMetadata(walletTransactions);
             setValue(selectedWallet);
         }
-    
         // Common updates for any selection
         setIsInputEmpty(false);
         setIsLoading(false);
@@ -358,9 +357,6 @@ const TxDashboardTable = () => {
     // SAVE TX DATA
     const saveTxData = async () => {
         setIsSaving(true);
-
-        console.log("userID: ", session.user.id);
-        console.log("TX data: ", TxMetadata) 
         
         if (!session?.user?.id) {
           console.error("User ID not found in session");

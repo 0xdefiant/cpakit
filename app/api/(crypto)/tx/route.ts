@@ -41,7 +41,7 @@ export async function GET(request: Request) {
       
           return isSpam || isInvalidUSDC;
         };
-        console.log(coins);
+        console.log("Coins from Route: ", coins);
 
         const isTokenListed = (tokenSymbol: string) => {
             return coins.some(coin => coin.symbol.toLowerCase() === tokenSymbol.toLowerCase());
