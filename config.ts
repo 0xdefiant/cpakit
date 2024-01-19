@@ -70,15 +70,27 @@ const config = {
   },
   mailgun: {
     // subdomain to use when sending emails, if you don't have a subdomain, just remove it. Highly recommended to have one (i.e. mg.yourdomain.com or mail.yourdomain.com)
-    subdomain: "mg",
+    subdomain: "",
     // REQUIRED — Email 'From' field to be used when sending magic login links
-    fromNoReply: `CPA Kit <noreply@mg.cpakit.org>`,
+    fromNoReply: `CPA Kit <noreply@cpakit.org>`,
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
-    fromAdmin: `Anthony at CPA Kit <anthony@mg.cpakit.org>`,
+    fromAdmin: `Anthony at CPA Kit <anthony@cpakit.org>`,
     // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
     supportEmail: "anthony@cpakit.org",
     // When someone replies to supportEmail sent by the app, forward it to the email below (otherwise it's lost). If you set supportEmail to empty, this will be ignored.
-    forwardRepliesTo: "apgarrett0531@gmail.com",
+    forwardRepliesTo: "anthony@cpakit.org",
+  },
+  resend: {
+    // subdomain to use when sending emails, if you don't have a subdomain, just remove it. Highly recommended to have one (i.e. mg.yourdomain.com or mail.yourdomain.com)
+    subdomain: "",
+    // REQUIRED — Email 'From' field to be used when sending magic login links
+    fromNoReply: `CPA Kit <noreply@cpakit.org>`,
+    // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
+    fromAdmin: `Anthony at CPA Kit <anthony@cpakit.org>`,
+    // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
+    supportEmail: "anthony@cpakit.org",
+    // When someone replies to supportEmail sent by the app, forward it to the email below (otherwise it's lost). If you set supportEmail to empty, this will be ignored.
+    forwardRepliesTo: "anthony@cpakit.org",
   },
   colors: {
     // REQUIRED — The DaisyUI theme to use (added to the main layout.js). Leave blank for default (light & dark mode). If you any other theme than light/dark, you need to add it in config.tailwind.js in daisyui.themes.
