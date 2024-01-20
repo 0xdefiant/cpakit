@@ -3,12 +3,9 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import { sendVerificationRequest } from "./utils";
+import { sendVerificationRequest } from "./resend";
 import config from "@/config";
 import connectMongo from "./mongo";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface NextAuthOptionsExtended extends NextAuthOptions {
   adapter: any;
@@ -42,11 +39,10 @@ export const authOptions: NextAuthOptionsExtended = {
               port: process.env.EMAIL_SERVER_PORT,
               auth: {
                 user: process.env.EMAIL_SERVER_USER,
-                pass: process.env.EMAIL_SERVER_PASSWORD,
+                pass: process.env.RESEND_API_KEY,
               },
             },
-            from: process.env.EMAIL_FROM,
-            sendVerificationRequest
+            from: config.resend.fromNoReply,
           }),
         ]
       : []),
