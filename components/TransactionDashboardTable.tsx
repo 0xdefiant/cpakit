@@ -37,6 +37,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { Badge } from './ui/badge';
 import { CalendarDays } from 'lucide-react';
 
 type TxMetadata = {
@@ -558,15 +559,20 @@ const TxDashboardTable = () => {
                         <TableBody>
                             {TxMetadata.map((metaData, index) => {
                                 let rowClass = '';
+                                let badgeVariant = 'default'; // Use a more descriptive variable name
+
+                                // Determine if it's an inflow or outflow transaction
                                 if (metaData.toAddress === metaData.wallet) {
                                     rowClass = "hover:bg-indigo-600/50"; 
+                                    badgeVariant = "secondary";  // Assign the badge variant for inflow
                                 } else if (metaData.fromAddress === metaData.wallet) {
                                     rowClass = "hover:bg-rose-600/50"; 
+                                    badgeVariant = "destructive"; // Assign the badge variant for outflow
                                 }
                                 return (
                                     <TableRow key={index} className={rowClass}>
                                         <TableCell>
-                                            {index}
+                                            <Badge variant={badgeVariant as any}>flow</Badge>
                                         </TableCell>
                                         <TableCell>
                                             <HoverCard>

@@ -82,7 +82,7 @@ const config = {
   },
   resend: {
     // subdomain to use when sending emails, if you don't have a subdomain, just remove it. Highly recommended to have one (i.e. mg.yourdomain.com or mail.yourdomain.com)
-    subdomain: "",
+    subdomain: " ",
     // REQUIRED — Email 'From' field to be used when sending magic login links
     fromNoReply: `CPA Kit <noreply@cpakit.org>`,
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
