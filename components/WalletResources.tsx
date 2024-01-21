@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { Label } from "@/components/ui/label";
-import { Wallet, Check, Clipboard, Trash, ArrowRightCircle as ArrowRightCircle, Settings } from "lucide-react";
+import { Wallet, Check, Copy, Trash, ArrowRightCircle as ArrowRightCircle, Settings } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import {
   Sheet,
@@ -221,11 +221,11 @@ const WalletInput =  () => {
                         <div>
                             {wallets.length > 0 ? (
                                 wallets.map((walletObj, index) => (
-                                    <div key={index} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                    <div key={index} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} className="mt-2">
                                         <span 
                                             onClick={() => copyToClipboard(walletObj.wallet, walletObj.id)} 
                                         >
-                                            {copiedId === walletObj.id ? <Check /> : <Clipboard />}
+                                            {copiedId === walletObj.id ? <Check /> : <Copy />}
                                         </span>
                                         <div className="ml-2" style={{ flexGrow: 1 }}>
                                             {walletObj.name}
@@ -236,50 +236,6 @@ const WalletInput =  () => {
                                         >
                                             <Trash />
                                         </span>
-                                        <Popover>
-                                            <PopoverTrigger>
-                                                <Settings className="ml-2" />
-                                            </PopoverTrigger>
-                                            <PopoverContent>
-                                                <div className="grid gap-4">
-                                                <div className="space-y-2">
-                                                    <h4 className="font-medium leading-none">Wallet</h4>
-                                                    <p className="text-sm text-muted-foreground">
-                                                    Update your wallet details.
-                                                    </p>
-                                                </div>
-                                                <div className="grid gap-2">
-                                                    <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="name">Name</Label>
-                                                    <Input
-                                                        id="name"
-                                                        defaultValue={walletObj.name}
-                                                        className="col-span-2 h-8"
-                                                    />
-                                                    </div>
-                                                    <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="wallet">Wallet</Label>
-                                                    <Input
-                                                        id="wallet"
-                                                        defaultValue={walletObj.wallet}
-                                                        className="col-span-2 h-8"
-                                                    />
-                                                    </div>
-                                                    <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="description">Description</Label>
-                                                    <Textarea
-                                                        id="description"
-                                                        defaultValue={walletObj.description}
-                                                        className="col-span-2 h-8"
-                                                    />
-                                                    </div>
-                                                    <Button>
-                                                        Update
-                                                    </Button>
-                                                </div>
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
                                     </div>
                                 ))
                         ) : (

@@ -16,7 +16,7 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
+import { Copy, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
 import { Check, ChevronsUpDown } from "lucide-react"
@@ -39,6 +39,14 @@ import {
 } from "@/components/ui/hover-card"
 import { Badge } from './ui/badge';
 import { CalendarDays } from 'lucide-react';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
 
 type TxMetadata = {
     id: string;
@@ -205,7 +213,7 @@ const TxDashboardTable = () => {
         if (!address || address.length < 9) {
           return address;
         }
-        return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
       };
 
     const formatDate = (isoString: string) => {
@@ -539,6 +547,21 @@ const TxDashboardTable = () => {
     
             {!isLoading && !error && !isInputEmpty && (
                 <div>
+                <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>Wallet Name</CardTitle>
+                        <CardDescription>Wallet Address</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                        Leave blank or now
+                    </CardContent>
+                    <CardFooter>
+                    <Button className="w-full">
+                        <Check className="mr-2 h-4 w-4" /> Save Transaction Data
+                    </Button>
+                    </CardFooter>
+                    </Card>
+                    <Separator className='my-4' />
                     {renderToast()}
                     <Table>
                         <TableCaption>
@@ -559,20 +582,21 @@ const TxDashboardTable = () => {
                         <TableBody>
                             {TxMetadata.map((metaData, index) => {
                                 let rowClass = '';
-                                let badgeVariant = 'default'; // Use a more descriptive variable name
+                                let badgeVariant = 'default'; 
 
-                                // Determine if it's an inflow or outflow transaction
                                 if (metaData.toAddress === metaData.wallet) {
                                     rowClass = "hover:bg-indigo-600/50"; 
-                                    badgeVariant = "secondary";  // Assign the badge variant for inflow
+                                    badgeVariant = "inflow";
                                 } else if (metaData.fromAddress === metaData.wallet) {
                                     rowClass = "hover:bg-rose-600/50"; 
-                                    badgeVariant = "destructive"; // Assign the badge variant for outflow
+                                    badgeVariant = "destructive"; 
                                 }
                                 return (
                                     <TableRow key={index} className={rowClass}>
                                         <TableCell>
-                                            <Badge variant={badgeVariant as any}>flow</Badge>
+                                            <Badge variant={badgeVariant as any}>
+                                                {badgeVariant === "destructive" ? "out" : badgeVariant === "inflow" ? "in" : ""}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <HoverCard>
@@ -596,7 +620,14 @@ const TxDashboardTable = () => {
                                         </TableCell>
                                         {/*<TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
                                         <TableCell>{formatAddress(metaData.toAddress)}</TableCell>*/}
-                                        <TableCell>{formatDate(metaData.block_timestamp)}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center pt-2">
+                                                <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+                                                <span className="text-xs text-muted-foreground">
+                                                    {formatDate(metaData.block_timestamp)}
+                                                </span>
+                                            </div>
+                                        </TableCell>
                                         <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
                                         <TableCell>
                                             {typeof metaData.historicalTokenPrice === 'number' ? (
