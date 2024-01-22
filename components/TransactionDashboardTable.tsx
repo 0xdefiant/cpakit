@@ -79,6 +79,7 @@ const TxDashboardTable = () => {
     const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
     const [selectedWallet, setSelectedWallet] = useState(null);
     const [isSelectAll, setIsSelectAll] = useState(false);
+    const [copiedId, setCopiedId] = useState(null);
 
 
     // LIVE FETCHING THE TX DATA FOR A SPECIFIC WALLET
@@ -216,6 +217,15 @@ const TxDashboardTable = () => {
         return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
       };
 
+    const copyToClipboard = (text: string, id: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            setCopiedId(id);
+            setTimeout(() => setCopiedId(null), 3000);
+        }).catch(err => {
+            console.error('Error in copying text: ', err);
+        });
+    };
+    
     const formatDate = (isoString: string) => {
         const date = new Date(isoString);
         return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -513,8 +523,8 @@ const TxDashboardTable = () => {
                 <Card className="w-full">
                     <CardHeader>
                         <CardTitle>{isSelectAll ? "All Wallets Selected" : (selectedWallet?.name || "No Wallet Selected")}</CardTitle>
-                        <CardDescription>Wallet Address: {isSelectAll ? "" :
-                        (selectedWallet?.wallet || "N/A")}</CardDescription>
+                        <CardDescription>{isSelectAll ? "" :
+                        (`Wallet Address: ${selectedWallet?.wallet}` || "N/A")}</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         Leave blank or now
@@ -576,6 +586,7 @@ const TxDashboardTable = () => {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Symbol</TableHead>
+                                <TableHead>Direction</TableHead>
                                 <TableHead>Time</TableHead>
                                 <TableHead>Units</TableHead>
                                 <TableHead>Historical Price</TableHead>
@@ -604,17 +615,38 @@ const TxDashboardTable = () => {
                                                     <Button variant="link">{metaData.tokenSymbol}</Button>
                                                 </HoverCardTrigger>
                                                 <HoverCardContent className="w-80">
-                                                    <div className="space-y-1">
-                                                        <h4 className="text-sm font-semibold">{metaData.tokenSymbol}</h4>
-                                                        <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
-                                                        <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
-                                                        <div className="flex items-center pt-2">
-                                                            <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {formatDate(metaData.block_timestamp)}
-                                                            </span>
-                                                        </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex">
+                                                        <h4 className="text-sm font-semibold mr-2">{metaData.tokenSymbol}</h4>
+                                                        <button onClick={() => copyToClipboard(metaData.address, 'address')}>
+                                                            {copiedId === 'address' ? <Check /> : <Copy />}
+                                                        </button>
                                                     </div>
+                                                    <div className="flex justify-between">
+                                                        <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
+                                                        <button onClick={() => copyToClipboard(metaData.fromAddress, 'from')}>
+                                                            {copiedId === 'from' ? <Check /> : <Copy />}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
+                                                        <button onClick={() => copyToClipboard(metaData.toAddress, 'to')}>
+                                                            {copiedId === 'to' ? <Check /> : <Copy />}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <p className="text-sm">Tx Hash: {formatAddress(metaData.tx_hash)}</p>
+                                                        <button onClick={() => copyToClipboard(metaData.tx_hash, 'txHash')}>
+                                                            {copiedId === 'txHash' ? <Check /> : <Copy />}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex items-center pt-2">
+                                                        <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {formatDate(metaData.block_timestamp)}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                                 </HoverCardContent>
                                             </HoverCard>
                                         </TableCell>
