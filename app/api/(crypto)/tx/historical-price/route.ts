@@ -1,4 +1,4 @@
-import coins from '@/libs/json/coingeckoFilteredTokens';
+import coins from '@/libs/tokens/coingeckoFilteredTokens';
 
 
 export async function GET(req: Request) {

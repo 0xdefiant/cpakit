@@ -1,6 +1,6 @@
 const apikey = process.env.MORALIS_API_KEY;
 import { fetchTokenPrice } from "@/libs/fetchTokenPrice";
-import coins from "@/libs/json/coingeckoFilteredTokens";
+import coins from "@/libs/tokens/coingeckoFilteredTokens";
 
 export async function GET(request: Request) {
     console.log("-------------------------tx api route reached---------------------")

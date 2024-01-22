@@ -15,35 +15,43 @@ export async function POST(req: Request) {
     console.log("ROUTE -- Meta TX DATA: ", body.TxMetadata);
 
     try {
+        // Counter for saved transactions
+        let savedTxsCount = 0;
+
         const savedTxs = await Promise.all(
             body.TxMetadata.map(async (TxItem: any) => {
-
                 let existingTx = await TX.findOne({ 
                     tx_hash: TxItem.tx_hash,
-                    log_index: TxItem.log_index
+                    log_index: TxItem.log_index,
+                    wallet: TxItem.wallet
                 });
+
                 if (existingTx) {
-                    // If exists, update the existing TX
+                    console.log("Preexisting TX found: ", existingTx); // Log the preexisting transaction
                     Object.assign(existingTx, TxItem);
                     await existingTx.save();
+                    savedTxsCount++;
                     return existingTx;
                 } else {
-                    // If not exists, create new TX
                     const wallet = TxItem.wallet || body.wallet;
-                    return TX.create({ 
+                    await TX.create({ 
                         userId: body.userId,
                         wallet: wallet,
                         ...TxItem
                     });
+                    savedTxsCount++;
+                    return TxItem; // Return the item as it was saved
                 }
             })
         );
+
         console.log("Saved TX: ", savedTxs);
+        console.log("Number of transactions saved: ", savedTxsCount);
 
         return new Response(JSON.stringify({ message: "TX data saved successfully", data: savedTxs }), { status: 200 });
     } catch (e) {
         console.error(e);
-        return Response.json({ error: e.message }, { status: 500 });
+        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
     }
 }
 
@@ -58,7 +66,7 @@ export async function GET(req: Request) {
 
     try {
         // Define the fields to be selected from the TX model
-        const fields = 'wallet address tokenName tokenSymbol fromAddress toAddress tx_hash block_timestamp value_decimal historicalTokenPrice';
+        const fields = 'wallet address tokenName tokenSymbol fromAddress toAddress log_index tx_hash block_timestamp value_decimal historicalTokenPrice';
         
         // Fetch transactions for the given userId and sort them by block_timestamp in descending order
         const TXs = await TX.find({ userId: userId }).select(fields).sort({ block_timestamp: -1 });

@@ -54,7 +54,6 @@ const TxMetadataSchema = new mongoose.Schema(
     log_index: {
       type: Number,
       required: true,
-      unique: true
     },
     block_timestamp: {
       type: String,

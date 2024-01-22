@@ -2,7 +2,7 @@ const fs = require('fs');
 const levenshtein = require('js-levenshtein');
 
 // Load the JSON file
-const rawdata = fs.readFileSync('./json/coingeckoCoins.json');
+const rawdata = fs.readFileSync('./tokens/coingeckoCoins.json');
 const tokens = JSON.parse(rawdata);
 
 // Group tokens by their symbol
@@ -31,6 +31,6 @@ const filteredTokens = Object.keys(groupedBySymbol).map(symbol => {
 });
 
 // Write the filtered list to a new file
-fs.writeFileSync('./json/coingeckoFilteredTokens.json', JSON.stringify(filteredTokens, null, 2));
+fs.writeFileSync('./tokens/coingeckoFilteredTokens.json', JSON.stringify(filteredTokens, null, 2));
 
-console.log('Filtered tokens are written to filteredTokens.json');
+console.log('Filtered tokens are written to coingeckoFilteredTokens.json');

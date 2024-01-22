@@ -16,10 +16,9 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
-import { Copy, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy } from "lucide-react"
 import {
     Command,
     CommandEmpty,
@@ -38,7 +37,6 @@ import {
     HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { Badge } from './ui/badge';
-import { CalendarDays } from 'lucide-react';
 import {
     Card,
     CardContent,
@@ -79,6 +77,9 @@ const TxDashboardTable = () => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
     const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
+    const [selectedWallet, setSelectedWallet] = useState(null);
+    const [isSelectAll, setIsSelectAll] = useState(false);
+
 
     // LIVE FETCHING THE TX DATA FOR A SPECIFIC WALLET
     useEffect(() => {
@@ -183,23 +184,22 @@ const TxDashboardTable = () => {
         setIsInputEmpty(inputValue === '');
     };
 
-    const handleTXSelection = (selectedWallet: string, txs: TxMetadata[] = []) => {
+    const handleTXSelection = (walletAddress: string, txs: TxMetadata[] = []) => {
         setOpen(false);
-    
-        if (selectedWallet === "select-all") {
-            // If 'Select All' is chosen, display all transactions
-            setTxMetadata(userTXs);
-            setValue("select-all");
-        } else {
-            // Filter transactions to only those belonging to the selected wallet
-            const walletTransactions = userTXs.filter(tx => tx.wallet === selectedWallet);
-            setTxMetadata(walletTransactions);
-            setValue(selectedWallet);
-        }
-        // Common updates for any selection
         setIsInputEmpty(false);
         setIsLoading(false);
         setError(null);
+    
+        if (walletAddress === "select-all") {
+            setIsSelectAll(true);
+            setTxMetadata(userTXs);
+            setSelectedWallet(null);
+        } else {
+            setIsSelectAll(false);
+            setTxMetadata(userTXs.filter(tx => tx.wallet === walletAddress));
+            setSelectedWallet(wallets.find(w => w.wallet === walletAddress));
+        }
+        setValue(walletAddress);
     };
 
     const TxTotal = () => {
@@ -219,6 +219,11 @@ const TxDashboardTable = () => {
     const formatDate = (isoString: string) => {
         const date = new Date(isoString);
         return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      };
+
+    const tableDate = (isoString: string) => {
+        const date = new Date(isoString);
+        return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric' });
       };
     
     const formatDecimal = (value: number | string) => {
@@ -289,7 +294,7 @@ const TxDashboardTable = () => {
     };
 
     const HistoricalPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
-        <Button variant='ghost' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}>Price at Tx Time</Button>
+        <Button variant='ghost' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}><History /></Button>
     );
 
     // FETCHING THE CURRENT TOKEN PRICE
@@ -343,7 +348,7 @@ const TxDashboardTable = () => {
         ));
     };
     const CurrentPriceButton = ({ index, address }: { index: number, address: string }) => (
-        <Button variant='ghost' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
+        <Button variant='secondary' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
     );
 
     useEffect(() => {
@@ -452,9 +457,7 @@ const TxDashboardTable = () => {
                         aria-expanded={open}
                         className="w-[200px] justify-between mr-2"
                     >
-                        {value === "select-all"
-                            ? "Select All"
-                            : (userTXs.find(tx => tx.id === value)?.tokenSymbol || "Search Wallets...")}
+                        {selectedWallet ? selectedWallet.name : "Search Wallets..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                     </PopoverTrigger>
@@ -481,6 +484,7 @@ const TxDashboardTable = () => {
                                     key={walletAddress}
                                     value={walletAddress}
                                     onSelect={() => {
+                                        setValue(walletAddress);
                                         handleTXSelection(walletAddress, txs);
                                     }}
                                     >
@@ -505,6 +509,22 @@ const TxDashboardTable = () => {
                     )}
                 </div>
             </div>
+            <Separator className='my-4' />
+                <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>{isSelectAll ? "All Wallets Selected" : (selectedWallet?.name || "No Wallet Selected")}</CardTitle>
+                        <CardDescription>Wallet Address: {isSelectAll ? "" :
+                        (selectedWallet?.wallet || "N/A")}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                        Leave blank or now
+                    </CardContent>
+                    <CardFooter>
+                    <Button variant="outline" className="w-full">
+                        <Check className="mr-2 h-4 w-4" /> Save Transaction Data
+                    </Button>
+                    </CardFooter>
+                </Card>
             <Separator className='my-4' />
 
 
@@ -547,21 +567,6 @@ const TxDashboardTable = () => {
     
             {!isLoading && !error && !isInputEmpty && (
                 <div>
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>Wallet Name</CardTitle>
-                        <CardDescription>Wallet Address</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
-                        Leave blank or now
-                    </CardContent>
-                    <CardFooter>
-                    <Button className="w-full">
-                        <Check className="mr-2 h-4 w-4" /> Save Transaction Data
-                    </Button>
-                    </CardFooter>
-                    </Card>
-                    <Separator className='my-4' />
                     {renderToast()}
                     <Table>
                         <TableCaption>
@@ -585,19 +590,14 @@ const TxDashboardTable = () => {
                                 let badgeVariant = 'default'; 
 
                                 if (metaData.toAddress === metaData.wallet) {
-                                    rowClass = "hover:bg-indigo-600/50"; 
+                                    rowClass = "hover:bg-green-600/20"; 
                                     badgeVariant = "inflow";
                                 } else if (metaData.fromAddress === metaData.wallet) {
-                                    rowClass = "hover:bg-rose-600/50"; 
+                                    rowClass = "hover:bg-rose-600/20"; 
                                     badgeVariant = "destructive"; 
                                 }
                                 return (
                                     <TableRow key={index} className={rowClass}>
-                                        <TableCell>
-                                            <Badge variant={badgeVariant as any}>
-                                                {badgeVariant === "destructive" ? "out" : badgeVariant === "inflow" ? "in" : ""}
-                                            </Badge>
-                                        </TableCell>
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
@@ -618,13 +618,16 @@ const TxDashboardTable = () => {
                                                 </HoverCardContent>
                                             </HoverCard>
                                         </TableCell>
-                                        {/*<TableCell>{formatAddress(metaData.fromAddress)}</TableCell>
-                                        <TableCell>{formatAddress(metaData.toAddress)}</TableCell>*/}
                                         <TableCell>
-                                            <div className="flex items-center pt-2">
+                                            <Badge variant={badgeVariant as any}>
+                                                {badgeVariant === "destructive" ? "out" : badgeVariant === "inflow" ? "in" : ""}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center">
                                                 <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
                                                 <span className="text-xs text-muted-foreground">
-                                                    {formatDate(metaData.block_timestamp)}
+                                                    {tableDate(metaData.block_timestamp)}
                                                 </span>
                                             </div>
                                         </TableCell>
