@@ -1,16 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
@@ -19,32 +10,12 @@ import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
 import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart } from "lucide-react"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from './ui/badge';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-  } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { SpaceBetweenVerticallyIcon } from '@radix-ui/react-icons';
 
 type TxMetadata = {
     id: string;
@@ -61,7 +32,8 @@ type TxMetadata = {
     value_decimal: number;
     usdPrice: number | null;
     historicalTokenPrice: number | null;
-    grossProfit: number | null;
+    salePrice: number | null;
+    costBasis: number | null;
 };
 
 const TxDashboardTable = () => {
@@ -193,7 +165,6 @@ const TxDashboardTable = () => {
         return re.test(address);
     };
 
-
     const handleTXSelection = (walletAddress: string, txs: TxMetadata[] = []) => {
         setOpen(false);
         setIsInputEmpty(false);
@@ -214,8 +185,8 @@ const TxDashboardTable = () => {
 
     const TxTotal = () => {
         return TxMetadata.reduce((total, meta) => {
-            const valueGrossProfit = typeof meta.grossProfit === 'string' ? parseFloat(meta.grossProfit) : meta.grossProfit;
-            return total + valueGrossProfit;
+            const valueSalePrice = typeof meta.salePrice === 'string' ? parseFloat(meta.salePrice) : meta.salePrice;
+            return total + valueSalePrice;
         }, 0);
     };
 
@@ -373,16 +344,26 @@ const TxDashboardTable = () => {
     useEffect(() => {
         // Calculate new values for TxMetadata
         const newTxMetadata = TxMetadata.map(item => {
-            if (typeof item.historicalTokenPrice === 'number' && typeof item.usdPrice === 'number') {
-                const profitPerUnit = item.usdPrice - item.historicalTokenPrice;
-                const grossProfit = profitPerUnit * item.value_decimal;
-                return { ...item, grossProfit: grossProfit };
+            let newItem = { ...item };
+    
+            if (typeof item.historicalTokenPrice === 'number' && item.wallet === item.fromAddress) {
+                const salePrice = item.historicalTokenPrice * item.value_decimal;
+                newItem.salePrice = salePrice;
             }
-            return item;
+    
+            if (typeof item.historicalTokenPrice === 'number' && item.wallet === item.toAddress) {
+                const costBasis = item.historicalTokenPrice * item.value_decimal;
+                newItem.costBasis = costBasis;
+            }
+    
+            return newItem;
         });
     
         // Check if there are changes to update
-        const hasChanges = newTxMetadata.some((item, index) => item.grossProfit !== TxMetadata[index].grossProfit);
+        const hasChanges = newTxMetadata.some((item, index) => 
+            item.salePrice !== TxMetadata[index].salePrice || 
+            item.costBasis !== TxMetadata[index].costBasis
+        );
     
         // Only update state if there are changes
         if (hasChanges) {
@@ -466,7 +447,7 @@ const TxDashboardTable = () => {
                 className='mr-2'
                 value={address}
                 onChange={handleAddressChange}
-                placeholder="Enter Ethereum Address"
+                placeholder="Paste Ethereum Address"
             />
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
@@ -556,9 +537,10 @@ const TxDashboardTable = () => {
                             <TableHead>Symbol</TableHead>
                             <TableHead>Time</TableHead>
                             <TableHead>Units</TableHead>
-                            <TableHead>Historical Price</TableHead>
-                            <TableHead>Current Price</TableHead>
-                            <TableHead className="text-right">Gain or Loss</TableHead>
+                            <TableHead>Price at Date</TableHead>
+                            <TableHead>Basis</TableHead>
+                            <TableHead>Sale Price</TableHead>
+                            <TableHead className="text-right">G or L</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -595,9 +577,10 @@ const TxDashboardTable = () => {
                                 <TableHead>Direction</TableHead>
                                 <TableHead>Time</TableHead>
                                 <TableHead>Units</TableHead>
-                                <TableHead>Historical Price</TableHead>
-                                <TableHead>Current Price</TableHead>
-                                <TableHead className="text-right">Gain or Loss</TableHead>
+                                <TableHead>Price at Date</TableHead>
+                                <TableHead>Basis</TableHead>
+                                <TableHead>Sale Price</TableHead>
+                                <TableHead className="text-right">G or L</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -678,25 +661,20 @@ const TxDashboardTable = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {typeof metaData.usdPrice === 'number' ? (
-                                                <div>${metaData.usdPrice.toFixed(2)}</div>
-                                            ) : (
-                                                <CurrentPriceButton index={index} address={metaData.address} />
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {typeof metaData.grossProfit === 'number' ? (
-                                                <div>${metaData.grossProfit.toFixed(2)}</div>
+                                            {typeof metaData.costBasis === 'number' ? (
+                                                <div>${metaData.costBasis.toFixed(2)}</div>
                                             ) : (
                                                 <HoverCard>
                                                     <HoverCardTrigger asChild>
                                                         <Button variant="link">
-                                                        <Skeleton className="text-right w-[60px] h-[20px] rounded-full" />
+                                                            <div style={{ marginLeft: '-14px' }}>
+                                                                <Skeleton className="w-[60px] h-[20px] rounded-full" />
+                                                            </div>
                                                         </Button>
                                                     </HoverCardTrigger>
                                                     <HoverCardContent className="w-80">
                                                         <div className="space-y-1">
-                                                            <h4 className="text-sm font-semibold">Generate Historical Price</h4>
+                                                            <h4 className="text-sm font-semibold">Generate Price at Date</h4>
                                                             <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
                                                             <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
                                                             <div className="flex items-center pt-2">
@@ -708,6 +686,39 @@ const TxDashboardTable = () => {
                                                         </div>
                                                     </HoverCardContent>
                                                 </HoverCard>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {typeof metaData.salePrice === 'number' ? (
+                                                <div>${metaData.salePrice.toFixed(2)}</div>
+                                            ) : (
+                                                <HoverCard>
+                                                    <HoverCardTrigger asChild>
+                                                        <Button variant="link">
+                                                        <Skeleton className="text-right w-[60px] h-[20px] rounded-full" />
+                                                        </Button>
+                                                    </HoverCardTrigger>
+                                                    <HoverCardContent className="w-80">
+                                                        <div className="space-y-1">
+                                                            <h4 className="text-sm font-semibold">Generate Price at Date</h4>
+                                                            <p className="text-sm">From: {formatAddress(metaData.fromAddress)}</p>
+                                                            <p className="text-sm">To: {formatAddress(metaData.toAddress)}</p>
+                                                            <div className="flex items-center pt-2">
+                                                                <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {formatDate(metaData.block_timestamp)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </HoverCardContent>
+                                                </HoverCard>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {typeof metaData.usdPrice === 'number' ? (
+                                                <div>${metaData.usdPrice.toFixed(2)}</div>
+                                            ) : (
+                                                <CurrentPriceButton index={index} address={metaData.address} />
                                             )}
                                         </TableCell>
                                     </TableRow>

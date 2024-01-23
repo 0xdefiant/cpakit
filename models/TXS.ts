@@ -74,6 +74,11 @@ const TxMetadataSchema = new mongoose.Schema(
       required: false,
       default: null
     },
+    salePrice: {
+      type: Number,
+      required: false,
+      default: null
+    },
     grossProfit: {
       type: Number,
       required: false,
