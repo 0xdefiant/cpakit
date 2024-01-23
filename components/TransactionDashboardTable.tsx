@@ -9,7 +9,7 @@ import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
-import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart } from "lucide-react"
+import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart, ArrowDown } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
@@ -535,12 +535,12 @@ const TxDashboardTable = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Symbol</TableHead>
-                            <TableHead>Time</TableHead>
+                            <TableHead>Details</TableHead>
                             <TableHead>Units</TableHead>
                             <TableHead>Price at Date</TableHead>
                             <TableHead>Basis</TableHead>
                             <TableHead>Sale Price</TableHead>
-                            <TableHead className="text-right">G or L</TableHead>
+                            <TableHead className="text-right">FMV</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -574,13 +574,12 @@ const TxDashboardTable = () => {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Symbol</TableHead>
-                                <TableHead>Direction</TableHead>
-                                <TableHead>Time</TableHead>
+                                <TableHead>Details</TableHead>
                                 <TableHead>Units</TableHead>
                                 <TableHead>Price at Date</TableHead>
                                 <TableHead>Basis</TableHead>
                                 <TableHead>Sale Price</TableHead>
-                                <TableHead className="text-right">G or L</TableHead>
+                                <TableHead className="text-right">FMV</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -601,7 +600,7 @@ const TxDashboardTable = () => {
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
-                                                    <Button variant="link">{metaData.tokenSymbol}</Button>
+                                                    <Button variant="link" style={{ marginLeft: '-14px' }}>{metaData.tokenSymbol}</Button>
                                                 </HoverCardTrigger>
                                                 <HoverCardContent className="w-80">
                                                 <div className="space-y-1">
@@ -639,17 +638,18 @@ const TxDashboardTable = () => {
                                                 </HoverCardContent>
                                             </HoverCard>
                                         </TableCell>
+
                                         <TableCell>
-                                            <Badge variant={badgeVariant as any}>
+                                            <div className='flex flex-col items-center' style={{ marginLeft: '-20px' }}>
+                                            <Badge className='mb-2' variant={badgeVariant as any}>
                                                 {badgeVariant === "destructive" ? "out" : badgeVariant === "inflow" ? "in" : ""}
                                             </Badge>
-                                        </TableCell>
-                                        <TableCell>
                                             <div className="flex items-center">
                                                 <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
                                                 <span className="text-xs text-muted-foreground">
                                                     {tableDate(metaData.block_timestamp)}
                                                 </span>
+                                            </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>{formatDecimal(metaData.value_decimal)}</TableCell>
