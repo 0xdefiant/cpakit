@@ -7730,9 +7730,9 @@ const coins = [
     "name": "WBTC (Plenty Bridge)"
   },
   {
-    "id": "bridged-wrapped-ether-fuse",
+    "id": "weth",
     "symbol": "weth",
-    "name": "Bridged Wrapped Ether (Fuse)"
+    "name": "Wrapped ETH"
   },
   {
     "id": "bridged-wrapped-ether-hashport",

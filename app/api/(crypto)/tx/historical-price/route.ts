@@ -1,5 +1,6 @@
 import coins from '@/libs/tokens/coingeckoFilteredTokens';
 
+const apiKey = process.env.COINGECKO_API_KEY;
 
 export async function GET(req: Request) {
     console.log("token-price reached!!!!!!!!")
@@ -39,7 +40,7 @@ export async function GET(req: Request) {
     console.log("coinId: ", coinId)
 
     try {
-        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/history?date=${apiTimestamp}`, {
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/history?date=${apiTimestamp}&x_cg_demo_api_key=${apiKey}`, {
             method: 'GET',
             headers: {
                 'accept': 'application/json'
