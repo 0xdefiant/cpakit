@@ -18,7 +18,7 @@ import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
-import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy } from "lucide-react"
+import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart } from "lucide-react"
 import {
     Command,
     CommandEmpty,
@@ -78,6 +78,7 @@ const TxDashboardTable = () => {
     const [value, setValue] = useState("");
     const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
     const [selectedWallet, setSelectedWallet] = useState(null);
+    const [isValidAddress, setIsValidAddress] = useState(false);
     const [isSelectAll, setIsSelectAll] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
 
@@ -181,9 +182,17 @@ const TxDashboardTable = () => {
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        setAddress(inputValue);
+        if (isValidEthereumAddress(inputValue) || inputValue === '') {
+            setAddress(inputValue);
+        }
         setIsInputEmpty(inputValue === '');
     };
+
+    const isValidEthereumAddress = (address: string) => {
+        const re = /^0x[a-fA-F0-9]{40}$/;
+        return re.test(address);
+    };
+
 
     const handleTXSelection = (walletAddress: string, txs: TxMetadata[] = []) => {
         setOpen(false);
@@ -205,8 +214,8 @@ const TxDashboardTable = () => {
 
     const TxTotal = () => {
         return TxMetadata.reduce((total, meta) => {
-            const valueDecimal = typeof meta.value_decimal === 'string' ? parseFloat(meta.value_decimal) : meta.value_decimal;
-            return total + valueDecimal;
+            const valueGrossProfit = typeof meta.grossProfit === 'string' ? parseFloat(meta.grossProfit) : meta.grossProfit;
+            return total + valueGrossProfit;
         }, 0);
     };
 
@@ -358,7 +367,7 @@ const TxDashboardTable = () => {
         ));
     };
     const CurrentPriceButton = ({ index, address }: { index: number, address: string }) => (
-        <Button variant='secondary' onClick={() => fetchCurrentTokenPrice(index, address)}>Current Price</Button>
+        <Button variant='secondary' onClick={() => fetchCurrentTokenPrice(index, address)}><CandlestickChart /></Button>
     );
 
     useEffect(() => {
@@ -506,18 +515,6 @@ const TxDashboardTable = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                <div>
-                    {isSaving ? (
-                        <Button disabled>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Please wait
-                        </Button>
-                    ) : (
-                        <Button variant="secondary" onClick={saveTxData}>
-                            Save Data
-                        </Button>
-                    )}
-                </div>
             </div>
             <Separator className='my-4' />
                 <Card className="w-full">
@@ -527,12 +524,21 @@ const TxDashboardTable = () => {
                         (`Wallet Address: ${selectedWallet?.wallet}` || "N/A")}</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        Leave blank or now
+                        
                     </CardContent>
                     <CardFooter>
-                    <Button variant="outline" className="w-full">
-                        <Check className="mr-2 h-4 w-4" /> Save Transaction Data
-                    </Button>
+                    <div className='w-full'>
+                        {isSaving ? (
+                            <Button disabled className='w-full'>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Please wait
+                            </Button>
+                        ) : (
+                            <Button variant="secondary" onClick={saveTxData} className='w-full'>
+                                Save Data
+                            </Button>
+                        )}
+                    </div>
                     </CardFooter>
                 </Card>
             <Separator className='my-4' />
@@ -711,7 +717,8 @@ const TxDashboardTable = () => {
 
                         <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={5}>Total Tx Value</TableCell>
+                                <TableCell colSpan={4}>Total Tx Value</TableCell>
+                                <TableCell colSpan={2}>Historical</TableCell>
                                 <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
                             </TableRow>
                         </TableFooter>
