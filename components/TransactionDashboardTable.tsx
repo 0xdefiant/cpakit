@@ -9,13 +9,12 @@ import { Separator } from './ui/separator';
 import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { getWallets } from '@/libs/getWallets';
-import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart, ArrowDown } from "lucide-react"
+import { Check, ChevronsUpDown, CalendarDays, History, Loader2, Copy, CandlestickChart } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { SpaceBetweenVerticallyIcon } from '@radix-ui/react-icons';
 
 type TxMetadata = {
     id: string;
@@ -36,6 +35,19 @@ type TxMetadata = {
     costBasis: number | null;
 };
 
+type WalletHolding = {
+    id: string;
+    userId: string;
+    tokenSymbol: string;
+    tokenAddress: string;
+    value_decimal: number;
+    usdPrice: string;
+    avgHistoricalTokenPrice: number | null;
+    walletAddress: string;
+    walletName: string;
+
+}
+
 const TxDashboardTable = () => {
     const { data: session } = useSession();
     const [TxMetadata, setTxMetadata] = useState<TxMetadata[]>([]);
@@ -53,6 +65,51 @@ const TxDashboardTable = () => {
     const [isValidAddress, setIsValidAddress] = useState(false);
     const [isSelectAll, setIsSelectAll] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
+    const [walletHoldings, setWalletHoldings] = useState<WalletHolding[]>([]);
+
+    // GET REQUEST TO GET SAVED WALLETS
+    useEffect(() => {
+        const loadWallets = async () => {
+            try {
+                const result = await getWallets();
+                setWallets(result.props.wallets);
+                console.log("result.prop.wallets: ", result.props.wallets)
+            } catch (err) {
+                console.error("Failed to load wallets", err)
+            }
+        }
+        loadWallets();
+    }, []);
+
+    // FETCH THE USER TXS 
+    useEffect(() => {
+        const fetchUserTxs = async () => {
+          if (session?.user?.id) {
+            try {
+              const response = await fetch(`/api/TX?userId=${session.user.id}`);
+              if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+              }
+              const data = await response.json();
+              console.log("User Tx Data fetched: ", data);
+              setUserTXs(data);
+            } catch (err) {
+              console.error("Failed to fetch user's TXs", err);
+            }
+          }
+        };
+        fetchUserTxs();
+    }, [session]);
+
+    // GROUP TRANSACTIONS BY WALLET
+    const groupTransactionsByWallet = (transactions: TxMetadata[]) => {
+        return transactions.reduce((acc: { [key: string]: TxMetadata[] }, tx) => {
+          acc[tx.wallet] = acc[tx.wallet] || [];
+          acc[tx.wallet].push(tx);
+          return acc;
+        }, {});
+      };
+    const groupedTXs = useMemo(() => groupTransactionsByWallet(userTXs), [userTXs]);
 
 
     // LIVE FETCHING THE TX DATA FOR A SPECIFIC WALLET
@@ -109,47 +166,44 @@ const TxDashboardTable = () => {
         fetchTxData();
     }, [address]);
 
-    // GET REQUEST TO GET SAVED WALLETS
-    useEffect(() => {
-        const loadWallets = async () => {
-            try {
-                const result = await getWallets();
-                setWallets(result.props.wallets);
-            } catch (err) {
-                console.error("Failed to load wallets", err)
+    // CALCULATE WALLET HOLDING
+    const calculateWalletHoldings = (transactions: TxMetadata[]) => {
+        const holdings: { [key: string]: WalletHolding } = {};
+
+        transactions.forEach(tx => {
+            const walletKey = `${tx.wallet}-${tx.tokenSymbol}`;
+            if (!holdings[walletKey]) {
+                holdings[walletKey] = {
+                    id: '',  // Generate a unique ID for each WalletHolding
+                    userId: tx.userId,
+                    tokenSymbol: tx.tokenSymbol,
+                    tokenAddress: tx.address,
+                    value_decimal: 0,
+                    usdPrice: '',
+                    avgHistoricalTokenPrice: null,
+                    walletAddress: tx.wallet,
+                    walletName: '', // Populate based on your data
+                };
             }
-        }
-        loadWallets();
-    }, []);
+            holdings[walletKey].value_decimal += tx.value_decimal;
+            // Calculate the average historical price, adjust logic as needed
+            if (tx.historicalTokenPrice) {
+                if (holdings[walletKey].avgHistoricalTokenPrice) {
+                    holdings[walletKey].avgHistoricalTokenPrice =
+                        (holdings[walletKey].avgHistoricalTokenPrice + tx.historicalTokenPrice) / 2;
+                } else {
+                    holdings[walletKey].avgHistoricalTokenPrice = tx.historicalTokenPrice;
+                }
+            }
+        });
+
+        return Object.values(holdings);
+    };
 
     useEffect(() => {
-        const fetchUserTxs = async () => {
-          if (session?.user?.id) {
-            try {
-              const response = await fetch(`/api/TX?userId=${session.user.id}`);
-              if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-              }
-              const data = await response.json();
-              console.log("User Tx Data fetched: ", data);
-              setUserTXs(data);
-            } catch (err) {
-              console.error("Failed to fetch user's TXs", err);
-            }
-          }
-        };
-        fetchUserTxs();
-      }, [session]);
-
-    const groupTransactionsByWallet = (transactions: TxMetadata[]) => {
-        return transactions.reduce((acc: { [key: string]: TxMetadata[] }, tx) => {
-          acc[tx.wallet] = acc[tx.wallet] || [];
-          acc[tx.wallet].push(tx);
-          return acc;
-        }, {});
-      };
-
-    const groupedTXs = useMemo(() => groupTransactionsByWallet(userTXs), [userTXs]);
+        const newWalletHoldings = calculateWalletHoldings(TxMetadata);
+        setWalletHoldings(newWalletHoldings);
+    }, [TxMetadata]);
 
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -343,7 +397,7 @@ const TxDashboardTable = () => {
 
     useEffect(() => {
         // Calculate new values for TxMetadata
-        const newTxMetadata = TxMetadata.map(item => {
+        const newTxBasisOrSalePrice = TxMetadata.map(item => {
             let newItem = { ...item };
     
             if (typeof item.historicalTokenPrice === 'number' && item.wallet === item.fromAddress) {
@@ -360,14 +414,14 @@ const TxDashboardTable = () => {
         });
     
         // Check if there are changes to update
-        const hasChanges = newTxMetadata.some((item, index) => 
+        const hasChanges = newTxBasisOrSalePrice.some((item, index) => 
             item.salePrice !== TxMetadata[index].salePrice || 
             item.costBasis !== TxMetadata[index].costBasis
         );
     
         // Only update state if there are changes
         if (hasChanges) {
-            setTxMetadata(newTxMetadata);
+            setTxMetadata(newTxBasisOrSalePrice);
         }
     }, [TxMetadata]);
 
@@ -505,7 +559,24 @@ const TxDashboardTable = () => {
                         (`Wallet Address: ${selectedWallet?.wallet}` || "N/A")}</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        
+                    <CardContent className="grid gap-4">
+                        {walletHoldings.length > 0 ? (
+                            walletHoldings.map((holding, index) => (
+                                <div key={index}>
+                                    <div>
+                                        <p>{holding.tokenSymbol}</p>
+                                        <p>Address: {holding.tokenAddress}</p>
+                                    </div>
+                                    <div>
+                                        <p>{holding.value_decimal.toFixed(2)}</p>
+                                        <p>USD Price: {holding.usdPrice || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No wallet holdings to display.</p>
+                        )}
+                    </CardContent>
                     </CardContent>
                     <CardFooter>
                     <div className='w-full'>
