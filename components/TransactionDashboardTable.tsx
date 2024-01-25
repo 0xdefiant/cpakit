@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { metadata } from '@/app/layout';
 
 type TxMetadata = {
     id: string;
@@ -23,6 +24,7 @@ type TxMetadata = {
     address: string;
     tokenName: string;
     tokenSymbol: string;
+    tokenLogo: string;
     fromAddress: string;
     toAddress: string;
     tx_hash: string;
@@ -45,7 +47,7 @@ type WalletHolding = {
     avgHistoricalTokenPrice: number | null;
     walletAddress: string;
     walletName: string;
-
+    holdingLogo: string;
 }
 
 const TxDashboardTable = () => {
@@ -78,11 +80,7 @@ const TxDashboardTable = () => {
                 console.error("Failed to load wallets", err)
             }
         }
-        loadWallets();
-    }, []);
-
-    // FETCH THE USER TXS 
-    useEffect(() => {
+        
         const fetchUserTxs = async () => {
           if (session?.user?.id) {
             try {
@@ -98,6 +96,7 @@ const TxDashboardTable = () => {
             }
           }
         };
+        loadWallets();
         fetchUserTxs();
     }, [session]);
 
@@ -142,12 +141,13 @@ const TxDashboardTable = () => {
                         address: item.address,
                         tokenName: item.token_name,
                         tokenSymbol: item.token_symbol,
+                        tokenLogo: item.token_logo,
                         fromAddress: item.from_address,
                         toAddress: item.to_address,
                         tx_hash: item.transaction_hash,
                         log_index: item.log_index,
                         block_timestamp: item.block_timestamp,
-                        value_decimal: item.value_decimal,
+                        value_decimal: parseFloat(item.value_decimal),
                     };
                 });
     
@@ -172,6 +172,7 @@ const TxDashboardTable = () => {
 
         transactions.forEach(tx => {
             const walletKey = `${tx.wallet}-${tx.tokenSymbol}`;
+
             if (!holdings[walletKey]) {
                 holdings[walletKey] = {
                     id: '',  // Generate a unique ID for each WalletHolding
@@ -183,9 +184,15 @@ const TxDashboardTable = () => {
                     avgHistoricalTokenPrice: null,
                     walletAddress: tx.wallet,
                     walletName: '', // Populate based on your data
+                    holdingLogo: tx.tokenLogo
                 };
             }
-            holdings[walletKey].value_decimal += tx.value_decimal;
+                    // Check if the transaction is incoming or outgoing
+            if (tx.wallet === tx.fromAddress) {
+                holdings[walletKey].value_decimal -= tx.value_decimal;
+            } else if (tx.wallet === tx.toAddress) {
+                holdings[walletKey].value_decimal += tx.value_decimal;
+            }
             // Calculate the average historical price, adjust logic as needed
             if (tx.historicalTokenPrice) {
                 if (holdings[walletKey].avgHistoricalTokenPrice) {
@@ -197,11 +204,15 @@ const TxDashboardTable = () => {
             }
         });
 
-        return Object.values(holdings);
+        const filteredHoldings = Object.values(holdings).filter(holding => holding.value_decimal > 0.0001);
+        console.log("Filtered Holdigns: ", filteredHoldings)
+
+        return Object.values(filteredHoldings);
     };
 
     useEffect(() => {
         const newWalletHoldings = calculateWalletHoldings(TxMetadata);
+        console.log("New Wallet Holdigns: ", newWalletHoldings)
         setWalletHoldings(newWalletHoldings);
     }, [TxMetadata]);
 
@@ -283,7 +294,7 @@ const TxDashboardTable = () => {
     // FETCHING THE HISTORICAL TOKEN PRICES
     const fetchedPricesCache = useRef(new Map()).current;
 
-    const fetchHistoricalTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string) => {
+    const fetchHistoricalTokenPrice = async (index: number, tokenSymbol: string, blockTimestamp: string, contractAddress: string ) => {
         try {
             if (tokenSymbol.toLowerCase() === 'usdc') {
                 updateHistoricalPrice(index, 1);
@@ -303,7 +314,7 @@ const TxDashboardTable = () => {
                 return;
             }
 
-            const url = `/api/tx/historical-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}`;
+            const url = `/api/tx/historical-price?symbol=${encodeURIComponent(tokenSymbol)}&timestamp=${encodeURIComponent(blockTimestamp)}&contractAddress=${encodeURIComponent(contractAddress)}`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -337,8 +348,8 @@ const TxDashboardTable = () => {
         ));
     };
 
-    const HistoricalPriceButton = ({ index, tokenSymbol, blockTimestamp }: { index: number, tokenSymbol: string, blockTimestamp: string }) => (
-        <Button variant='ghost' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp)}><History /></Button>
+    const HistoricalPriceButton = ({ index, tokenSymbol, blockTimestamp, contractAddress }: { index: number, tokenSymbol: string, blockTimestamp: string, contractAddress: string }) => (
+        <Button variant='ghost' onClick={() => fetchHistoricalTokenPrice(index, tokenSymbol, blockTimestamp, contractAddress)}><History /></Button>
     );
 
     // FETCHING THE CURRENT TOKEN PRICE
@@ -564,11 +575,20 @@ const TxDashboardTable = () => {
                             walletHoldings.map((holding, index) => (
                                 <div key={index}>
                                     <div>
-                                        <p>{holding.tokenSymbol}</p>
+                                        
+                                        <div className='flex items-center'>
+                                                    <img
+                                                        src={holding.holdingLogo}
+                                                        height='auto'
+                                                        width={25}
+                                                        className='mr-2'
+                                                    />
+                                                    <p>{holding.tokenSymbol}</p>
+                                                    </div>
                                         <p>Address: {holding.tokenAddress}</p>
                                     </div>
                                     <div>
-                                        <p>{holding.value_decimal.toFixed(2)}</p>
+                                        <p>{holding.value_decimal}</p>
                                         <p>USD Price: {holding.usdPrice || 'N/A'}</p>
                                     </div>
                                 </div>
@@ -671,7 +691,15 @@ const TxDashboardTable = () => {
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
+                                                    <div className='flex items-center'>
+                                                    <img
+                                                        src={metaData.tokenLogo}
+                                                        height='auto'
+                                                        width={25}
+                                                        className='mr-2'
+                                                    />
                                                     <Button variant="link" style={{ marginLeft: '-14px' }}>{metaData.tokenSymbol}</Button>
+                                                    </div>
                                                 </HoverCardTrigger>
                                                 <HoverCardContent className="w-80">
                                                 <div className="space-y-1">
@@ -728,7 +756,7 @@ const TxDashboardTable = () => {
                                             {typeof metaData.historicalTokenPrice === 'number' ? (
                                                 <div>${metaData.historicalTokenPrice.toFixed(2)}</div>
                                             ) : (
-                                                <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} />
+                                                <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} contractAddress={metaData.address} />
                                             )}
                                         </TableCell>
                                         <TableCell>

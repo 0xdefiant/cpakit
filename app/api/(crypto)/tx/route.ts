@@ -32,6 +32,7 @@ export async function GET(request: Request) {
         }
 
         const TXsForOwnerResponse = await TXsForOwner.json();
+        console.log("TX for owner: ", TXsForOwnerResponse)
 
         const isSpamSymbol = (symbol: any, address: string) => {
           const spamWords = ["visit", "claim", "rewards", "gift"];

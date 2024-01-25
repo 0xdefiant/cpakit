@@ -33,6 +33,9 @@ const TxMetadataSchema = new mongoose.Schema(
       uppercase: true,
       required: true
     },
+    tokenLogo: {
+      type: String,
+    },
     fromAddress: {
       type: String,
       trim: true,

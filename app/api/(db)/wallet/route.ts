@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     await connectMongo();
-    console.log("Req: ", req.url)
+    console.log("1 Req: ", req.url)
     
     const url = new URL(req.url, 'http://localhost');
     const userId = url.searchParams.get('userId');

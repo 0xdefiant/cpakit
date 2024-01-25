@@ -37,6 +37,7 @@ export async function POST(req: Request) {
                     await TX.create({ 
                         userId: body.userId,
                         wallet: wallet,
+                        tokenLogo: body.TxMetadata.tokenLogo,
                         ...TxItem
                     });
                     savedTxsCount++;
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
             })
         );
 
-        console.log("Saved TX: ", savedTxs);
+        console.log("Saved TX: ", savedTxs[0]);
         console.log("Number of transactions saved: ", savedTxsCount);
 
         return new Response(JSON.stringify({ message: "TX data saved successfully", data: savedTxs }), { status: 200 });
@@ -66,7 +67,7 @@ export async function GET(req: Request) {
 
     try {
         // Define the fields to be selected from the TX model
-        const fields = 'wallet address tokenName tokenSymbol fromAddress toAddress log_index tx_hash block_timestamp value_decimal historicalTokenPrice';
+        const fields = 'wallet address tokenName tokenSymbol tokenLogo fromAddress toAddress log_index tx_hash block_timestamp value_decimal historicalTokenPrice';
         
         // Fetch transactions for the given userId and sort them by block_timestamp in descending order
         const TXs = await TX.find({ userId: userId }).select(fields).sort({ block_timestamp: -1 });
@@ -74,7 +75,7 @@ export async function GET(req: Request) {
         if (!TXs || TXs.length === 0) {
             return new Response(JSON.stringify({ message: "No transactions found for this user" }), { status: 404 });
         }
-        console.log("Transactions: ", TXs);
+        console.log("GET Transactions: ", TXs[0]);
 
         return new Response(JSON.stringify(TXs), { status: 200 });
     } catch (e) {
