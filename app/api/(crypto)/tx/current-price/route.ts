@@ -1,9 +1,9 @@
 const apikey = process.env.MORALIS_API_KEY;
 
 const cache: { [key: string]: any } = {};
-// Function to check if the cache is stale (e.g., data older than 5 minutes)
+// Function to check if the cache is stale (e.g., data older than 20 minutes)
 function isCacheStale(timestamp: number) {
-    return Date.now() - timestamp > 300000; // 5 minutes in milliseconds
+    return Date.now() - timestamp > 1200000; // 20 minutes in milliseconds
 }
 
 export async function GET(request: Request) {

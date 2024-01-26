@@ -115,7 +115,7 @@ const TxDashboardTable = () => {
 
     // LIVE FETCHING THE TX DATA FOR A SPECIFIC WALLET
     useEffect(() => {
-        if (!address) return;
+        if (!address) return; // This live fetching should set the wallet address to be rendered. Just like the handleAddress change is right now.
 
         const fetchTxData = async () => {
             setIsLoading(true);
@@ -202,7 +202,7 @@ const TxDashboardTable = () => {
         try {
             // TODO: Generate the prices for the filtered holdings, and insert the price response into the currentPrice element
             const updatedHoldings = await updatePrices(filteredHoldings);
-            console.log("Updated Holdings with Prices: ", updatedHoldings);
+            console.log("Rendered Holdings with Prices: ", updatedHoldings);
             return updatedHoldings;
         } catch (error) {
             console.error("Error updating prices: ", error);
@@ -214,7 +214,7 @@ const TxDashboardTable = () => {
     useEffect(() => {
         const updateHoldings = async () => {
             const newWalletHoldings = await calculateWalletHoldings(TxMetadata);
-            console.log("New Wallet Holdings: ", newWalletHoldings)
+            console.log("Rendered Wallet Holdings: ", newWalletHoldings)
             setWalletHoldings(newWalletHoldings);
         };
     
@@ -257,10 +257,16 @@ const TxDashboardTable = () => {
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        if (isValidEthereumAddress(inputValue) || inputValue === '') {
-            setAddress(inputValue);
+        setAddress(inputValue);
+
+
+        if (isValidEthereumAddress(inputValue)) {
+            setSelectedWallet({ name: formatAddress(inputValue), wallet: inputValue });
+            setIsSelectAll(false);
+        } else if (inputValue === '') {
+            setSelectedWallet(null);
+            setIsSelectAll(false);
         }
-        setIsInputEmpty(inputValue === '');
     };
 
     const isValidEthereumAddress = (address: string) => {
@@ -269,8 +275,8 @@ const TxDashboardTable = () => {
     };
 
     const handleTXSelection = (walletAddress: string, txs: TxMetadata[] = []) => {
+        // It should also set when the user puts an address into the input, not just when the command area is used.
         setOpen(false);
-        setIsInputEmpty(false);
         setIsLoading(false);
         setError(null);
     
@@ -281,7 +287,8 @@ const TxDashboardTable = () => {
         } else {
             setIsSelectAll(false);
             setTxMetadata(userTXs.filter(tx => tx.wallet === walletAddress));
-            setSelectedWallet(wallets.find(w => w.wallet === walletAddress));
+            const selected = wallets.find(w => w.wallet === walletAddress);
+            setSelectedWallet(selected ? selected : { name: walletAddress, wallet: walletAddress });
         }
         setValue(walletAddress);
     };
@@ -482,9 +489,7 @@ const TxDashboardTable = () => {
           console.error("User ID not found in session");
           return;
         }
-        
-        // 
-  
+
         try {
           const response = await fetch('/api/TX', {
             method: 'POST',
@@ -624,9 +629,14 @@ const TxDashboardTable = () => {
             <Separator className='my-4' />
                 <Card className="w-full">
                     <CardHeader>
-                        <CardTitle>{isSelectAll ? "All Wallets Selected" : (selectedWallet?.name || "No Wallet Selected")}</CardTitle>
-                        <CardDescription>{isSelectAll ? "" :
-                        (`Wallet Address: ${selectedWallet?.wallet}` || "N/A")}</CardDescription>
+                        <CardTitle>
+                            {isSelectAll ? "All Wallets Selected" : 
+                            (selectedWallet ? selectedWallet.name : "No Wallet Name")}
+                        </CardTitle>
+                        <CardDescription>
+                            {isSelectAll ? "" : 
+                            (`Wallet Address: ${selectedWallet ? selectedWallet.wallet : "N/A"}`)}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         {walletHoldings.length > 0 ? (

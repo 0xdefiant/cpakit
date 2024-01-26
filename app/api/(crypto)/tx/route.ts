@@ -56,32 +56,6 @@ export async function GET(request: Request) {
         );
         console.log(" 1) filteredTransactions: ", filteredTransactions[0])
 
-        // This needs to be on the front end, where the user can over time click to get historical data.
-        // Use the function from here in the front end code.
-        /* for (let tx of filteredTransactions) {
-            try {
-                if (tx.token_symbol && tx.token_symbol.toLowerCase() === 'usdc') {
-                    tx.usdPrice = 1;
-                    console.log("tx.usdPrice for USDC", tx.usdPrice);
-                } else {
-                    const txTimeUsdPrice = await fetchTokenPrice(tx.token_symbol, tx.block_timestamp);
-                    console.log("txTimeUsdPrice: ", txTimeUsdPrice)
-                    tx.usdPrice = txTimeUsdPrice;
-                    console.log("tx.usdPrice", tx.usdPrice);
-                }
-            } catch (error) {
-                console.error(`Error fetching price for transaction ${tx.transaction_hash}:`, error);
-                tx.usdPrice = null; 
-            }
-        }
-        if (filteredTransactions.length > 0) {
-            console.log("First transaction:", filteredTransactions[0]);
-            console.log("Last transaction:", filteredTransactions[filteredTransactions.length - 1]);
-        } else {
-            console.log("The transactions array is empty.");
-        }
-        */
-
 
     return new Response(JSON.stringify(filteredTransactions), {
         status: 200,
