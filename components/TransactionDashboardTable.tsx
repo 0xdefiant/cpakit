@@ -259,7 +259,6 @@ const TxDashboardTable = () => {
         const inputValue = e.target.value;
         setAddress(inputValue);
 
-
         if (isValidEthereumAddress(inputValue)) {
             setSelectedWallet({ name: formatAddress(inputValue), wallet: inputValue });
             setIsSelectAll(false);
@@ -275,8 +274,8 @@ const TxDashboardTable = () => {
     };
 
     const handleTXSelection = (walletAddress: string, txs: TxMetadata[] = []) => {
-        // It should also set when the user puts an address into the input, not just when the command area is used.
         setOpen(false);
+        setIsInputEmpty(false);
         setIsLoading(false);
         setError(null);
     
@@ -555,7 +554,7 @@ const TxDashboardTable = () => {
           {
             label: 'Wallet Holdings',
             data: pieData,
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            backgroundColor: ['#a855f7', '#ec4899', '#eab308', '#b667f1', '#f472b6', '#facc15', '#6b21a8', '#be185d', '#ca8a04', '#c084fc', '#f9a8d4', '#fde047', '#4c1d95', '#9d174d', '#a16207', '#d8b4fe', '#fecdd3', '#fef08a'],
             borderWidth: 1,
           },
         ],
@@ -629,14 +628,30 @@ const TxDashboardTable = () => {
             <Separator className='my-4' />
                 <Card className="w-full">
                     <CardHeader>
-                        <CardTitle>
-                            {isSelectAll ? "All Wallets Selected" : 
-                            (selectedWallet ? selectedWallet.name : "No Wallet Name")}
-                        </CardTitle>
-                        <CardDescription>
-                            {isSelectAll ? "" : 
-                            (`Wallet Address: ${selectedWallet ? selectedWallet.wallet : "N/A"}`)}
-                        </CardDescription>
+                        <div className='flex justify-between'>
+                            <div>
+                            <CardTitle>
+                                {isSelectAll ? "All Wallets Selected" : 
+                                (selectedWallet ? selectedWallet.name : "No Wallet Name")}
+                            </CardTitle>
+                            <CardDescription className='my-2'>
+                                {isSelectAll ? "" : 
+                                (`Wallet Address: ${selectedWallet ? selectedWallet.wallet : "N/A"}`)}
+                            </CardDescription>
+                            </div>
+                            <div>
+                            {isSaving ? (
+                                <Button disabled>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Please wait
+                                </Button>
+                            ) : (
+                                <Button variant="secondary" onClick={saveTxData}>
+                                    Save Data
+                                </Button>
+                            )}
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         {walletHoldings.length > 0 ? (
@@ -645,43 +660,42 @@ const TxDashboardTable = () => {
                                     <Pie data={pieChartData} options={pieChartOptions} />
                                 </div>
                                 {walletHoldings.map((holding, index) => (
-                                    <div key={index}>
-                                        <div className='flex items-center'>
+                                <Card>
+                                <HoverCard key={index}>
+                                    <HoverCardTrigger asChild>
+                                        <Button variant='link' className='flex items-center'>
                                             <img
                                                 src={holding.holdingLogo}
                                                 height='auto'
                                                 width={25}
                                                 className='mr-2'
                                             />
-                                            <p>{holding.tokenSymbol}</p>
+                                            <span>{holding.tokenSymbol}</span>
+                                        </Button>
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="w-80">
+                                        <div className="space-y-1">
+                                            <div className="flex">
+                                                <h4 className="text-sm font-semibold mr-2">{holding.tokenSymbol}</h4>
+                                                <button onClick={() => copyToClipboard(holding.tokenAddress, 'address')}>
+                                                    {copiedId === 'address' ? <Check /> : <Copy />}
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <p>{holding.value_decimal}</p>
+                                                <p>USD Price: {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p>Address: {holding.tokenAddress}</p>
-                                        </div>
-                                        <div>
-                                            <p>{holding.value_decimal}</p>
-                                            <p>USD Price: {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                                    </HoverCardContent>
+                                </HoverCard>
+                                </Card>
+                            ))}
                             </>
                         ) : (
                             <p>No wallet holdings to display.</p>
                         )}
                     </CardContent>
                     <CardFooter>
-                    <div className='w-full'>
-                        {isSaving ? (
-                            <Button disabled className='w-full'>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Please wait
-                            </Button>
-                        ) : (
-                            <Button variant="secondary" onClick={saveTxData} className='w-full'>
-                                Save Data
-                            </Button>
-                        )}
-                    </div>
                     </CardFooter>
                 </Card>
             <Separator className='my-4' />
