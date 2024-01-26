@@ -15,7 +15,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { metadata } from '@/app/layout';
+import EthereumIcon from 'cryptocurrency-icons/svg/icon/eth.svg'
+import { Pie } from 'react-chartjs-2';
+import 'chart.js/auto';
+
 
 type TxMetadata = {
     id: string;
@@ -64,7 +67,6 @@ const TxDashboardTable = () => {
     const [value, setValue] = useState("");
     const [userTXs, setUserTXs] = useState<TxMetadata[]>([]);
     const [selectedWallet, setSelectedWallet] = useState(null);
-    const [isValidAddress, setIsValidAddress] = useState(false);
     const [isSelectAll, setIsSelectAll] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
     const [walletHoldings, setWalletHoldings] = useState<WalletHolding[]>([]);
@@ -192,15 +194,6 @@ const TxDashboardTable = () => {
                 holdings[walletKey].value_decimal -= tx.value_decimal;
             } else if (tx.wallet === tx.toAddress) {
                 holdings[walletKey].value_decimal += tx.value_decimal;
-            }
-            // Calculate the average historical price, adjust logic as needed
-            if (tx.historicalTokenPrice) {
-                if (holdings[walletKey].avgHistoricalTokenPrice) {
-                    holdings[walletKey].avgHistoricalTokenPrice =
-                        (holdings[walletKey].avgHistoricalTokenPrice + tx.historicalTokenPrice) / 2;
-                } else {
-                    holdings[walletKey].avgHistoricalTokenPrice = tx.historicalTokenPrice;
-                }
             }
         });
 
@@ -503,6 +496,27 @@ const TxDashboardTable = () => {
         );
     };
 
+    const pieLabels = walletHoldings.map(holding => holding.tokenSymbol);
+    const pieData = walletHoldings.map(holding => Number(holding.value_decimal) || 0 );
+
+    const pieChartData = {
+        labels: pieLabels,
+        datasets: [
+          {
+            label: 'Wallet Holdings',
+            data: pieData,
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      const pieChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        // Additional options can be added here
+      };
+
 
     return (
         <div>
@@ -572,27 +586,31 @@ const TxDashboardTable = () => {
                     <CardContent className="grid gap-4">
                     <CardContent className="grid gap-4">
                         {walletHoldings.length > 0 ? (
-                            walletHoldings.map((holding, index) => (
-                                <div key={index}>
-                                    <div>
-                                        
-                                        <div className='flex items-center'>
-                                                    <img
-                                                        src={holding.holdingLogo}
-                                                        height='auto'
-                                                        width={25}
-                                                        className='mr-2'
-                                                    />
-                                                    <p>{holding.tokenSymbol}</p>
-                                                    </div>
-                                        <p>Address: {holding.tokenAddress}</p>
-                                    </div>
-                                    <div>
-                                        <p>{holding.value_decimal}</p>
-                                        <p>USD Price: {holding.usdPrice || 'N/A'}</p>
-                                    </div>
+                            <>
+                                <div className="pie-chart-container" style={{ height: '300px' }}>
+                                    <Pie data={pieChartData} options={pieChartOptions} />
                                 </div>
-                            ))
+                                {walletHoldings.map((holding, index) => (
+                                    <div key={index}>
+                                        <div className='flex items-center'>
+                                            <img
+                                                src={holding.holdingLogo}
+                                                height='auto'
+                                                width={25}
+                                                className='mr-2'
+                                            />
+                                            <p>{holding.tokenSymbol}</p>
+                                        </div>
+                                        <div>
+                                            <p>Address: {holding.tokenAddress}</p>
+                                        </div>
+                                        <div>
+                                            <p>{holding.value_decimal}</p>
+                                            <p>USD Price: {holding.usdPrice || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
                         ) : (
                             <p>No wallet holdings to display.</p>
                         )}
@@ -691,15 +709,16 @@ const TxDashboardTable = () => {
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
-                                                    <div className='flex items-center'>
+                                                <Button variant='link' style={{ marginLeft: '-14px' }}>
                                                     <img
-                                                        src={metaData.tokenLogo}
-                                                        height='auto'
+                                                        src={metaData.tokenLogo || EthereumIcon}
+                                                        height={25}
                                                         width={25}
                                                         className='mr-2'
+                                                        alt={metaData.tokenName || 'Ethereum'}
                                                     />
-                                                    <Button variant="link" style={{ marginLeft: '-14px' }}>{metaData.tokenSymbol}</Button>
-                                                    </div>
+                                                    {metaData.tokenSymbol}
+                                                </Button>
                                                 </HoverCardTrigger>
                                                 <HoverCardContent className="w-80">
                                                 <div className="space-y-1">
