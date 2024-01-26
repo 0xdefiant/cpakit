@@ -46,7 +46,7 @@ type WalletHolding = {
     tokenSymbol: string;
     tokenAddress: string;
     value_decimal: number;
-    usdPrice: string;
+    currentPrice: number | null;
     avgHistoricalTokenPrice: number | null;
     walletAddress: string;
     walletName: string;
@@ -169,7 +169,7 @@ const TxDashboardTable = () => {
     }, [address]);
 
     // CALCULATE WALLET HOLDING
-    const calculateWalletHoldings = (transactions: TxMetadata[]) => {
+    const calculateWalletHoldings = async (transactions: TxMetadata[]) => {
         const holdings: { [key: string]: WalletHolding } = {};
 
         transactions.forEach(tx => {
@@ -177,19 +177,19 @@ const TxDashboardTable = () => {
 
             if (!holdings[walletKey]) {
                 holdings[walletKey] = {
-                    id: '',  // Generate a unique ID for each WalletHolding
+                    id: '', 
                     userId: tx.userId,
                     tokenSymbol: tx.tokenSymbol,
                     tokenAddress: tx.address,
                     value_decimal: 0,
-                    usdPrice: '',
+                    currentPrice: null, // Create this currentPrice below
                     avgHistoricalTokenPrice: null,
                     walletAddress: tx.wallet,
-                    walletName: '', // Populate based on your data
+                    walletName: '', 
                     holdingLogo: tx.tokenLogo
                 };
             }
-                    // Check if the transaction is incoming or outgoing
+
             if (tx.wallet === tx.fromAddress) {
                 holdings[walletKey].value_decimal -= tx.value_decimal;
             } else if (tx.wallet === tx.toAddress) {
@@ -198,16 +198,61 @@ const TxDashboardTable = () => {
         });
 
         const filteredHoldings = Object.values(holdings).filter(holding => holding.value_decimal > 0.0001);
-        console.log("Filtered Holdigns: ", filteredHoldings)
 
-        return Object.values(filteredHoldings);
+        try {
+            // TODO: Generate the prices for the filtered holdings, and insert the price response into the currentPrice element
+            const updatedHoldings = await updatePrices(filteredHoldings);
+            console.log("Updated Holdings with Prices: ", updatedHoldings);
+            return updatedHoldings;
+        } catch (error) {
+            console.error("Error updating prices: ", error);
+            // Return filtered holdings without updated prices in case of an error
+            return filteredHoldings;
+        }
     };
 
     useEffect(() => {
-        const newWalletHoldings = calculateWalletHoldings(TxMetadata);
-        console.log("New Wallet Holdigns: ", newWalletHoldings)
-        setWalletHoldings(newWalletHoldings);
+        const updateHoldings = async () => {
+            const newWalletHoldings = await calculateWalletHoldings(TxMetadata);
+            console.log("New Wallet Holdings: ", newWalletHoldings)
+            setWalletHoldings(newWalletHoldings);
+        };
+    
+        updateHoldings();
     }, [TxMetadata]);
+
+
+    const priceCache: { [key: string]: number } = {};
+    
+    const updatePrices = async (holdings: WalletHolding[]) => {
+        return Promise.all(holdings.map(async (holding) => {
+            const cacheKey = holding.tokenAddress;
+            if (priceCache[cacheKey]) {
+                return { ...holding, currentPrice: priceCache[cacheKey] };
+            }
+    
+            try {
+                const priceResponse = await fetch(`/api/tx/current-price?address=${encodeURIComponent(cacheKey)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+    
+                if (!priceResponse.ok) {
+                    throw new Error(`CP Error Fetching Price Data: ${priceResponse.status}`);
+                }
+    
+                const priceBody = await priceResponse.json();
+                const price = priceBody.priceJson.usdPrice;
+                priceCache[cacheKey] = price; // Cache the price
+                return { ...holding, currentPrice: price };
+            } catch (error) {
+                console.error(error);
+                return holding; // return holding without updated price in case of an error
+            }
+        }));
+    };
 
 
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -346,7 +391,7 @@ const TxDashboardTable = () => {
     );
 
     // FETCHING THE CURRENT TOKEN PRICE
-    const fetchCurrentTokenPrice = async (index: number, address: string) => {
+    const fetchCurrentTokenPrice = async (index: number, address: string): Promise<number | null> => {
         try {
             if (address.toLowerCase() === '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48') {
                 updateCurrentPrice(index, 1);
@@ -584,7 +629,6 @@ const TxDashboardTable = () => {
                         (`Wallet Address: ${selectedWallet?.wallet}` || "N/A")}</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                    <CardContent className="grid gap-4">
                         {walletHoldings.length > 0 ? (
                             <>
                                 <div className="pie-chart-container" style={{ height: '300px' }}>
@@ -606,7 +650,7 @@ const TxDashboardTable = () => {
                                         </div>
                                         <div>
                                             <p>{holding.value_decimal}</p>
-                                            <p>USD Price: {holding.usdPrice || 'N/A'}</p>
+                                            <p>USD Price: {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -614,7 +658,6 @@ const TxDashboardTable = () => {
                         ) : (
                             <p>No wallet holdings to display.</p>
                         )}
-                    </CardContent>
                     </CardContent>
                     <CardFooter>
                     <div className='w-full'>
