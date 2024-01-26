@@ -223,7 +223,7 @@ const TxDashboardTable = () => {
 
 
     const priceCache: { [key: string]: number } = {};
-    
+
     const updatePrices = async (holdings: WalletHolding[]) => {
         return Promise.all(holdings.map(async (holding) => {
             const cacheKey = holding.tokenAddress;
@@ -542,7 +542,7 @@ const TxDashboardTable = () => {
     };
 
     const pieLabels = walletHoldings.map(holding => holding.tokenSymbol);
-    const pieData = walletHoldings.map(holding => Number(holding.value_decimal) || 0 );
+    const pieData = walletHoldings.map(holding => Number(holding.value_decimal) * holding.currentPrice || 0 );
 
     const pieChartData = {
         labels: pieLabels,
