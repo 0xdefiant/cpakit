@@ -661,33 +661,39 @@ const TxDashboardTable = () => {
                                 </div>
                                 {walletHoldings.map((holding, index) => (
                                 <Card>
-                                <HoverCard key={index}>
-                                    <HoverCardTrigger asChild>
-                                        <Button variant='link' className='flex items-center'>
-                                            <img
-                                                src={holding.holdingLogo}
-                                                height='auto'
-                                                width={25}
-                                                className='mr-2'
-                                            />
-                                            <span>{holding.tokenSymbol}</span>
-                                        </Button>
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="w-80">
-                                        <div className="space-y-1">
-                                            <div className="flex">
-                                                <h4 className="text-sm font-semibold mr-2">{holding.tokenSymbol}</h4>
-                                                <button onClick={() => copyToClipboard(holding.tokenAddress, 'address')}>
-                                                    {copiedId === 'address' ? <Check /> : <Copy />}
-                                                </button>
+                                <div className='flex justify-between items-center space-x-4'>
+                                    <HoverCard key={index}>
+                                        <HoverCardTrigger asChild>
+                                            <Button variant='link' className='flex items-center'>
+                                                <img
+                                                    src={holding.holdingLogo}
+                                                    alt={holding.tokenSymbol}
+                                                    height='auto'
+                                                    width={25}
+                                                    className='mr-2'
+                                                />
+                                                <span>{holding.tokenSymbol}</span>
+                                            </Button>
+                                        </HoverCardTrigger>
+                                        <HoverCardContent className="w-80 p-3">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center space-x-2">
+                                                    <h4 className="text-sm font-semibold">{holding.tokenSymbol}</h4>
+                                                    <button onClick={() => copyToClipboard(holding.tokenAddress, 'address')}>
+                                                        {copiedId === 'address' ? <Check /> : <Copy />}
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <p>{holding.value_decimal.toFixed(3)}</p>
+                                                    <p>USD Price: {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p>{holding.value_decimal}</p>
-                                                <p>USD Price: {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}</p>
-                                            </div>
-                                        </div>
-                                    </HoverCardContent>
-                                </HoverCard>
+                                        </HoverCardContent>
+                                    </HoverCard>
+                                    <div className="flex items-center">
+                                        <span className="text-lg">{(holding.currentPrice * holding.value_decimal).toFixed(4)}</span>
+                                    </div>
+                                </div>
                                 </Card>
                             ))}
                             </>
@@ -696,6 +702,8 @@ const TxDashboardTable = () => {
                         )}
                     </CardContent>
                     <CardFooter>
+                        {/* Calculate and display total value */}
+                        Total Value: ${walletHoldings.reduce((total, holding) => total + (holding.currentPrice * holding.value_decimal), 0).toFixed(4)}
                     </CardFooter>
                 </Card>
             <Separator className='my-4' />
