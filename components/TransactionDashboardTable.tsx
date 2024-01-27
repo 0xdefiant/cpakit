@@ -90,7 +90,17 @@ const TxDashboardTable = () => {
               if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
               }
-              const data = await response.json();
+
+              let data = await response.json();
+              console.log("User Tx Data fetched: ", data);
+    
+              // Check and modify the historical token price
+              data = data.map((tx: TxMetadata) => {
+                if (tx.address === "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48") {
+                  return { ...tx, historicalTokenPrice: 1 };
+                }
+                return tx;
+              });
               console.log("User Tx Data fetched: ", data);
               setUserTXs(data);
             } catch (err) {
@@ -138,6 +148,9 @@ const TxDashboardTable = () => {
                 console.log('API response:', data);
 
                 const organizedData = data.map((item: any) => {
+                    const historicalPrice = item.token_symbol === 'usdc' ? 1 : item.historical_price;
+                    const currentPrice = item.token_symbol === 'usdc' ? 1 : item.current_price;
+    
                     return {
                         wallet: address,
                         address: item.address,
@@ -150,6 +163,8 @@ const TxDashboardTable = () => {
                         log_index: item.log_index,
                         block_timestamp: item.block_timestamp,
                         value_decimal: parseFloat(item.value_decimal),
+                        historicalPrice, // Add the historical price
+                        currentPrice
                     };
                 });
     
@@ -227,6 +242,11 @@ const TxDashboardTable = () => {
     const updatePrices = async (holdings: WalletHolding[]) => {
         return Promise.all(holdings.map(async (holding) => {
             const cacheKey = holding.tokenAddress;
+                    // Check if the address matches the specified one and return with currentPrice as 1
+            if (cacheKey === "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48") {
+                return { ...holding, currentPrice: 1 };
+            }
+
             if (priceCache[cacheKey]) {
                 return { ...holding, currentPrice: priceCache[cacheKey] };
             }
