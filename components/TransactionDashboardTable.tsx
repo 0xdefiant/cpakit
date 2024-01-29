@@ -687,7 +687,7 @@ const TxDashboardTable = () => {
                                         <HoverCardTrigger asChild>
                                             <Button variant='link' className='flex items-center'>
                                                 <img
-                                                    src={holding.holdingLogo}
+                                                    src={holding.holdingLogo || '/logoAndName.png'}
                                                     alt={holding.tokenSymbol}
                                                     height='auto'
                                                     width={25}
@@ -711,6 +711,9 @@ const TxDashboardTable = () => {
                                             </div>
                                         </HoverCardContent>
                                     </HoverCard>
+                                    <div>
+                                        {formatAddress(holding.walletAddress)}
+                                    </div>
                                     <div className="flex items-center">
                                         <span className="text-lg">{(holding.currentPrice * holding.value_decimal).toFixed(4)}</span>
                                     </div>
@@ -741,9 +744,8 @@ const TxDashboardTable = () => {
                             <TableHead>Details</TableHead>
                             <TableHead>Units</TableHead>
                             <TableHead>Price at Date</TableHead>
-                            <TableHead>Basis</TableHead>
-                            <TableHead>Sale Price</TableHead>
-                            <TableHead className="text-right">FMV</TableHead>
+                            <TableHead className='text-right'>Basis</TableHead>
+                            <TableHead className="text-right">Sales Price</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -752,7 +754,6 @@ const TxDashboardTable = () => {
                                 <TableCell><Skeleton className="w-[60px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="w-[100px] h-[20px] rounded-full" /></TableCell>
-                                <TableCell><Skeleton className="w-[40px] h-[20px] rounded-full" /></TableCell>
                                 <TableCell className=''>
                                     <div className="flex justify-end">
                                         <Skeleton className="w-[60px] h-[20px] rounded-full" />
@@ -780,9 +781,8 @@ const TxDashboardTable = () => {
                                 <TableHead>Details</TableHead>
                                 <TableHead>Units</TableHead>
                                 <TableHead>Price at Date</TableHead>
-                                <TableHead>Basis</TableHead>
-                                <TableHead>Sale Price</TableHead>
-                                <TableHead className="text-right">FMV</TableHead>
+                                <TableHead className="text-right">Basis</TableHead>
+                                <TableHead className="text-right">Sales Price</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -803,9 +803,9 @@ const TxDashboardTable = () => {
                                         <TableCell>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
-                                                <Button variant='link' style={{ marginLeft: '-14px' }}>
+                                                <Button variant='link'>
                                                     <img
-                                                        src={metaData.tokenLogo || EthereumIcon}
+                                                        src={metaData.tokenLogo || '/logoAndName.png'}
                                                         height={25}
                                                         width={25}
                                                         className='mr-2'
@@ -852,7 +852,7 @@ const TxDashboardTable = () => {
                                         </TableCell>
 
                                         <TableCell>
-                                            <div className='flex flex-col items-center' style={{ marginLeft: '-20px' }}>
+                                            <div className='flex flex-col items-start'>
                                             <Badge className='mb-2' variant={badgeVariant as any}>
                                                 {badgeVariant === "destructive" ? "out" : badgeVariant === "inflow" ? "in" : ""}
                                             </Badge>
@@ -872,15 +872,15 @@ const TxDashboardTable = () => {
                                                 <HistoricalPriceButton index={index} tokenSymbol={metaData.tokenSymbol} blockTimestamp={metaData.block_timestamp} contractAddress={metaData.address} />
                                             )}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className='text-right'>
                                             {typeof metaData.costBasis === 'number' ? (
                                                 <div>${metaData.costBasis.toFixed(2)}</div>
                                             ) : (
                                                 <HoverCard>
                                                     <HoverCardTrigger asChild>
                                                         <Button variant="link">
-                                                            <div style={{ marginLeft: '-14px' }}>
-                                                                <Skeleton className="w-[60px] h-[20px] rounded-full" />
+                                                            <div>
+                                                                -
                                                             </div>
                                                         </Button>
                                                     </HoverCardTrigger>
@@ -900,14 +900,14 @@ const TxDashboardTable = () => {
                                                 </HoverCard>
                                             )}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className='text-right'>
                                             {typeof metaData.salePrice === 'number' ? (
                                                 <div>${metaData.salePrice.toFixed(2)}</div>
                                             ) : (
                                                 <HoverCard>
                                                     <HoverCardTrigger asChild>
                                                         <Button variant="link">
-                                                        <Skeleton className="text-right w-[60px] h-[20px] rounded-full" />
+                                                            -
                                                         </Button>
                                                     </HoverCardTrigger>
                                                     <HoverCardContent className="w-80">
@@ -924,13 +924,6 @@ const TxDashboardTable = () => {
                                                         </div>
                                                     </HoverCardContent>
                                                 </HoverCard>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {typeof metaData.usdPrice === 'number' ? (
-                                                <div>${metaData.usdPrice.toFixed(2)}</div>
-                                            ) : (
-                                                <CurrentPriceButton index={index} address={metaData.address} />
                                             )}
                                         </TableCell>
                                     </TableRow>
@@ -940,8 +933,7 @@ const TxDashboardTable = () => {
 
                         <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={4}>Total Tx Value</TableCell>
-                                <TableCell colSpan={2}>Historical</TableCell>
+                                <TableCell colSpan={5}>Total Tx Value</TableCell>
                                 <TableCell className="text-right">{formatDecimal(TxTotal())}</TableCell>
                             </TableRow>
                         </TableFooter>
