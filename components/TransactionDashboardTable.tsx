@@ -681,7 +681,7 @@ const TxDashboardTable = () => {
                                 </div>
                                 Total Value: ${walletHoldings.reduce((total, holding) => total + (holding.currentPrice * holding.value_decimal), 0).toFixed(4)}
                                 {walletHoldings.map((holding, index) => (
-                                <Card>
+                                <Card key={index}>
                                 <div className='flex justify-between items-center space-x-4'>
                                     <HoverCard key={index}>
                                         <HoverCardTrigger asChild>
