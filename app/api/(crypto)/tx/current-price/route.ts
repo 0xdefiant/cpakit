@@ -1,4 +1,4 @@
-const apikey = process.env.MORALIS_API_KEY;
+const apikey = process.env.COIN_MARKET_CAP_API_KEY;
 
 const cache: { [key: string]: any } = {};
 // Function to check if the cache is stale (e.g., data older than 20 minutes)
@@ -8,22 +8,22 @@ function isCacheStale(timestamp: number) {
 
 export async function GET(request: Request) {
     const url = new URL(request.url);
-    const address = url.searchParams.get('address');
-    console.log("Token Address received in API route: ", address);
+    const symbol = url.searchParams.get('symbol'); // Get symbol from URL
+    console.log("Symbol received in API route: ", symbol);
 
-    if (!address) {
+    if (!symbol) {
         return new Response(JSON.stringify({ error: 'Symbol is required' }), {
             status: 400,
             headers: {
               'Content-Type': 'application/json'
             }
-          });
+        });
     }
 
     // Check cache first
-    if (cache[address] && !isCacheStale(cache[address].timestamp)) {
+    if (cache[symbol] && !isCacheStale(cache[symbol].timestamp)) {
         console.log("Returning cached data");
-        return new Response(JSON.stringify({ priceJson: cache[address].data }), {
+        return new Response(JSON.stringify(cache[symbol].data), {
             status: 200,
             headers: {
                 'Content-type': 'application/json'
@@ -31,28 +31,46 @@ export async function GET(request: Request) {
         });
     }
 
-    const priceResponse = await fetch(`https://deep-index.moralis.io/api/v2.2/erc20/${address}/price?chain=eth&include=percent_change`, {
+    // CoinMarketCap API endpoint
+    const cmcEndpoint = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest`;
+
+    // Fetch price data from CoinMarketCap
+    const priceResponse = await fetch(`${cmcEndpoint}?symbol=${symbol}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
-            'X-API-Key': apikey,
+            'X-CMC_PRO_API_Key': apikey,
         },
     });
 
     if (!priceResponse.ok) {
-        throw new Error(`CP Error Fetching Price Data: ${priceResponse.status}`)
+        throw new Error(`Error Fetching Price Data: ${priceResponse.status}`);
     }
 
-    const priceJson = await priceResponse.json();
-    console.log("Price Response: ", priceJson)
+    const rawPriceJson = await priceResponse.json();
+    console.log("Raw CMC Response: ", rawPriceJson);
 
+    const correctCaseSymbol = Object.keys(rawPriceJson.data).find(key => key.toLowerCase() === symbol.toLowerCase());
+
+    if (!correctCaseSymbol) {
+        return new Response(JSON.stringify({ error: 'Symbol not found in CMC response' }), {
+            status: 404,
+            headers: {
+                'Content-type': 'application/json'
+            }
+        });
+    }
+
+    const priceJson = rawPriceJson.data[correctCaseSymbol].quote.USD.price; // Extract USD price
+    console.log("Price Response: ", priceJson)
+    
     // Update cache
-    cache[address] = {
+    cache[symbol] = {
         timestamp: Date.now(),
         data: priceJson
     };
 
-    return new Response(JSON.stringify({ priceJson }), {
+    return new Response(JSON.stringify(priceJson), {
         status: 200,
         headers: {
             'Content-type': 'application/json'

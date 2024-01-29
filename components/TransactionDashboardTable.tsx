@@ -241,9 +241,9 @@ const TxDashboardTable = () => {
 
     const updatePrices = async (holdings: WalletHolding[]) => {
         return Promise.all(holdings.map(async (holding) => {
-            const cacheKey = holding.tokenAddress;
+            const cacheKey = holding.tokenSymbol;
                     // Check if the address matches the specified one and return with currentPrice as 1
-            if (cacheKey === "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48") {
+            if (cacheKey === "USDC") {
                 return { ...holding, currentPrice: 1 };
             }
 
@@ -252,7 +252,7 @@ const TxDashboardTable = () => {
             }
     
             try {
-                const priceResponse = await fetch(`/api/tx/current-price?address=${encodeURIComponent(cacheKey)}`, {
+                const priceResponse = await fetch(`/api/tx/current-price?symbol=${encodeURIComponent(cacheKey)}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -263,8 +263,8 @@ const TxDashboardTable = () => {
                     throw new Error(`CP Error Fetching Price Data: ${priceResponse.status}`);
                 }
     
-                const priceBody = await priceResponse.json();
-                const price = priceBody.priceJson.usdPrice;
+                const price = await priceResponse.json();
+                console.log("Current Price Json response: ", price)
                 priceCache[cacheKey] = price; // Cache the price
                 return { ...holding, currentPrice: price };
             } catch (error) {
@@ -679,6 +679,7 @@ const TxDashboardTable = () => {
                                 <div className="pie-chart-container" style={{ height: '300px' }}>
                                     <Pie data={pieChartData} options={pieChartOptions} />
                                 </div>
+                                Total Value: ${walletHoldings.reduce((total, holding) => total + (holding.currentPrice * holding.value_decimal), 0).toFixed(4)}
                                 {walletHoldings.map((holding, index) => (
                                 <Card>
                                 <div className='flex justify-between items-center space-x-4'>
@@ -722,8 +723,6 @@ const TxDashboardTable = () => {
                         )}
                     </CardContent>
                     <CardFooter>
-                        {/* Calculate and display total value */}
-                        Total Value: ${walletHoldings.reduce((total, holding) => total + (holding.currentPrice * holding.value_decimal), 0).toFixed(4)}
                     </CardFooter>
                 </Card>
             <Separator className='my-4' />
