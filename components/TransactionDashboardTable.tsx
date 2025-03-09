@@ -15,7 +15,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import EthereumIcon from 'cryptocurrency-icons/svg/icon/eth.svg'
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 
@@ -235,6 +234,10 @@ const TxDashboardTable = () => {
     
         updateHoldings();
     }, [TxMetadata]);
+
+    // Write a function that sends POST request with the body of the TxMetadata to an API endpoint called 'api/8949'. This API endpoint should take the transaction metadata
+    // and perform logic on the data and return a pdf with the logic completed.
+    // Below is the 8949 route.ts file that I have created thusfar:
 
 
     const priceCache: { [key: string]: number } = {};
